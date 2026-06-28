@@ -8,15 +8,16 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --gevla-green: #39A900;
             --gevla-green-dark: #247200;
             --gevla-green-soft: rgba(57, 169, 0, 0.14);
+            --gevla-navy: #00324D;
         }
 
-        * { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
+        * { font-family: 'Work Sans', ui-sans-serif, system-ui, sans-serif; }
 
         @keyframes fadeSlideUp {
             from { opacity: 0; transform: translateY(22px); }
@@ -31,9 +32,11 @@
             box-shadow: 0 0 0 4px rgba(57, 169, 0, 0.12);
         }
 
-        .role-card input:checked + span .role-dot { background: var(--gevla-green); border-color: var(--gevla-green); }
+        .role-card input:checked + span .role-dot { border-color: var(--gevla-green); }
         .role-card input:checked + span .role-dot::after { opacity: 1; }
+        .role-dot::after { background: var(--gevla-green); } /* antes quedaba bg-white sobre blanco = invisible */
 
+        /* ---------- Carrusel: overlay con paleta institucional, no slate/negro genérico ---------- */
         .carousel-slide {
             opacity: 0;
             transform: scale(1.04);
@@ -45,10 +48,38 @@
             transform: scale(1);
         }
 
+        /* Degradado direccional: oscuro donde vive el texto (izq/abajo), más abierto hacia
+           donde está el sujeto de la foto (centro/derecha). Azul institucional #00324D en vez
+           de slate-950, con el verde solo como acento, no como tinte dominante. */
+        .carousel-overlay {
+            background: linear-gradient(
+            115deg,
+            rgba(0, 50, 77, 0.55) 0%,
+            rgba(0, 50, 77, 0.38) 30%,
+            rgba(0, 50, 77, 0.18) 55%,
+            rgba(57, 169, 0, 0.10) 100%);
+        }
+
+        .carousel-vignette {
+            background: radial-gradient(circle at 16% 22%, rgba(57, 169, 0, 0.22), transparent 36%);
+        }
+
         .carousel-dot.is-active {
             width: 2rem;
             background: var(--gevla-green);
         }
+
+        /* Sombra de texto sutil: asegura legibilidad del párrafo aunque la foto tenga zonas claras */
+        .copy-on-photo {
+            text-shadow: 0 1px 12px rgba(0, 0, 0, 0.35);
+        }
+
+        .btn-primary {
+            background: var(--gevla-green);
+            box-shadow: 0 10px 24px -10px rgba(57, 169, 0, 0.55);
+        }
+        .btn-primary:hover { background: var(--gevla-green-dark); }
+        .btn-primary:focus { box-shadow: 0 0 0 4px rgba(57, 169, 0, 0.18); }
     </style>
 </head>
 <body class="min-h-screen overflow-x-hidden bg-slate-950 text-slate-900">
@@ -56,8 +87,8 @@
         <div class="carousel-slide is-active absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1800&q=85');" data-carousel-slide></div>
         <div class="carousel-slide absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1800&q=85');" data-carousel-slide></div>
         <div class="carousel-slide absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1800&q=85');" data-carousel-slide></div>
-        <div class="absolute inset-0 bg-gradient-to-br from-slate-950/82 via-slate-950/56 to-[#39A900]/62"></div>
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(57,169,0,0.28),transparent_34%)]"></div>
+        <div class="carousel-overlay absolute inset-0"></div>
+        <div class="carousel-vignette absolute inset-0"></div>
     </section>
 
     <main class="login-shell relative z-10 mx-auto grid min-h-screen w-full max-w-6xl items-center gap-8 px-4 py-8 lg:grid-cols-[1fr_480px]">
@@ -66,8 +97,8 @@
                 <span class="h-2.5 w-2.5 rounded-full bg-[#39A900]"></span>
                 Plataforma institucional SENA
             </div>
-            <h1 class="text-6xl font-extrabold tracking-tight">GEVLA</h1>
-            <p class="mt-5 max-w-lg text-lg leading-8 text-white/85">
+            <h1 class="copy-on-photo text-6xl font-extrabold tracking-tight">GEVLA</h1>
+            <p class="copy-on-photo mt-5 max-w-lg text-lg leading-8 text-white/90">
                 Acceso seguro por rol para aprendices, instructores y coordinadores del sistema de seguimiento disciplinario y formativo.
             </p>
 
@@ -78,18 +109,14 @@
             </div>
         </section>
 
-        <section class="mx-auto w-full max-w-[480px] rounded-lg border border-white/70 bg-white/95 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.32)] backdrop-blur sm:p-8">
+        <section class="mx-auto w-full max-w-[480px] rounded-lg border border-white/70 bg-white/97 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.32)] backdrop-blur sm:p-8">
             <div class="mb-7 flex items-center gap-4">
-                <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Logo_del_SENA.svg/512px-Logo_del_SENA.svg.png"
-                    alt="Logo SENA"
-                    class="h-14 w-14 object-contain"
-                >
-                <div>
-                    <p class="text-3xl font-extrabold tracking-tight text-[#39A900]">GEVLA</p>
-                    <p class="text-sm font-medium text-slate-500">Inicio de sesion por rol</p>
-                </div>
-            </div>
+    <img src="https://oficinavirtualderadicacion.sena.edu.co/oficinavirtual/Resources/logoSenaNaranja.png" alt="Logosímbolo SENA" class="h-12 w-auto">
+    <div>
+        <p class="text-3xl font-extrabold tracking-tight text-[#39A900]">GEVLA</p>
+        <p class="text-sm font-medium text-slate-500">Inicio de sesion por rol</p>
+    </div>
+</div>
 
             @if ($errors->has('login'))
                 <div class="mb-5 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
@@ -115,7 +142,7 @@
                             <label class="role-card cursor-pointer">
                                 <input type="radio" name="role" value="{{ $role }}" class="sr-only" @checked($selectedRole === $role)>
                                 <span class="flex h-full min-h-[86px] flex-col justify-between rounded-lg border border-slate-200 bg-white px-3 py-3 transition">
-                                    <span class="role-dot relative h-4 w-4 rounded-full border border-slate-300 bg-white transition after:absolute after:left-1/2 after:top-1/2 after:h-1.5 after:w-1.5 after:-translate-x-1/2 after:-translate-y-1/2 after:rounded-full after:bg-white after:opacity-0"></span>
+                                    <span class="role-dot relative h-4 w-4 rounded-full border border-slate-300 bg-white transition after:absolute after:left-1/2 after:top-1/2 after:h-1.5 after:w-1.5 after:-translate-x-1/2 after:-translate-y-1/2 after:rounded-full after:opacity-0 after:transition-opacity"></span>
                                     <span class="mt-3 text-sm font-bold text-slate-800">{{ $role }}</span>
                                 </span>
                             </label>
@@ -168,7 +195,7 @@
                     </label>
                 </div>
 
-                <button type="submit" class="w-full rounded-lg bg-[#39A900] px-4 py-3 text-sm font-bold text-white shadow-lg shadow-green-200 transition hover:bg-[#2f8f00] focus:outline-none focus:ring-4 focus:ring-green-100">
+                <button type="submit" class="btn-primary w-full rounded-lg px-4 py-3 text-sm font-bold text-white transition focus:outline-none">
                     Ingresar a GEVLA
                 </button>
             </form>
