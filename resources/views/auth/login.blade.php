@@ -6,6 +6,7 @@
     <meta name="description" content="GEVLA - Inicio de sesion para aprendices, instructores y coordinadores del SENA.">
     <title>GEVLA | Iniciar sesion</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -32,6 +33,7 @@
             box-shadow: 0 0 0 4px rgba(57, 169, 0, 0.12);
         }
 
+        .role-card input:checked + span .role-icon { color: var(--gevla-green); }
         .role-card input:checked + span .role-dot { border-color: var(--gevla-green); }
         .role-card input:checked + span .role-dot::after { opacity: 1; }
         .role-dot::after { background: var(--gevla-green); } /* antes quedaba bg-white sobre blanco = invisible */
@@ -134,21 +136,22 @@
             <form method="POST" action="{{ url('/login') }}" id="login-form" class="space-y-5">
                 @csrf
 
-                <fieldset>
-                    <legend class="mb-3 text-sm font-semibold text-slate-700">Selecciona tu rol</legend>
-                    <div class="grid gap-3 sm:grid-cols-3">
-                        @php($selectedRole = old('role', 'Aprendiz'))
-                        @foreach (['Aprendiz', 'Instructor', 'Coordinador'] as $role)
-                            <label class="role-card cursor-pointer">
-                                <input type="radio" name="role" value="{{ $role }}" class="sr-only" @checked($selectedRole === $role)>
-                                <span class="flex h-full min-h-[86px] flex-col justify-between rounded-lg border border-slate-200 bg-white px-3 py-3 transition">
-                                    <span class="role-dot relative h-4 w-4 rounded-full border border-slate-300 bg-white transition after:absolute after:left-1/2 after:top-1/2 after:h-1.5 after:w-1.5 after:-translate-x-1/2 after:-translate-y-1/2 after:rounded-full after:opacity-0 after:transition-opacity"></span>
-                                    <span class="mt-3 text-sm font-bold text-slate-800">{{ $role }}</span>
-                                </span>
-                            </label>
-                        @endforeach
-                    </div>
-                </fieldset>
+               <fieldset>
+    <legend class="mb-3 text-sm font-semibold text-slate-700">Selecciona tu rol</legend>
+    <div class="grid gap-3 sm:grid-cols-3">
+        @php($selectedRole = old('role', 'Aprendiz'))
+        @php($roleIcons = ['Aprendiz' => 'ri-graduation-cap-line', 'Instructor' => 'ri-presentation-line', 'Coordinador' => 'ri-shield-user-line'])
+        @foreach (['Aprendiz', 'Instructor', 'Coordinador'] as $role)
+            <label class="role-card cursor-pointer">
+                <input type="radio" name="role" value="{{ $role }}" class="sr-only" @checked($selectedRole === $role)>
+                <span class="flex h-full min-h-[70px] flex-col items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2 py-2 text-center transition">
+                    <i class="{{ $roleIcons[$role] }} role-icon text-3xl text-slate-400 transition"></i>
+                    <span class="text-sm font-bold text-slate-800">{{ $role }}</span>
+                </span>
+            </label>
+        @endforeach
+    </div>
+</fieldset>
 
                 <div>
                     <label for="username" class="mb-2 block text-sm font-semibold text-slate-700">Correo personal</label>
