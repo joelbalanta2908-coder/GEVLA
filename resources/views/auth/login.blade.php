@@ -81,7 +81,7 @@
         <section class="mx-auto w-full max-w-[480px] rounded-lg border border-white/70 bg-white/95 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.32)] backdrop-blur sm:p-8">
             <div class="mb-7 flex items-center gap-4">
                 <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Logo_del_SENA.svg/512px-Logo_del_SENA.svg.png"
+                    src="https://oficinavirtualderadicacion.sena.edu.co/oficinavirtual/Resources/logoSenaNaranja.png"
                     alt="Logo SENA"
                     class="h-14 w-14 object-contain"
                 >
