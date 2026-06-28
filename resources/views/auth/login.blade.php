@@ -10,56 +10,75 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
-        body {
-            background:
-                radial-gradient(circle at 12% 18%, rgba(57, 169, 0, 0.12), transparent 30%),
-                linear-gradient(135deg, #f7faf7 0%, #eef4f1 48%, #f8fafc 100%);
+        :root {
+            --gevla-green: #39A900;
+            --gevla-green-dark: #247200;
+            --gevla-green-soft: rgba(57, 169, 0, 0.14);
         }
+
+        * { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
+
         @keyframes fadeSlideUp {
             from { opacity: 0; transform: translateY(22px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
         .login-shell { animation: fadeSlideUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
         .role-card input:checked + span {
-            border-color: #39A900;
+            border-color: var(--gevla-green);
             background: #f0fdf4;
             box-shadow: 0 0 0 4px rgba(57, 169, 0, 0.12);
         }
-        .role-card input:checked + span .role-dot { background: #39A900; border-color: #39A900; }
+
+        .role-card input:checked + span .role-dot { background: var(--gevla-green); border-color: var(--gevla-green); }
         .role-card input:checked + span .role-dot::after { opacity: 1; }
+
+        .carousel-slide {
+            opacity: 0;
+            transform: scale(1.04);
+            transition: opacity 750ms ease, transform 1200ms ease;
+        }
+
+        .carousel-slide.is-active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .carousel-dot.is-active {
+            width: 2rem;
+            background: var(--gevla-green);
+        }
     </style>
 </head>
-<body class="min-h-screen px-4 py-8 text-slate-900">
-    <main class="login-shell mx-auto grid min-h-[calc(100vh-4rem)] w-full max-w-6xl items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-        <section class="hidden lg:block">
-            <div class="max-w-xl">
-                <div class="mb-8 inline-flex items-center gap-3 rounded-full border border-emerald-200 bg-white/80 px-4 py-2 text-sm font-semibold text-emerald-700 shadow-sm">
-                    <span class="h-2.5 w-2.5 rounded-full bg-[#39A900]"></span>
-                    Plataforma institucional SENA
-                </div>
-                <h1 class="text-6xl font-extrabold tracking-tight text-slate-950">GEVLA</h1>
-                <p class="mt-5 max-w-lg text-lg leading-8 text-slate-600">
-                    Gestiona el acceso por rol al sistema de seguimiento disciplinario y formativo con una experiencia clara, segura y profesional.
-                </p>
-                <div class="mt-10 grid max-w-lg grid-cols-3 gap-3">
-                    <div class="rounded-lg border border-white bg-white/75 p-4 shadow-sm">
-                        <p class="text-2xl font-bold text-slate-950">01</p>
-                        <p class="mt-1 text-sm font-medium text-slate-500">Aprendiz</p>
-                    </div>
-                    <div class="rounded-lg border border-white bg-white/75 p-4 shadow-sm">
-                        <p class="text-2xl font-bold text-slate-950">02</p>
-                        <p class="mt-1 text-sm font-medium text-slate-500">Instructor</p>
-                    </div>
-                    <div class="rounded-lg border border-white bg-white/75 p-4 shadow-sm">
-                        <p class="text-2xl font-bold text-slate-950">03</p>
-                        <p class="mt-1 text-sm font-medium text-slate-500">Coordinador</p>
-                    </div>
-                </div>
+<body class="min-h-screen overflow-x-hidden bg-slate-950 text-slate-900">
+    <section class="fixed inset-0 z-0" aria-label="Carrusel de fondo GEVLA">
+        <div class="carousel-slide is-active absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1800&q=85');" data-carousel-slide></div>
+        <div class="carousel-slide absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1800&q=85');" data-carousel-slide></div>
+        <div class="carousel-slide absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1800&q=85');" data-carousel-slide></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-slate-950/82 via-slate-950/56 to-[#39A900]/62"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(57,169,0,0.28),transparent_34%)]"></div>
+    </section>
+
+    <main class="login-shell relative z-10 mx-auto grid min-h-screen w-full max-w-6xl items-center gap-8 px-4 py-8 lg:grid-cols-[1fr_480px]">
+        <section class="hidden max-w-xl text-white lg:block">
+            <div class="mb-8 inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/15 px-4 py-2 text-sm font-bold backdrop-blur">
+                <span class="h-2.5 w-2.5 rounded-full bg-[#39A900]"></span>
+                Plataforma institucional SENA
+            </div>
+            <h1 class="text-6xl font-extrabold tracking-tight">GEVLA</h1>
+            <p class="mt-5 max-w-lg text-lg leading-8 text-white/85">
+                Acceso seguro por rol para aprendices, instructores y coordinadores del sistema de seguimiento disciplinario y formativo.
+            </p>
+
+            <div class="mt-10 flex items-center gap-3" aria-label="Indicadores del carrusel">
+                <button type="button" class="carousel-dot is-active h-2.5 w-2.5 rounded-full bg-white/70 transition-all" aria-label="Ver imagen 1" data-carousel-dot="0"></button>
+                <button type="button" class="carousel-dot h-2.5 w-2.5 rounded-full bg-white/70 transition-all" aria-label="Ver imagen 2" data-carousel-dot="1"></button>
+                <button type="button" class="carousel-dot h-2.5 w-2.5 rounded-full bg-white/70 transition-all" aria-label="Ver imagen 3" data-carousel-dot="2"></button>
             </div>
         </section>
 
-        <section class="mx-auto w-full max-w-[480px] rounded-2xl border border-white bg-white/95 p-6 shadow-[0_24px_70px_rgba(15,23,42,0.14)] sm:p-8">
+        <section class="mx-auto w-full max-w-[480px] rounded-lg border border-white/70 bg-white/95 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.32)] backdrop-blur sm:p-8">
             <div class="mb-7 flex items-center gap-4">
                 <img
                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Logo_del_SENA.svg/512px-Logo_del_SENA.svg.png"
@@ -160,6 +179,12 @@
         </section>
     </main>
 
+    <div class="pointer-events-none fixed bottom-6 left-1/2 z-20 flex -translate-x-1/2 items-center gap-3 lg:hidden" aria-hidden="true">
+        <span class="carousel-dot is-active h-2.5 w-2.5 rounded-full bg-white/70 transition-all" data-carousel-dot-mobile="0"></span>
+        <span class="carousel-dot h-2.5 w-2.5 rounded-full bg-white/70 transition-all" data-carousel-dot-mobile="1"></span>
+        <span class="carousel-dot h-2.5 w-2.5 rounded-full bg-white/70 transition-all" data-carousel-dot-mobile="2"></span>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const toggleBtn = document.getElementById('toggle-password');
@@ -173,6 +198,48 @@
                 iconOpen.classList.toggle('hidden', isPassword);
                 iconClosed.classList.toggle('hidden', !isPassword);
             });
+
+            const slides = Array.from(document.querySelectorAll('[data-carousel-slide]'));
+            const dots = Array.from(document.querySelectorAll('[data-carousel-dot], [data-carousel-dot-mobile]'));
+            let activeIndex = 0;
+            let intervalId;
+
+            function showSlide(index) {
+                activeIndex = (index + slides.length) % slides.length;
+
+                slides.forEach((slide, slideIndex) => {
+                    slide.classList.toggle('is-active', slideIndex === activeIndex);
+                });
+
+                dots.forEach((dot) => {
+                    const dotIndex = Number(dot.dataset.carouselDot ?? dot.dataset.carouselDotMobile);
+                    dot.classList.toggle('is-active', dotIndex === activeIndex);
+                });
+            }
+
+            function startCarousel() {
+                intervalId = window.setInterval(() => showSlide(activeIndex + 1), 5000);
+            }
+
+            function restartCarousel() {
+                window.clearInterval(intervalId);
+                startCarousel();
+            }
+
+            dots.forEach((dot) => {
+                if (dot.dataset.carouselDot === undefined) {
+                    return;
+                }
+
+                dot.addEventListener('click', function () {
+                    showSlide(Number(dot.dataset.carouselDot));
+                    restartCarousel();
+                });
+            });
+
+            if (slides.length > 1) {
+                startCarousel();
+            }
         });
     </script>
 </body>
