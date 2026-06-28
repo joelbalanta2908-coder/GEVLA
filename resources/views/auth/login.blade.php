@@ -113,12 +113,25 @@
 
         <section class="mx-auto w-full max-w-[480px] rounded-lg border border-white/70 bg-white/97 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.32)] backdrop-blur sm:p-8">
             <div class="mb-7 flex items-center gap-4">
+<<<<<<< HEAD
+                <img
+                    src="https://oficinavirtualderadicacion.sena.edu.co/oficinavirtual/Resources/logoSenaNaranja.png"
+                    alt="Logo SENA"
+                    class="h-14 w-14 object-contain"
+                >
+                <div>
+                    <p class="text-3xl font-extrabold tracking-tight text-[#39A900]">GEVLA</p>
+                    <p class="text-sm font-medium text-slate-500">Inicio de sesion por rol</p>
+                </div>
+            </div>
+=======
     <img src="https://oficinavirtualderadicacion.sena.edu.co/oficinavirtual/Resources/logoSenaNaranja.png" alt="Logosímbolo SENA" class="h-12 w-auto">
     <div>
         <p class="text-3xl font-extrabold tracking-tight text-[#39A900]">GEVLA</p>
         <p class="text-sm font-medium text-slate-500">Inicio de sesion por rol</p>
     </div>
 </div>
+>>>>>>> 7de096f261bd0d7a63e8121250cc878cf478b0d5
 
             @if ($errors->has('login'))
                 <div class="mb-5 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
