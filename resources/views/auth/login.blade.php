@@ -34,9 +34,6 @@
         }
 
         .role-card input:checked + span .role-icon { color: var(--gevla-green); }
-        .role-card input:checked + span .role-dot { border-color: var(--gevla-green); }
-        .role-card input:checked + span .role-dot::after { opacity: 1; }
-        .role-dot::after { background: var(--gevla-green); } /* antes quedaba bg-white sobre blanco = invisible */
 
         /* ---------- Carrusel: overlay con paleta institucional, no slate/negro genérico ---------- */
         .carousel-slide {
@@ -55,11 +52,12 @@
            de slate-950, con el verde solo como acento, no como tinte dominante. */
         .carousel-overlay {
             background: linear-gradient(
-            115deg,
-            rgba(0, 50, 77, 0.55) 0%,
-            rgba(0, 50, 77, 0.38) 30%,
-            rgba(0, 50, 77, 0.18) 55%,
-            rgba(57, 169, 0, 0.10) 100%);
+                115deg,
+                rgba(0, 50, 77, 0.55) 0%,
+                rgba(0, 50, 77, 0.38) 30%,
+                rgba(0, 50, 77, 0.18) 55%,
+                rgba(57, 169, 0, 0.10) 100%
+            );
         }
 
         .carousel-vignette {
@@ -113,25 +111,12 @@
 
         <section class="mx-auto w-full max-w-[480px] rounded-lg border border-white/70 bg-white/97 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.32)] backdrop-blur sm:p-8">
             <div class="mb-7 flex items-center gap-4">
-<<<<<<< HEAD
-                <img
-                    src="https://oficinavirtualderadicacion.sena.edu.co/oficinavirtual/Resources/logoSenaNaranja.png"
-                    alt="Logo SENA"
-                    class="h-14 w-14 object-contain"
-                >
+                <img src="https://oficinavirtualderadicacion.sena.edu.co/oficinavirtual/Resources/logoSenaNaranja.png" alt="Logosímbolo SENA" class="h-14 w-auto sm:h-16">
                 <div>
                     <p class="text-3xl font-extrabold tracking-tight text-[#39A900]">GEVLA</p>
                     <p class="text-sm font-medium text-slate-500">Inicio de sesion por rol</p>
                 </div>
             </div>
-=======
-    <img src="https://oficinavirtualderadicacion.sena.edu.co/oficinavirtual/Resources/logoSenaNaranja.png" alt="Logosímbolo SENA" class="h-12 w-auto">
-    <div>
-        <p class="text-3xl font-extrabold tracking-tight text-[#39A900]">GEVLA</p>
-        <p class="text-sm font-medium text-slate-500">Inicio de sesion por rol</p>
-    </div>
-</div>
->>>>>>> 7de096f261bd0d7a63e8121250cc878cf478b0d5
 
             @if ($errors->has('login'))
                 <div class="mb-5 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
@@ -149,22 +134,22 @@
             <form method="POST" action="{{ url('/login') }}" id="login-form" class="space-y-5">
                 @csrf
 
-               <fieldset>
-    <legend class="mb-3 text-sm font-semibold text-slate-700">Selecciona tu rol</legend>
-    <div class="grid gap-3 sm:grid-cols-3">
-        @php($selectedRole = old('role', 'Aprendiz'))
-        @php($roleIcons = ['Aprendiz' => 'ri-graduation-cap-line', 'Instructor' => 'ri-presentation-line', 'Coordinador' => 'ri-shield-user-line'])
-        @foreach (['Aprendiz', 'Instructor', 'Coordinador'] as $role)
-            <label class="role-card cursor-pointer">
-                <input type="radio" name="role" value="{{ $role }}" class="sr-only" @checked($selectedRole === $role)>
-                <span class="flex h-full min-h-[70px] flex-col items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2 py-2 text-center transition">
-                    <i class="{{ $roleIcons[$role] }} role-icon text-3xl text-slate-400 transition"></i>
-                    <span class="text-sm font-bold text-slate-800">{{ $role }}</span>
-                </span>
-            </label>
-        @endforeach
-    </div>
-</fieldset>
+                <fieldset>
+                    <legend class="mb-3 text-sm font-semibold text-slate-700">Selecciona tu rol</legend>
+                    <div class="grid gap-3 sm:grid-cols-3">
+                        @php($selectedRole = old('role', 'Aprendiz'))
+                        @php($roleIcons = ['Aprendiz' => 'ri-graduation-cap-line', 'Instructor' => 'ri-presentation-line', 'Coordinador' => 'ri-shield-user-line'])
+                        @foreach (['Aprendiz', 'Instructor', 'Coordinador'] as $role)
+                            <label class="role-card cursor-pointer">
+                                <input type="radio" name="role" value="{{ $role }}" class="sr-only" @checked($selectedRole === $role)>
+                                <span class="flex h-full min-h-[70px] flex-col items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2 py-2 text-center transition">
+                                    <i class="{{ $roleIcons[$role] }} role-icon text-3xl text-slate-400 transition"></i>
+                                    <span class="text-sm font-bold text-slate-800">{{ $role }}</span>
+                                </span>
+                            </label>
+                        @endforeach
+                    </div>
+                </fieldset>
 
                 <div>
                     <label for="username" class="mb-2 block text-sm font-semibold text-slate-700">Correo personal</label>
