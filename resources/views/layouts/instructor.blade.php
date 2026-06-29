@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-gray-50">
+<html lang="es" class="h-full bg-[#f5f7f2]">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,14 +9,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <style>
         * { font-family: 'Work Sans', ui-sans-serif, system-ui, sans-serif; }
     </style>
 </head>
-<body class="h-full font-sans antialiased text-gray-900">
+<body class="h-full bg-[#f5f7f2] font-sans antialiased text-slate-900">
 
-<div x-data="{ sidebarOpen: false }" class="min-h-screen lg:flex">
+<div x-data="{ sidebarOpen: false, profileMenuOpen: false, profileModalOpen: false }" class="min-h-screen bg-[#f5f7f2] lg:flex">
 
     {{-- Overlay para móvil --}}
     <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false"
@@ -25,15 +24,19 @@
     {{-- Sidebar --}}
     <aside
         :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
-        class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-white border-r border-gray-200
-               transform transition-transform duration-200 lg:static lg:translate-x-0 shadow-sm">
+        class="fixed inset-y-0 left-0 z-40 flex w-52 flex-col transform border-r border-white/10 bg-gradient-to-b from-[#1e6a00] via-[#2a7a00] to-[#4db100] text-white shadow-[0_30px_70px_rgba(25,80,0,0.32)] transition-transform duration-200 lg:static lg:translate-x-0">
 
-        <div class="flex h-16 items-center gap-3 border-b border-gray-100 px-6">
-            <img src="https://oficinavirtualderadicacion.sena.edu.co/oficinavirtual/Resources/logoSenaNaranja.png" alt="Logosímbolo SENA" class="h-10 w-auto">
-            <span class="text-2xl font-extrabold tracking-tight text-[#39A900]">GEVLA</span>
+        <div class="flex h-14 items-center gap-3 border-b border-white/10 px-4 sm:px-5">
+            <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/90 shadow-sm ring-1 ring-white/30">
+                <img src="https://oficinavirtualderadicacion.sena.edu.co/oficinavirtual/Resources/logoSenaNaranja.png" alt="Logosímbolo SENA" class="h-6 w-auto">
+            </div>
+            <div class="leading-tight">
+                <p class="text-base font-extrabold tracking-tight text-white">Asistencias</p>
+                <p class="text-xs font-semibold text-white/80">SENA Regional</p>
+            </div>
         </div>
 
-        <nav class="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+        <nav class="flex-1 overflow-y-auto px-4 py-4.5">
             @php
                 $navItems = [
                     ['label' => 'Mi Dashboard', 'route' => 'instructor.dashboard', 'icon' => 'home'],
@@ -44,11 +47,12 @@
                     'bell' => 'M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9',
                 ];
             @endphp
+            <p class="px-2 pb-2 text-[11px] font-bold uppercase tracking-[0.22em] text-white/45">Principal</p>
             @foreach($navItems as $item)
                 @php $active = request()->routeIs($item['route'].'*'); @endphp
                 <a href="{{ route($item['route']) }}"
-                   class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition
-                          {{ $active ? 'bg-green-50 text-[#39A900] shadow-sm' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                   class="mb-1.5 flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-semibold transition-all
+                    {{ $active ? 'bg-white text-[#39A900] shadow-[0_10px_24px_rgba(0,0,0,0.08)]' : 'text-white/85 hover:bg-white/10 hover:text-white' }}">
                     <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="{{ $icons[$item['icon']] }}"/>
                     </svg>
@@ -57,9 +61,9 @@
             @endforeach
         </nav>
 
-        <div class="border-t border-gray-100 bg-gray-50/50 p-4">
-            <span class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-gray-500 shadow-sm border border-gray-200/60">
-                <span class="h-1.5 w-1.5 rounded-full bg-[#39A900] animate-pulse"></span>
+        <div class="border-t border-white/10 p-4">
+            <span class="inline-flex items-center gap-2 rounded-full bg-white/12 px-3 py-1.5 text-[11px] font-medium text-white/80 ring-1 ring-white/10 backdrop-blur">
+                <span class="h-1.5 w-1.5 rounded-full bg-white"></span>
                 Portal Instructor
             </span>
         </div>
@@ -67,58 +71,48 @@
 
     {{-- Contenido principal --}}
     <div class="flex min-h-screen flex-1 flex-col">
-        <header class="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 sm:px-6 lg:px-8 shadow-sm">
+        <header class="flex h-14 items-center justify-between border-b border-[#e3e7df] bg-white px-4 sm:px-5 lg:px-6 shadow-[0_8px_24px_rgba(0,0,0,0.03)]">
             <div class="flex items-center gap-3">
-                <button @click="sidebarOpen = true" class="text-gray-500 lg:hidden hover:text-[#39A900] transition">
+                <button @click="sidebarOpen = true" class="text-slate-500 transition hover:text-[#39A900] lg:hidden">
                     <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/>
                     </svg>
                 </button>
-                <h1 class="text-lg font-bold text-gray-900">@yield('titulo', 'Panel del Instructor')</h1>
+                <h1 class="text-sm font-bold text-slate-900 sm:text-[15px]">@yield('titulo', 'Panel del Instructor')</h1>
             </div>
 
-            <div class="flex items-center gap-5">
-                <div class="flex items-center gap-3">
-                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-100 text-sm font-bold text-[#39A900] ring-2 ring-white">
-                        {{ substr(auth()->user()->nombres ?? 'I', 0, 1) }}{{ substr(auth()->user()->apellidos ?? '', 0, 1) }}
-                    </div>
-                    <div class="hidden text-right sm:block">
-                        <p class="text-sm font-bold text-gray-900">{{ auth()->user()->nombres ?? 'Instructor' }} {{ auth()->user()->apellidos ?? '' }}</p>
-                        <p class="text-xs font-medium text-gray-500">Instructor SENA</p>
-                    </div>
-                </div>
-                
-                <div class="h-8 w-px bg-gray-200 hidden sm:block"></div>
-                
-                <div class="flex items-center gap-2">
-                    <a href="{{ route('perfil.show') }}" class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition" title="Mi Perfil">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                    </a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="rounded-lg bg-[#39A900] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#247200] shadow-sm hover:shadow">
-                            Cerrar sesión
-                        </button>
-                    </form>
+            <div class="flex items-center gap-3 sm:gap-4">
+                <div class="relative" @keydown.escape.window="profileMenuOpen = false; profileModalOpen = false">
+                    <button type="button"
+                            @click="profileMenuOpen = !profileMenuOpen"
+                            class="flex items-center gap-3 rounded-full border border-[#dce3d5] bg-white px-4 py-2 shadow-[0_8px_24px_rgba(0,0,0,0.03)] transition hover:border-[#c9d7be]">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#39A900]/10 text-sm font-black text-[#39A900] ring-2 ring-white">
+                            {{ substr(auth()->user()->nombres ?? 'I', 0, 1) }}{{ substr(auth()->user()->apellidos ?? '', 0, 1) }}
+                        </div>
+                        <div class="hidden text-right sm:block">
+                            <p class="text-base font-bold text-slate-900">{{ auth()->user()->nombres ?? 'Instructor' }} {{ auth()->user()->apellidos ?? '' }}</p>
+                            <p class="text-xs font-medium text-slate-500">Instructor SENA</p>
+                        </div>
+                    </button>
+
+                    @include('layouts.profile-popover')
                 </div>
             </div>
         </header>
 
-        <main class="flex-1 p-4 sm:p-6 lg:p-8 bg-gray-50/50">
-            <div class="mx-auto max-w-7xl space-y-6">
+        <main class="flex-1 bg-[#f5f7f2] p-4 sm:p-5 lg:p-6">
+            <div class="mx-auto max-w-7xl space-y-5">
                 @if (session('success'))
-                    <div class="rounded-lg border border-[#39A900]/20 bg-[#39A900]/10 px-4 py-3 text-sm font-medium text-[#247200] shadow-sm flex items-center gap-3">
-                        <svg class="h-5 w-5 text-[#39A900]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <div class="flex items-center gap-3 rounded-2xl border border-[#39A900]/20 bg-[#39A900]/10 px-4 py-3 text-sm font-medium text-[#247200] shadow-sm">
+                        <svg class="h-4 w-4 text-[#39A900]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                         {{ session('success') }}
                     </div>
                 @endif
                 @if ($errors->any())
-                    <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700 shadow-sm flex items-start gap-3">
-                        <svg class="h-5 w-5 text-red-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <div class="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700 shadow-sm">
+                        <svg class="h-4 w-4 shrink-0 mt-0.5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <ul class="list-inside list-disc space-y-1">
