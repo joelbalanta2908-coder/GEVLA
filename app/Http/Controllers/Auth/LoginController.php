@@ -16,12 +16,26 @@ use Illuminate\View\View;
 
 class LoginController extends Controller
 {
-    /**
+
+/**
      * Muestra el formulario de inicio de sesion.
      */
     public function showLoginForm(): View
     {
+        // Solo debe retornar la vista del login
         return view('auth.login');
+
+        /* * Si quieres dejar los otros como recordatorio, 
+         * debes comentarlos para que PHP no intente leerlos:
+         *
+         * return view('dashboards.coordinador.index');
+         * return view('dashboards.coordinador.llamados.index');
+         * return view('dashboards.coordinador.llamados.show');
+         * return view('dashboards.coordinador.actas.index');
+         * return view('dashboards.coordinador.actas.create');
+         * return view('dashboards.coordinador.procesos.index');
+         * return view('dashboards.coordinador.procesos.show');
+         */
     }
 
     /**

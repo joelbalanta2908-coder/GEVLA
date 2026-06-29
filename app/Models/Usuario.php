@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class Usuario extends Authenticatable
@@ -102,5 +103,13 @@ class Usuario extends Authenticatable
             ->first();
 
         return $rol?->nombre_rol;
+    }
+
+    /**
+     * Relación con la coordinación del usuario (si tiene rol Coordinador).
+     */
+    public function coordinacion(): HasOne
+    {
+        return $this->hasOne(Coordinacion::class, 'id_usuario', 'id_usuario');
     }
 }
