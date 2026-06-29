@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\ActaController;
+use App\Http\Controllers\AprendizController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CoordinacionController;
+use App\Http\Controllers\InstructorController;
 use App\Http\Controllers\LlamadoController;
 use App\Http\Controllers\ProcesoController;
 use Illuminate\Support\Facades\Route;
@@ -25,8 +27,35 @@ Route::post('/logout', [LoginController::class, 'logout'])
     ->middleware('auth');
 
 Route::middleware('auth')->group(function () {
-    Route::view('/aprendiz/dashboard', 'dashboards.aprendiz')->name('aprendiz.dashboard');
-    Route::view('/instructor/dashboard', 'dashboards.instructor')->name('instructor.dashboard');
+    
+    // Perfil de Usuario
+    Route::prefix('perfil')->name('perfil.')->group(function () {
+        Route::get('/ver', [\App\Http\Controllers\PerfilController::class, 'show'])->name('show');
+        Route::get('/editar', [\App\Http\Controllers\PerfilController::class, 'edit'])->name('edit');
+        Route::put('/actualizar', [\App\Http\Controllers\PerfilController::class, 'update'])->name('update');
+    });
+    // Rutas de Aprendiz
+    Route::prefix('aprendiz')->name('aprendiz.')->group(function () {
+        Route::get('/dashboard', [AprendizController::class, 'dashboard'])->name('dashboard');
+        
+        // Historial (Solo lectura)
+        Route::get('/llamados', [AprendizController::class, 'llamados'])->name('llamados.index');
+        Route::get('/llamados/{id}', [AprendizController::class, 'showLlamado'])->name('llamados.show');
+        
+        Route::get('/actas', [AprendizController::class, 'actas'])->name('actas.index');
+        Route::get('/actas/{id}', [AprendizController::class, 'showActa'])->name('actas.show');
+        
+        Route::get('/procesos', [AprendizController::class, 'procesos'])->name('procesos.index');
+        Route::get('/procesos/{id}', [AprendizController::class, 'showProceso'])->name('procesos.show');
+    });
+
+    // Rutas de Instructor
+    Route::prefix('instructor')->name('instructor.')->group(function () {
+        Route::get('/dashboard', [InstructorController::class, 'dashboard'])->name('dashboard');
+        
+        // Gestión de Llamados (CRUD)
+        Route::resource('llamados', \App\Http\Controllers\InstructorLlamadoController::class)->parameters(['llamados' => 'llamado']);
+    });
 
     // Rutas de Coordinación
     Route::prefix('coordinacion')->name('coordinacion.')->group(function () {
@@ -45,4 +74,12 @@ Route::middleware('auth')->group(function () {
     });
 });
 
-Route::get('/', fn () => redirect()->route('login'));
+Route::get('/', function () {
+    if (auth()->check()) {
+        $user = auth()->user();
+        if ($user->tieneRol('Coordinador')) return redirect()->route('coordinacion.dashboard');
+        if ($user->tieneRol('Instructor')) return redirect()->route('instructor.dashboard');
+        if ($user->tieneRol('Aprendiz')) return redirect()->route('aprendiz.dashboard');
+    }
+    return redirect()->route('login');
+});

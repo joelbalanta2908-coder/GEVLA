@@ -31,6 +31,8 @@ class Usuario extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
+        'nombres',
+        'apellidos',
         'username',
         'correo',
         'password_hash',
@@ -111,5 +113,21 @@ class Usuario extends Authenticatable
     public function coordinacion(): HasOne
     {
         return $this->hasOne(Coordinacion::class, 'id_usuario', 'id_usuario');
+    }
+
+    /**
+     * Relación con el aprendiz (si el usuario es un aprendiz).
+     */
+    public function aprendiz(): HasOne
+    {
+        return $this->hasOne(Aprendiz::class, 'id_usuario', 'id_usuario');
+    }
+
+    /**
+     * Relación con el instructor (si el usuario es un instructor).
+     */
+    public function instructor(): HasOne
+    {
+        return $this->hasOne(Instructor::class, 'id_usuario', 'id_usuario');
     }
 }

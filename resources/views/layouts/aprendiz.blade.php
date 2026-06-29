@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>GEVLA | @yield('titulo', 'Coordinador')</title>
+    <title>GEVLA | @yield('titulo', 'Aprendiz')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <style>
         * { font-family: 'Work Sans', ui-sans-serif, system-ui, sans-serif; }
     </style>
@@ -35,10 +36,10 @@
         <nav class="flex-1 space-y-1 overflow-y-auto px-3 py-4">
             @php
                 $navItems = [
-                    ['label' => 'Dashboard', 'route' => 'coordinacion.dashboard', 'icon' => 'home'],
-                    ['label' => 'Llamados de atención', 'route' => 'coordinacion.llamados.index', 'icon' => 'bell'],
-                    ['label' => 'Actas de coordinación', 'route' => 'coordinacion.actas.index', 'icon' => 'doc'],
-                    ['label' => 'Procesos disciplinarios', 'route' => 'coordinacion.procesos.index', 'icon' => 'flow'],
+                    ['label' => 'Mi Dashboard', 'route' => 'aprendiz.dashboard', 'icon' => 'home'],
+                    ['label' => 'Mis Llamados', 'route' => 'aprendiz.llamados.index', 'icon' => 'bell'],
+                    ['label' => 'Mis Actas', 'route' => 'aprendiz.actas.index', 'icon' => 'doc'],
+                    ['label' => 'Mis Procesos', 'route' => 'aprendiz.procesos.index', 'icon' => 'flow'],
                 ];
                 $icons = [
                     'home' => 'M3 11.5 12 4l9 7.5M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9',
@@ -63,7 +64,7 @@
         <div class="border-t border-gray-100 bg-gray-50/50 p-4">
             <span class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-gray-500 shadow-sm border border-gray-200/60">
                 <span class="h-1.5 w-1.5 rounded-full bg-[#39A900] animate-pulse"></span>
-                Plataforma institucional SENA
+                Portal Aprendiz
             </span>
         </div>
     </aside>
@@ -77,17 +78,17 @@
                         <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/>
                     </svg>
                 </button>
-                <h1 class="text-lg font-bold text-gray-900">@yield('titulo', 'Panel del coordinador')</h1>
+                <h1 class="text-lg font-bold text-gray-900">@yield('titulo', 'Portal del Aprendiz')</h1>
             </div>
 
             <div class="flex items-center gap-5">
                 <div class="flex items-center gap-3">
                     <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-100 text-sm font-bold text-[#39A900] ring-2 ring-white">
-                        {{ substr(auth()->user()->nombres ?? 'C', 0, 1) }}{{ substr(auth()->user()->apellidos ?? '', 0, 1) }}
+                        {{ substr(auth()->user()->nombres ?? 'A', 0, 1) }}{{ substr(auth()->user()->apellidos ?? '', 0, 1) }}
                     </div>
                     <div class="hidden text-right sm:block">
-                        <p class="text-sm font-bold text-gray-900">{{ auth()->user()->nombres ?? 'Coordinador' }} {{ auth()->user()->apellidos ?? '' }}</p>
-                        <p class="text-xs font-medium text-gray-500">{{ auth()->user()->coordinacion->cargo ?? 'Coordinación' }}</p>
+                        <p class="text-sm font-bold text-gray-900">{{ auth()->user()->nombres ?? 'Aprendiz' }} {{ auth()->user()->apellidos ?? '' }}</p>
+                        <p class="text-xs font-medium text-gray-500">Aprendiz SENA</p>
                     </div>
                 </div>
                 
