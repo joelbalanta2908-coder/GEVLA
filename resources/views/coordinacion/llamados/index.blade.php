@@ -56,7 +56,7 @@
     </form>
 
     <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
-        <table class="w-full min-w-[640px] text-sm">
+        <table class="responsive-cards w-full min-w-[640px] text-sm">
             <thead class="bg-gray-50 text-left text-xs font-medium uppercase text-gray-500">
                 <tr>
                     <th class="px-5 py-3">Aprendiz</th>
@@ -82,19 +82,19 @@
                         $catBadge = $llamado->categoria === 'disciplinario' ? 'bg-rose-50 text-rose-600' : 'bg-sky-50 text-sky-600';
                     @endphp
                     <tr class="hover:bg-gray-50">
-                        <td class="px-5 py-3 font-medium text-gray-900">{{ $llamado->aprendiz->usuario->nombres }} {{ $llamado->aprendiz->usuario->apellidos }}</td>
-                        <td class="px-5 py-3 text-gray-600">{{ $llamado->instructor->usuario->nombres }} {{ $llamado->instructor->usuario->apellidos }}</td>
-                        <td class="px-5 py-3 text-gray-600">{{ \Carbon\Carbon::parse($llamado->fecha_llamado)->format('d/m/Y') }}</td>
-                        <td class="px-5 py-3">
+                        <td class="px-5 py-3 font-medium text-gray-900" data-label="Aprendiz">{{ $llamado->aprendiz->usuario->nombres }} {{ $llamado->aprendiz->usuario->apellidos }}</td>
+                        <td class="px-5 py-3 text-gray-600" data-label="Instructor">{{ $llamado->instructor->usuario->nombres }} {{ $llamado->instructor->usuario->apellidos }}</td>
+                        <td class="px-5 py-3 text-gray-600" data-label="Fecha">{{ \Carbon\Carbon::parse($llamado->fecha_llamado)->format('d/m/Y') }}</td>
+                        <td class="px-5 py-3" data-label="Categoría">
                             <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $catBadge }}">{{ ucfirst($llamado->categoria) }}</span>
                         </td>
-                        <td class="px-5 py-3 text-gray-600">{{ $llamado->asunto }}</td>
-                        <td class="px-5 py-3">
+                        <td class="px-5 py-3 text-gray-600" data-label="Asunto">{{ $llamado->asunto }}</td>
+                        <td class="px-5 py-3" data-label="Estado">
                             <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $estadoBadge }}">
                                 {{ str($llamado->estado_llamado)->replace('_',' ')->ucfirst() }}
                             </span>
                         </td>
-                        <td class="px-5 py-3 text-right">
+                        <td class="px-5 py-3 text-right" data-label="Acción">
                             <a href="{{ route('coordinacion.llamados.show', $llamado->id_llamado) }}" class="font-medium text-[#39A900] hover:underline">Ver detalle</a>
                         </td>
                     </tr>

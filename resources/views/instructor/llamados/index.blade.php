@@ -25,7 +25,7 @@
             </div>
         @else
             <div class="overflow-x-auto">
-                <table class="w-full min-w-[640px] text-left text-sm text-gray-600">
+                <table class="responsive-cards w-full min-w-[640px] text-left text-sm text-gray-600">
                     <thead class="bg-gray-50 text-xs font-semibold uppercase text-gray-500 border-b border-gray-200">
                         <tr>
                             <th class="px-6 py-4">ID</th>
@@ -49,16 +49,16 @@
                                 };
                             @endphp
                             <tr class="hover:bg-gray-50/50">
-                                <td class="px-6 py-4 font-medium text-gray-900">#{{ $llamado->id_llamado }}</td>
-                                <td class="px-6 py-4">{{ \Carbon\Carbon::parse($llamado->fecha_llamado)->format('d/m/Y') }}</td>
-                                <td class="px-6 py-4">{{ $llamado->aprendiz->usuario->nombres }} {{ $llamado->aprendiz->usuario->apellidos }}</td>
-                                <td class="px-6 py-4">{{ $llamado->asunto }}</td>
-                                <td class="px-6 py-4">
+                                <td class="px-6 py-4 font-medium text-gray-900" data-label="ID">#{{ $llamado->id_llamado }}</td>
+                                <td class="px-6 py-4" data-label="Fecha">{{ \Carbon\Carbon::parse($llamado->fecha_llamado)->format('d/m/Y') }}</td>
+                                <td class="px-6 py-4" data-label="Aprendiz">{{ $llamado->aprendiz->usuario->nombres }} {{ $llamado->aprendiz->usuario->apellidos }}</td>
+                                <td class="px-6 py-4" data-label="Asunto">{{ $llamado->asunto }}</td>
+                                <td class="px-6 py-4" data-label="Estado">
                                     <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $estadoBadge }}">
                                         {{ str($llamado->estado_llamado)->replace('_',' ')->ucfirst() }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-right">
+                                <td class="px-6 py-4 text-right" data-label="Acciones">
                                     <div class="flex justify-end gap-2">
                                         <a href="{{ route('instructor.llamados.show', $llamado->id_llamado) }}" class="rounded bg-blue-50 p-1.5 text-blue-600 hover:bg-blue-100 transition" title="Ver detalle">
                                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>

@@ -54,7 +54,7 @@
     </form>
 
     <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
-        <table class="w-full min-w-[640px] text-sm">
+        <table class="responsive-cards w-full min-w-[640px] text-sm">
             <thead class="bg-gray-50 text-left text-xs font-medium uppercase text-gray-500">
                 <tr>
                     <th class="px-5 py-3">Aprendiz</th>
@@ -75,15 +75,15 @@
                         };
                     @endphp
                     <tr class="hover:bg-gray-50">
-                        <td class="px-5 py-3 font-medium text-gray-900">
+                        <td class="px-5 py-3 font-medium text-gray-900" data-label="Aprendiz">
                             {{ $proceso->aprendiz->usuario->nombres }} {{ $proceso->aprendiz->usuario->apellidos }}
                         </td>
-                        <td class="px-5 py-3 text-gray-600">{{ str($proceso->etapa_actual)->replace('_',' ')->ucfirst() }}</td>
-                        <td class="px-5 py-3 text-gray-600">{{ \Carbon\Carbon::parse($proceso->fecha_inicio)->format('d/m/Y') }}</td>
-                        <td class="px-5 py-3">
+                        <td class="px-5 py-3 text-gray-600" data-label="Etapa actual">{{ str($proceso->etapa_actual)->replace('_',' ')->ucfirst() }}</td>
+                        <td class="px-5 py-3 text-gray-600" data-label="Inicio">{{ \Carbon\Carbon::parse($proceso->fecha_inicio)->format('d/m/Y') }}</td>
+                        <td class="px-5 py-3" data-label="Estado">
                             <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $estadoBadge }}">{{ ucfirst($proceso->estado_proceso) }}</span>
                         </td>
-                        <td class="px-5 py-3 text-right">
+                        <td class="px-5 py-3 text-right" data-label="Acción">
                             <a href="{{ route('coordinacion.procesos.show', $proceso->id_proceso) }}" class="font-medium text-[#39A900] hover:underline">Ver historial</a>
                         </td>
                     </tr>

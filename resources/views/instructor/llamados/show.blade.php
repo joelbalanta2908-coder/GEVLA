@@ -61,6 +61,16 @@
                 <dt class="text-xs font-medium uppercase text-gray-400">Categoría</dt>
                 <dd class="mt-1 text-sm text-gray-900">{{ ucfirst($llamado->categoria) }}</dd>
             </div>
+            <div>
+                <dt class="text-xs font-medium uppercase text-gray-400">Calificación de la falta</dt>
+                <dd class="mt-1 text-sm text-gray-900">{{ $llamado->calificacion_label }}</dd>
+            </div>
+            @if($llamado->articulo)
+                <div class="sm:col-span-2">
+                    <dt class="text-xs font-medium uppercase text-gray-400">Artículo del reglamento infringido</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ $llamado->articulo->numero_articulo }} — {{ $llamado->articulo->titulo }}</dd>
+                </div>
+            @endif
         </dl>
 
         <div class="mt-6 space-y-4">

@@ -110,3 +110,37 @@
         </div>
     </div>
 </div>
+
+{{-- Modal de confirmación de cierre de sesión --}}
+<div x-cloak
+     x-show="logoutModalOpen"
+     x-transition.opacity
+     @keydown.escape.window="logoutModalOpen = false"
+     class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/50" @click="logoutModalOpen = false"></div>
+
+    <div x-show="logoutModalOpen"
+         x-transition.scale.origin.center
+         class="relative w-full max-w-sm overflow-hidden rounded-[24px] border border-[#e5eadf] bg-white shadow-[0_30px_80px_rgba(0,0,0,0.25)]">
+        <div class="px-6 pt-7 text-center sm:px-7">
+            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 text-red-600">
+                <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 7V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2" />
+                    <path d="M13 12h8m0 0-3-3m3 3-3 3" />
+                </svg>
+            </div>
+            <h3 class="mt-4 text-lg font-extrabold text-slate-900">Cerrar sesión</h3>
+            <p class="mt-2 text-sm text-slate-500">¿Estás seguro de que deseas cerrar tu sesión? Tendrás que iniciar sesión nuevamente para volver a acceder.</p>
+        </div>
+        <div class="flex flex-col gap-3 px-6 py-6 sm:flex-row-reverse sm:px-7">
+            <button type="submit" form="logout-form"
+                    class="inline-flex w-full items-center justify-center rounded-full bg-red-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-red-700">
+                Sí, cerrar sesión
+            </button>
+            <button type="button" @click="logoutModalOpen = false"
+                    class="inline-flex w-full items-center justify-center rounded-full border border-[#d8e2cf] bg-white px-5 py-2.5 text-sm font-bold text-slate-700 transition hover:bg-slate-50">
+                Cancelar
+            </button>
+        </div>
+    </div>
+</div>

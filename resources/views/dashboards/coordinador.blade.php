@@ -91,7 +91,7 @@
 
     <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div class="space-y-2">
-            <p class="text-[11px] font-extrabold uppercase tracking-[0.32em] text-[#39A900]">Gestión académica</p>
+            <p class="text-[11px] font-extrabold uppercase tracking-[0.32em] text-[#39A900]"><span data-saludo>Bienvenido</span>, {{ auth()->user()->nombres }} 👋</p>
             <h2 class="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-[2rem] lg:text-[2.25rem]">Panel Administrativo</h2>
             <p class="max-w-full text-sm font-semibold text-slate-500 break-words">{{ \Carbon\Carbon::now('America/Bogota')->locale('es')->translatedFormat('l, d \d\e F Y \a \l\a\s h:i A') }}</p>
             <a href="{{ route('coordinacion.actas.index') }}" class="rounded-2xl border border-[#d8e2cf] bg-white px-4 py-3 text-sm font-extrabold text-[#39A900] shadow-[0_10px_30px_rgba(0,0,0,0.04)] transition hover:border-[#b9d8a5] hover:shadow-[0_12px_34px_rgba(57,169,0,0.08)]">

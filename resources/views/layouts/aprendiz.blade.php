@@ -15,9 +15,9 @@
 </head>
 <body class="h-full bg-[#f5f7f2] font-sans antialiased text-slate-900">
 
-<div x-data="{ sidebarOpen: false, sidebarCollapsed: JSON.parse(localStorage.getItem('gevlaSidebarCollapsed') || 'false'), profileMenuOpen: false, profileModalOpen: false }"
+<div x-data="{ sidebarOpen: false, sidebarCollapsed: JSON.parse(localStorage.getItem('gevlaSidebarCollapsed') || 'false'), profileMenuOpen: false, profileModalOpen: false, logoutModalOpen: false }"
      x-effect="localStorage.setItem('gevlaSidebarCollapsed', sidebarCollapsed)"
-     class="min-h-screen bg-[#f5f7f2] lg:flex">
+     class="min-h-screen bg-[#f5f7f2] lg:flex lg:h-screen lg:overflow-hidden">
 
     {{-- Overlay para móvil --}}
     <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false"
@@ -26,11 +26,11 @@
     {{-- Sidebar --}}
     <aside
         :class="(sidebarOpen ? 'translate-x-0' : '-translate-x-full') + ' ' + (sidebarCollapsed ? 'lg:w-20' : 'lg:w-60')"
-        class="fixed inset-y-0 left-0 z-40 flex w-60 flex-col transform border-r border-white/10 bg-gradient-to-b from-[#1e6a00] via-[#2a7a00] to-[#4db100] text-white shadow-[0_30px_70px_rgba(25,80,0,0.32)] transition-all duration-200 lg:static lg:translate-x-0">
+        class="fixed inset-y-0 left-0 z-40 flex w-60 flex-col transform border-r border-white/10 bg-gradient-to-b from-[#1e6a00] via-[#2a7a00] to-[#4db100] text-white shadow-[0_30px_70px_rgba(25,80,0,0.32)] transition-all duration-200 lg:static lg:h-screen lg:translate-x-0">
 
         <div class="flex h-14 items-center justify-between gap-2 border-b border-white/10 px-4">
             <div class="flex items-center gap-3 overflow-hidden">
-                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/90 shadow-sm ring-1 ring-white/30">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/90 shadow-sm ring-1 ring-white/30" :class="sidebarCollapsed && 'lg:hidden'">
                     <img src="https://oficinavirtualderadicacion.sena.edu.co/oficinavirtual/Resources/logoSenaNaranja.png" alt="Logosímbolo SENA" class="h-6 w-auto">
                 </div>
                 <div class="leading-tight" :class="sidebarCollapsed && 'lg:hidden'">
@@ -53,7 +53,7 @@
             </button>
         </div>
 
-        <nav class="flex-1 overflow-y-auto px-3 py-4">
+        <nav class="flex-1 overflow-y-auto px-3 py-4" :class="sidebarCollapsed && 'lg:overflow-y-visible'">
             @php
                 $navItems = [
                     ['label' => 'Mi Dashboard', 'route' => 'aprendiz.dashboard', 'icon' => 'home'],
@@ -89,10 +89,9 @@
 
         {{-- Cerrar sesión en la parte inferior del dashboard --}}
         <div class="border-t border-white/10 p-3">
-            <form method="POST" action="{{ route('logout') }}"
-                  onsubmit="return confirm('¿Estás seguro de que deseas cerrar sesión?');">
+            <form id="logout-form" method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit"
+                <button type="button" @click="logoutModalOpen = true"
                         :class="sidebarCollapsed && 'lg:justify-center'"
                         class="group relative flex w-full items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-semibold text-white/90 transition hover:bg-white/10 hover:text-white">
                     <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -110,7 +109,7 @@
     </aside>
 
     {{-- Contenido principal --}}
-    <div class="flex min-h-screen flex-1 flex-col">
+    <div class="flex min-h-screen flex-1 flex-col lg:h-screen lg:min-h-0">
         <header class="flex h-14 items-center justify-between border-b border-[#e3e7df] bg-white px-4 sm:px-5 lg:px-6 shadow-[0_8px_24px_rgba(0,0,0,0.03)]">
             @php $enDashboard = request()->routeIs('aprendiz.dashboard'); @endphp
             <div class="flex items-center gap-3">
@@ -164,7 +163,7 @@
             </div>
         </header>
 
-        <main class="flex-1 bg-[#f5f7f2] p-4 sm:p-5 lg:p-6">
+        <main class="flex-1 overflow-y-auto bg-[#f5f7f2] p-4 sm:p-5 lg:p-6">
             <div class="mx-auto max-w-7xl space-y-5">
                 @if (session('success'))
                     <div class="flex items-center gap-3 rounded-2xl border border-[#39A900]/20 bg-[#39A900]/10 px-4 py-3 text-sm font-medium text-[#247200] shadow-sm">
@@ -201,6 +200,9 @@
                 const fecha = ahora.toLocaleDateString('es-CO', { timeZone: 'America/Bogota', weekday: 'long', day: '2-digit', month: 'long' });
                 document.querySelectorAll('[data-reloj]').forEach(el => el.textContent = hora);
                 document.querySelectorAll('[data-fecha]').forEach(el => el.textContent = fecha.charAt(0).toUpperCase() + fecha.slice(1) + ' · Bogotá');
+                const h = parseInt(ahora.toLocaleString('en-US', { timeZone: 'America/Bogota', hour: '2-digit', hour12: false }), 10);
+                const saludo = h < 12 ? 'Buenos días' : (h < 19 ? 'Buenas tardes' : 'Buenas noches');
+                document.querySelectorAll('[data-saludo]').forEach(el => el.textContent = saludo);
             }
             actualizarReloj();
             setInterval(actualizarReloj, 1000);

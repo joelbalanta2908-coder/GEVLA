@@ -60,7 +60,7 @@
     </form>
 
     <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
-        <table class="w-full min-w-[640px] text-sm">
+        <table class="responsive-cards w-full min-w-[640px] text-sm">
             <thead class="bg-gray-50 text-left text-xs font-medium uppercase text-gray-500">
                 <tr>
                     <th class="px-5 py-3">N° acta</th>
@@ -83,17 +83,17 @@
                         };
                     @endphp
                     <tr class="hover:bg-gray-50">
-                        <td class="px-5 py-3 font-medium text-gray-900">{{ $acta->numero_acta }}</td>
-                        <td class="px-5 py-3 text-gray-600">{{ $acta->aprendiz->usuario->nombres }} {{ $acta->aprendiz->usuario->apellidos }}</td>
-                        <td class="px-5 py-3 text-gray-600">{{ str($acta->tipo_acta)->replace('_',' ')->ucfirst() }}</td>
-                        <td class="px-5 py-3 text-gray-600">{{ \Carbon\Carbon::parse($acta->fecha_expedicion)->format('d/m/Y') }}</td>
-                        <td class="px-5 py-3 text-gray-600">
+                        <td class="px-5 py-3 font-medium text-gray-900" data-label="N° acta">{{ $acta->numero_acta }}</td>
+                        <td class="px-5 py-3 text-gray-600" data-label="Aprendiz">{{ $acta->aprendiz->usuario->nombres }} {{ $acta->aprendiz->usuario->apellidos }}</td>
+                        <td class="px-5 py-3 text-gray-600" data-label="Tipo">{{ str($acta->tipo_acta)->replace('_',' ')->ucfirst() }}</td>
+                        <td class="px-5 py-3 text-gray-600" data-label="Expedición">{{ \Carbon\Carbon::parse($acta->fecha_expedicion)->format('d/m/Y') }}</td>
+                        <td class="px-5 py-3 text-gray-600" data-label="Firmeza">
                             {{ $acta->fecha_firmeza ? \Carbon\Carbon::parse($acta->fecha_firmeza)->format('d/m/Y') : '—' }}
                         </td>
-                        <td class="px-5 py-3">
+                        <td class="px-5 py-3" data-label="Estado">
                             <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $estadoBadge }}">{{ ucfirst($acta->estado_acta) }}</span>
                         </td>
-                        <td class="px-5 py-3 text-right">
+                        <td class="px-5 py-3 text-right" data-label="Acción">
                             <a href="{{ route('coordinacion.actas.show', $acta->id_acta) }}" class="font-medium text-[#39A900] hover:underline">Ver</a>
                         </td>
                     </tr>

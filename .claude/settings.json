@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php -l app/Http/Controllers/InstructorLlamadoController.php)",
+      "Bash(php -l app/Models/ReglamentoArticulo.php)",
+      "Bash(php -l app/Models/LlamadoAtencion.php)",
+      "Bash(npm run *)"
+    ]
+  }
+}

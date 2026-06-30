@@ -4,6 +4,13 @@
 
 @section('contenido')
 <div class="space-y-4">
+    {{-- Mensaje de bienvenida según la hora del día --}}
+    <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#39A900]" data-fecha>Hora local · Bogotá</p>
+        <h2 class="mt-1 text-2xl font-extrabold text-slate-900"><span data-saludo>Bienvenido</span>, {{ auth()->user()->nombres }} 👋</h2>
+        <p class="mt-1 text-sm text-slate-500">Gestiona y haz seguimiento a tus reportes desde aquí.</p>
+    </div>
+
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {{-- Card: Total Reportados --}}
         <div class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
@@ -75,7 +82,7 @@
             </div>
         @else
             <div class="overflow-x-auto">
-                <table class="w-full min-w-[640px] text-left text-sm text-gray-600">
+                <table class="responsive-cards w-full min-w-[640px] text-left text-sm text-gray-600">
                     <thead class="bg-gray-50 text-xs font-semibold uppercase tracking-[0.16em] text-gray-500">
                         <tr>
                             <th scope="col" class="px-5 py-3">Fecha</th>
@@ -88,10 +95,10 @@
                     <tbody class="divide-y divide-gray-200">
                         @foreach($llamados as $llamado)
                             <tr class="hover:bg-gray-50/50">
-                                <td class="px-5 py-3.5">{{ \Carbon\Carbon::parse($llamado->fecha_llamado)->format('d/m/Y') }}</td>
-                                <td class="px-5 py-3.5 font-medium text-gray-900">{{ $llamado->aprendiz->usuario->nombres ?? 'Desconocido' }} {{ $llamado->aprendiz->usuario->apellidos ?? '' }}</td>
-                                <td class="px-5 py-3.5">{{ $llamado->asunto }}</td>
-                                <td class="px-5 py-3.5">
+                                <td class="px-5 py-3.5" data-label="Fecha">{{ \Carbon\Carbon::parse($llamado->fecha_llamado)->format('d/m/Y') }}</td>
+                                <td class="px-5 py-3.5 font-medium text-gray-900" data-label="Aprendiz">{{ $llamado->aprendiz->usuario->nombres ?? 'Desconocido' }} {{ $llamado->aprendiz->usuario->apellidos ?? '' }}</td>
+                                <td class="px-5 py-3.5" data-label="Asunto">{{ $llamado->asunto }}</td>
+                                <td class="px-5 py-3.5" data-label="Estado">
                                     @php
                                         $estadoBadge = match($llamado->estado_llamado) {
                                             'registrado'  => 'bg-gray-100 text-gray-600',
@@ -106,7 +113,7 @@
                                         {{ str($llamado->estado_llamado)->replace('_',' ')->ucfirst() }}
                                     </span>
                                 </td>
-                                <td class="px-5 py-3.5 text-right">
+                                <td class="px-5 py-3.5 text-right" data-label="Detalle">
                                     <a href="{{ route('instructor.llamados.show', $llamado->id_llamado) }}" class="inline-flex items-center text-sm font-semibold text-[#39A900] hover:text-[#247200]">
                                         Ver más →
                                     </a>

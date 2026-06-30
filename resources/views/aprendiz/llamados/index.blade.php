@@ -18,7 +18,7 @@
             </div>
         @else
             <div class="overflow-x-auto">
-                <table class="w-full min-w-[640px] text-left text-sm text-gray-600">
+                <table class="responsive-cards w-full min-w-[640px] text-left text-sm text-gray-600">
                     <thead class="bg-gray-50 text-xs font-semibold uppercase text-gray-500 border-b border-gray-200">
                         <tr>
                             <th class="px-6 py-4">Fecha</th>
@@ -41,15 +41,15 @@
                                 };
                             @endphp
                             <tr class="hover:bg-gray-50/50">
-                                <td class="px-6 py-4">{{ \Carbon\Carbon::parse($llamado->fecha_llamado)->format('d/m/Y') }}</td>
-                                <td class="px-6 py-4 font-medium text-gray-900">{{ $llamado->asunto }}</td>
-                                <td class="px-6 py-4">{{ $llamado->instructor->usuario->nombres ?? 'Desconocido' }} {{ $llamado->instructor->usuario->apellidos ?? '' }}</td>
-                                <td class="px-6 py-4">
+                                <td class="px-6 py-4" data-label="Fecha">{{ \Carbon\Carbon::parse($llamado->fecha_llamado)->format('d/m/Y') }}</td>
+                                <td class="px-6 py-4 font-medium text-gray-900" data-label="Asunto">{{ $llamado->asunto }}</td>
+                                <td class="px-6 py-4" data-label="Instructor">{{ $llamado->instructor->usuario->nombres ?? 'Desconocido' }} {{ $llamado->instructor->usuario->apellidos ?? '' }}</td>
+                                <td class="px-6 py-4" data-label="Estado">
                                     <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $estadoBadge }}">
                                         {{ str($llamado->estado_llamado)->replace('_',' ')->ucfirst() }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-right">
+                                <td class="px-6 py-4 text-right" data-label="Detalle">
                                     <a href="{{ route('aprendiz.llamados.show', $llamado->id_llamado) }}" class="inline-flex items-center text-sm font-semibold text-[#39A900] hover:text-[#247200]">
                                         Ver más →
                                     </a>
