@@ -108,11 +108,12 @@
         {{ $actas->links() }}
     @endif
 </div>
+@endsection
 
 @section('scripts')
 <script>
-    const actasTrendLabels = @json($trendLabels ?? []);
-    const actasTrendData = @json($actasTrend ?? []);
+    const actasTrendLabels = {!! json_encode($trendLabels ?? []) !!};
+    const actasTrendData = {!! json_encode($actasTrend ?? []) !!};
     const actasElement = document.getElementById('chart-actas-trend');
 
     if (actasElement) {
@@ -137,8 +138,8 @@
         });
     }
 
-    const actasStateLabels = @json($statusLabels ?? ['Expedido','Notificado','Firme']);
-    const actasStateData = @json($actasEstadoData ?? []);
+    const actasStateLabels = {!! json_encode($statusLabels ?? ['Expedido','Notificado','Firme']) !!};
+    const actasStateData = {!! json_encode($actasEstadoData ?? []) !!};
     const actasStateElement = document.getElementById('chart-actas-state');
 
     if (actasStateElement) {

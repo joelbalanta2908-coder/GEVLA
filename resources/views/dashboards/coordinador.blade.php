@@ -248,6 +248,18 @@
                 <p class="mt-1 text-base text-slate-500">Accede a los módulos principales sin salir del panel.</p>
             </div>
 
+            <a href="{{ route('coordinacion.llamados.index') }}" class="group flex items-center justify-between rounded-[26px] border border-[#e6eadf] bg-white p-4 shadow-[0_10px_28px_rgba(0,0,0,0.04)] transition hover:border-[#ff6a13]/30 hover:shadow-[0_14px_34px_rgba(255,106,19,0.08)]">
+                <div>
+                    <p class="text-base font-extrabold text-slate-900">Consultar llamados</p>
+                    <p class="mt-1 text-sm font-medium text-slate-500">Revisar historial de reportes</p>
+                </div>
+                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-[#ff6a13]/10 text-[#ff6a13] transition group-hover:bg-[#ff6a13] group-hover:text-white">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            </a>
+
             <a href="{{ route('coordinacion.actas.create') }}" class="group flex items-center justify-between rounded-[26px] bg-gradient-to-r from-[#39A900] to-[#2f8b00] p-4 shadow-[0_14px_32px_rgba(57,169,0,0.24)] transition hover:-translate-y-0.5">
                 <div>
                     <p class="text-base font-extrabold text-white">Crear acta</p>
@@ -271,18 +283,6 @@
                     </svg>
                 </div>
             </a>
-
-            <a href="{{ route('coordinacion.llamados.index') }}" class="group flex items-center justify-between rounded-[26px] border border-[#e6eadf] bg-white p-4 shadow-[0_10px_28px_rgba(0,0,0,0.04)] transition hover:border-[#ff6a13]/30 hover:shadow-[0_14px_34px_rgba(255,106,19,0.08)]">
-                <div>
-                    <p class="text-base font-extrabold text-slate-900">Consultar llamados</p>
-                    <p class="mt-1 text-sm font-medium text-slate-500">Revisar historial de reportes</p>
-                </div>
-                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-[#ff6a13]/10 text-[#ff6a13] transition group-hover:bg-[#ff6a13] group-hover:text-white">
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
-            </a>
         </div>
     </div>
 </div>
@@ -290,10 +290,10 @@
 
 @section('scripts')
 <script>
-    const dashboardLabels = @json($trendLabels ?? []);
-    const dashboardLlamados = @json($llamadosTrend ?? []);
-    const dashboardActas = @json($actasTrend ?? []);
-    const dashboardProcesos = @json($procesosTrend ?? []);
+    const dashboardLabels = {!! json_encode($trendLabels ?? []) !!};
+    const dashboardLlamados = {!! json_encode($llamadosTrend ?? []) !!};
+    const dashboardActas = {!! json_encode($actasTrend ?? []) !!};
+    const dashboardProcesos = {!! json_encode($procesosTrend ?? []) !!};
 
     function createTrendChart(canvasId, type, label, data, color) {
         const ctx = document.getElementById(canvasId);
@@ -331,12 +331,12 @@
         createTrendChart('chart-actas', 'bar', 'Actas', dashboardActas, '#00324d');
         createTrendChart('chart-procesos', 'line', 'Procesos', dashboardProcesos, '#ff6a13');
 
-        const dashboardLlamadosStatusLabels = @json($llamadosLabels ?? []);
-        const dashboardLlamadosStatusData = @json($llamadosEstado ?? []);
-        const dashboardActasStatusLabels = @json($actasLabels ?? []);
-        const dashboardActasStatusData = @json($actasEstado ?? []);
-        const dashboardProcesosStatusLabels = @json($procesosLabels ?? []);
-        const dashboardProcesosStatusData = @json($procesosEstado ?? []);
+        const dashboardLlamadosStatusLabels = {!! json_encode($llamadosLabels ?? []) !!};
+        const dashboardLlamadosStatusData = {!! json_encode($llamadosEstado ?? []) !!};
+        const dashboardActasStatusLabels = {!! json_encode($actasLabels ?? []) !!};
+        const dashboardActasStatusData = {!! json_encode($actasEstado ?? []) !!};
+        const dashboardProcesosStatusLabels = {!! json_encode($procesosLabels ?? []) !!};
+        const dashboardProcesosStatusData = {!! json_encode($procesosEstado ?? []) !!};
 
         function createStatusChart(canvasId, labels, data, color) {
             const ctx = document.getElementById(canvasId);

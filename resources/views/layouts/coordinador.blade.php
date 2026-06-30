@@ -68,6 +68,10 @@
 
             <p class="px-2 pt-5 pb-2 text-[11px] font-bold uppercase tracking-[0.22em] text-white/45">Gestión</p>
             <div class="space-y-1">
+                <a href="{{ route('coordinacion.llamados.index') }}" class="flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-semibold text-white/85 transition hover:bg-white/10 hover:text-white">
+                    <span class="flex h-4 w-4 items-center justify-center rounded-full bg-white/10 text-[10px] font-black">L</span>
+                    Llamados
+                </a>
                 <a href="{{ route('coordinacion.actas.index') }}" class="flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-semibold text-white/85 transition hover:bg-white/10 hover:text-white">
                     <span class="flex h-4 w-4 items-center justify-center rounded-full bg-white/10 text-[10px] font-black">A</span>
                     Actas
@@ -75,10 +79,6 @@
                 <a href="{{ route('coordinacion.procesos.index') }}" class="flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-semibold text-white/85 transition hover:bg-white/10 hover:text-white">
                     <span class="flex h-4 w-4 items-center justify-center rounded-full bg-white/10 text-[10px] font-black">P</span>
                     Procesos
-                </a>
-                <a href="{{ route('coordinacion.llamados.index') }}" class="flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-semibold text-white/85 transition hover:bg-white/10 hover:text-white">
-                    <span class="flex h-4 w-4 items-center justify-center rounded-full bg-white/10 text-[10px] font-black">L</span>
-                    Llamados
                 </a>
             </div>
         </nav>

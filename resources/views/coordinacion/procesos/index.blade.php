@@ -98,6 +98,7 @@
         {{ $procesos->links() }}
     @endif
 </div>
+@endsection
 
 @section('scripts')
 <script>
@@ -129,8 +130,8 @@
         });
     }
 
-    const procesosStateLabels = @json($statusLabels ?? ['Activo','Suspendido','Finalizado','Apelación']);
-    const procesosStateData = @json($procesosEstadoData ?? []);
+    const procesosStateLabels = {!! json_encode($statusLabels ?? ['Activo','Suspendido','Finalizado','Apelación']) !!};
+    const procesosStateData = {!! json_encode($procesosEstadoData ?? []) !!};
     const procesosStateElement = document.getElementById('chart-procesos-state');
 
     if (procesosStateElement) {

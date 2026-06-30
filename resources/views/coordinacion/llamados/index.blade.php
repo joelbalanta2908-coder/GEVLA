@@ -109,11 +109,12 @@
         {{ $llamados->links() }}
     @endif
 </div>
+@endsection
 
 @section('scripts')
 <script>
-    const llamadosTrendLabels = @json($trendLabels ?? []);
-    const llamadosTrendData = @json($llamadosTrend ?? []);
+    const llamadosTrendLabels = {!! json_encode($trendLabels ?? []) !!};
+    const llamadosTrendData = {!! json_encode($llamadosTrend ?? []) !!};
     const llamadosElement = document.getElementById('chart-llamados-trend');
 
     if (llamadosElement) {
@@ -140,8 +141,8 @@
         });
     }
 
-    const llamadosStateLabels = @json($statusLabels ?? ['Registrado','En revisión','Notificado','Cerrado','Cancelado']);
-    const llamadosStateData = @json($llamadosEstadoData ?? []);
+    const llamadosStateLabels = {!! json_encode($statusLabels ?? ['Registrado','En revisión','Notificado','Cerrado','Cancelado']) !!};
+    const llamadosStateData = {!! json_encode($llamadosEstadoData ?? []) !!};
     const llamadosStateElement = document.getElementById('chart-llamados-state');
 
     if (llamadosStateElement) {
