@@ -459,6 +459,7 @@ CREATE TABLE `usuario` (
   `correo` varchar(120) NOT NULL,
   `telefono` varchar(20) DEFAULT NULL,
   `username` varchar(50) NOT NULL,
+  `foto_perfil` varchar(255) DEFAULT NULL,
   `password_hash` varchar(255) NOT NULL,
   `estado_usuario` enum('activo','inactivo','bloqueado') NOT NULL DEFAULT 'activo',
   `ultimo_acceso` datetime DEFAULT NULL,
