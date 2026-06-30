@@ -35,6 +35,7 @@ class Usuario extends Authenticatable
         'apellidos',
         'username',
         'correo',
+        'foto_perfil',
         'password_hash',
         'estado_usuario',
         'ultimo_acceso',
@@ -69,6 +70,24 @@ class Usuario extends Authenticatable
     public function getAuthPasswordName(): string
     {
         return 'password_hash';
+    }
+
+    /**
+     * URL pública de la foto de perfil (o null si no tiene).
+     */
+    public function fotoUrl(): ?string
+    {
+        return $this->foto_perfil ? asset('storage/' . $this->foto_perfil) : null;
+    }
+
+    /**
+     * Iniciales del usuario para el avatar por defecto.
+     */
+    public function iniciales(): string
+    {
+        return strtoupper(
+            mb_substr($this->nombres ?? 'U', 0, 1) . mb_substr($this->apellidos ?? '', 0, 1)
+        );
     }
 
     /**

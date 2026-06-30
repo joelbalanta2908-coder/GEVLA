@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -34,19 +35,11 @@ class PerfilController extends Controller
     }
 
     /**
-     * Muestra el formulario para editar el perfil (para Coordinador e Instructor).
+     * La edición ahora vive dentro de "Ver mi perfil"; redirigimos al perfil.
      */
-    public function edit(): View
+    public function edit(): RedirectResponse
     {
-        $usuario = Auth::user();
-        
-        // Bloqueamos al aprendiz de acceder a la vista de edición directamente
-        if ($usuario->tieneRol('Aprendiz') && !$usuario->tieneRol('Coordinador') && !$usuario->tieneRol('Instructor')) {
-            abort(403, 'No tienes permisos para editar tu perfil.');
-        }
-
-        $layout = $this->getLayoutName($usuario);
-        return view('perfil.edit', compact('usuario', 'layout'));
+        return redirect()->route('perfil.show');
     }
 
     /**
@@ -67,17 +60,28 @@ class PerfilController extends Controller
     {
         $usuario = Auth::user();
 
-        if ($usuario->tieneRol('Aprendiz') && !$usuario->tieneRol('Coordinador') && !$usuario->tieneRol('Instructor')) {
-            abort(403, 'No tienes permisos para actualizar tu perfil.');
-        }
-
         $validated = $request->validate([
-            'nombres'   => ['required', 'string', 'max:255'],
-            'apellidos' => ['required', 'string', 'max:255'],
-            'correo'    => ['required', 'email', 'max:255', 'unique:usuario,correo,' . $usuario->id_usuario . ',id_usuario'],
+            'nombres'     => ['required', 'string', 'max:255'],
+            'apellidos'   => ['required', 'string', 'max:255'],
+            'correo'      => ['required', 'email', 'max:255', 'unique:usuario,correo,' . $usuario->id_usuario . ',id_usuario'],
+            'foto_perfil' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
-        $usuario->update($validated);
+        $datos = [
+            'nombres'   => $validated['nombres'],
+            'apellidos' => $validated['apellidos'],
+            'correo'    => $validated['correo'],
+        ];
+
+        if ($request->hasFile('foto_perfil')) {
+            // Eliminamos la foto anterior si existía.
+            if ($usuario->foto_perfil) {
+                Storage::disk('public')->delete($usuario->foto_perfil);
+            }
+            $datos['foto_perfil'] = $request->file('foto_perfil')->store('perfiles', 'public');
+        }
+
+        $usuario->update($datos);
 
         return redirect()->route('perfil.show')->with('success', 'Perfil actualizado exitosamente.');
     }

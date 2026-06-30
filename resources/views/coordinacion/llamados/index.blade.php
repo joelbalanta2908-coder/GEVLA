@@ -55,8 +55,8 @@
         <button class="rounded-lg bg-[#39A900] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2D8200]">Filtrar</button>
     </form>
 
-    <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-        <table class="w-full text-sm">
+    <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+        <table class="w-full min-w-[640px] text-sm">
             <thead class="bg-gray-50 text-left text-xs font-medium uppercase text-gray-500">
                 <tr>
                     <th class="px-5 py-3">Aprendiz</th>

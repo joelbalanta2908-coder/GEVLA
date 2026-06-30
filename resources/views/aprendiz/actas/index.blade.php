@@ -18,7 +18,7 @@
             </div>
         @else
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm text-gray-600">
+                <table class="w-full min-w-[640px] text-left text-sm text-gray-600">
                     <thead class="bg-gray-50 text-xs font-semibold uppercase text-gray-500 border-b border-gray-200">
                         <tr>
                             <th class="px-6 py-4">Código</th>

@@ -75,7 +75,7 @@
             </div>
         @else
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm text-gray-600">
+                <table class="w-full min-w-[640px] text-left text-sm text-gray-600">
                     <thead class="bg-gray-50 text-xs font-semibold uppercase tracking-[0.16em] text-gray-500">
                         <tr>
                             <th scope="col" class="px-5 py-3">Fecha</th>

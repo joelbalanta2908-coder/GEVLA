@@ -10,15 +10,19 @@
         default => route('aprendiz.dashboard'),
     };
 @endphp
-<div class="mx-auto max-w-6xl space-y-6">
+<div class="mx-auto max-w-6xl space-y-6" x-data="{ editando: {{ $errors->any() ? 'true' : 'false' }} }">
     <div class="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
         <section class="overflow-hidden rounded-[30px] border border-[#e6eadf] bg-white shadow-[0_12px_40px_rgba(0,0,0,0.06)]">
             <div class="border-b border-[#eef1e8] bg-[#fafbf8] px-8 py-6">
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div class="flex items-center gap-4">
-                        <div class="flex h-20 w-20 items-center justify-center rounded-3xl bg-[#e8f7e7] text-3xl font-extrabold text-[#39A900] shadow-sm">
-                            {{ strtoupper(substr($usuario->nombres ?? 'U', 0, 1) . substr($usuario->apellidos ?? '', 0, 1)) }}
-                        </div>
+                        @if($usuario->fotoUrl())
+                            <img src="{{ $usuario->fotoUrl() }}" alt="Foto de perfil" class="h-20 w-20 shrink-0 rounded-3xl object-cover shadow-sm">
+                        @else
+                            <div class="flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl bg-[#e8f7e7] text-3xl font-extrabold text-[#39A900] shadow-sm">
+                                {{ $usuario->iniciales() }}
+                            </div>
+                        @endif
                         <div>
                             <p class="text-sm uppercase tracking-[0.28em] text-slate-400">Perfil profesional</p>
                             <h1 class="text-3xl font-extrabold text-slate-900">{{ $usuario->nombres }} {{ $usuario->apellidos }}</h1>
@@ -126,18 +130,17 @@
                     <p class="mt-2">Usa una contraseña segura y actualiza tus datos si cambia tu correo institucional.</p>
                 </div>
                 <div class="flex flex-wrap gap-3">
-                    @if(!$usuario->tieneRol('Aprendiz') || $usuario->tieneRol('Coordinador') || $usuario->tieneRol('Instructor'))
-                        <a href="{{ route('perfil.edit') }}" class="inline-flex items-center gap-2 rounded-full bg-[#39A900] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#247200] shadow-sm">
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 20h9" />
-                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
-                            </svg>
-                            Editar perfil
-                        </a>
-                    @endif
+                    <button type="button" @click="editando = !editando"
+                            class="inline-flex items-center gap-2 rounded-full bg-[#39A900] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#247200] shadow-sm">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 20h9" />
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
+                        </svg>
+                        <span x-text="editando ? 'Ocultar edición' : 'Editar perfil'">Editar perfil</span>
+                    </button>
                     <a href="{{ $dashboardRoute }}" class="inline-flex items-center gap-2 rounded-full border border-[#d8e2cf] bg-white px-5 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50 shadow-sm">
                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 12h18M12 3v18" />
+                            <path d="M3 11.5 12 4l9 7.5M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9" />
                         </svg>
                         Ir al Panel
                     </a>
@@ -207,5 +210,72 @@
             </div>
         </aside>
     </div>
+
+    {{-- Edición de perfil integrada dentro de "Ver mi perfil" --}}
+    <section x-show="editando" x-cloak x-transition
+             class="overflow-hidden rounded-[30px] border border-[#e6eadf] bg-white shadow-[0_12px_40px_rgba(0,0,0,0.06)]">
+        <div class="border-b border-[#eef1e8] bg-[#fafbf8] px-8 py-6">
+            <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Detalles de la cuenta</p>
+            <h2 class="mt-2 text-2xl font-extrabold text-slate-900">Editar mi perfil</h2>
+            <p class="mt-1 text-sm text-slate-500">Actualiza tus datos personales y tu foto de perfil.</p>
+        </div>
+
+        <div class="px-8 py-8">
+            <form method="POST" action="{{ route('perfil.update') }}" enctype="multipart/form-data" class="space-y-8"
+                  x-data="{ preview: '{{ $usuario->fotoUrl() }}' }">
+                @csrf
+                @method('PUT')
+
+                {{-- Foto de perfil --}}
+                <div class="flex flex-col items-center gap-4 sm:flex-row sm:items-center">
+                    <template x-if="preview">
+                        <img :src="preview" alt="Vista previa" class="h-24 w-24 rounded-3xl object-cover shadow-sm">
+                    </template>
+                    <template x-if="!preview">
+                        <div class="flex h-24 w-24 items-center justify-center rounded-3xl bg-[#e8f7e7] text-3xl font-extrabold text-[#39A900] shadow-sm">
+                            {{ $usuario->iniciales() }}
+                        </div>
+                    </template>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Foto de perfil</label>
+                        <input type="file" name="foto_perfil" accept="image/*"
+                               @change="const f=$event.target.files[0]; if(f){ preview = URL.createObjectURL(f); }"
+                               class="block w-full text-sm text-slate-600 file:mr-4 file:rounded-full file:border-0 file:bg-[#39A900] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-[#247200]">
+                        <p class="text-xs text-slate-400">JPG, PNG o WEBP · máximo 2 MB.</p>
+                    </div>
+                </div>
+
+                <div class="grid gap-6 sm:grid-cols-2">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Nombres</label>
+                        <input type="text" name="nombres" required value="{{ old('nombres', $usuario->nombres) }}"
+                               class="w-full rounded-2xl border border-[#d9e4d4] bg-[#f8faf6] px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/20">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Apellidos</label>
+                        <input type="text" name="apellidos" required value="{{ old('apellidos', $usuario->apellidos) }}"
+                               class="w-full rounded-2xl border border-[#d9e4d4] bg-[#f8faf6] px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/20">
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Correo electrónico</label>
+                    <input type="email" name="correo" required value="{{ old('correo', $usuario->correo) }}"
+                           class="w-full rounded-2xl border border-[#d9e4d4] bg-[#f8faf6] px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/20">
+                </div>
+
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <button type="button" @click="editando = false"
+                            class="inline-flex items-center justify-center rounded-full border border-[#d8e2cf] bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                            class="inline-flex items-center justify-center rounded-full bg-[#39A900] px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#247200]">
+                        Guardar cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
 </div>
 @endsection

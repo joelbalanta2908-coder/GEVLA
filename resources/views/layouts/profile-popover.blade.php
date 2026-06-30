@@ -10,12 +10,13 @@
     <div class="space-y-2 bg-[#f8faf7] px-4 py-4">
         <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Mi cuenta</p>
         <div class="flex items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-sm">
-            <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#39A900]/10 text-sm font-black text-[#39A900]">
-                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" />
-                    <path d="M6 20v-1c0-2.21 1.79-4 4-4h4c2.21 0 4 1.79 4 4v1" />
-                </svg>
-            </span>
+            @if($usuario->fotoUrl())
+                <img src="{{ $usuario->fotoUrl() }}" alt="Foto de perfil" class="h-10 w-10 shrink-0 rounded-2xl object-cover">
+            @else
+                <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#39A900]/10 text-sm font-black text-[#39A900]">
+                    {{ $usuario->iniciales() }}
+                </span>
+            @endif
             <div>
                 <p class="text-sm font-bold text-slate-900">{{ $usuario->nombres }} {{ $usuario->apellidos }}</p>
                 <p class="text-xs uppercase tracking-[0.22em] text-slate-400">{{ $usuario->rolPrincipal() ?? 'Usuario' }}</p>
@@ -24,7 +25,7 @@
     </div>
 
     <div class="space-y-1 px-2 py-2">
-        <a href="{{ route('perfil.show') }}" class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+        <a href="{{ route('perfil.show') }}" class="group flex items-center gap-3 rounded-2xl border border-transparent px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-black hover:bg-slate-50">
             <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-[#39A900]/10 text-[#39A900]">
                 <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" />
@@ -33,18 +34,7 @@
             </span>
             <span>Ver mi perfil</span>
         </a>
-        @if(!$usuario->tieneRol('Aprendiz') || $usuario->tieneRol('Coordinador') || $usuario->tieneRol('Instructor'))
-            <a href="{{ route('perfil.edit') }}" class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-                <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-[#00324d]/10 text-[#00324d]">
-                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 20h9" />
-                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
-                    </svg>
-                </span>
-                <span>Editar perfil</span>
-            </a>
-        @endif
-        <a href="{{ route('perfil.help') }}" class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+        <a href="{{ route('perfil.help') }}" class="group flex items-center gap-3 rounded-2xl border border-transparent px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-black hover:bg-slate-50">
             <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-[#ffb703]/10 text-[#ffb703]">
                 <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 6v6l4 2" />
@@ -53,19 +43,6 @@
             </span>
             <span>Soporte y ayuda</span>
         </a>
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit" class="group flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-                <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-red-50 text-red-600">
-                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M10 17h4" />
-                        <path d="M14 7V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2" />
-                        <path d="M13 12h8m0 0-3-3m3 3-3 3" />
-                    </svg>
-                </span>
-                <span>Cerrar sesión</span>
-            </button>
-        </form>
     </div>
 </div>
 

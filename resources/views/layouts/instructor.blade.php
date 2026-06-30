@@ -15,7 +15,9 @@
 </head>
 <body class="h-full bg-[#f5f7f2] font-sans antialiased text-slate-900">
 
-<div x-data="{ sidebarOpen: false, profileMenuOpen: false, profileModalOpen: false }" class="min-h-screen bg-[#f5f7f2] lg:flex">
+<div x-data="{ sidebarOpen: false, sidebarCollapsed: JSON.parse(localStorage.getItem('gevlaSidebarCollapsed') || 'false'), profileMenuOpen: false, profileModalOpen: false }"
+     x-effect="localStorage.setItem('gevlaSidebarCollapsed', sidebarCollapsed)"
+     class="min-h-screen bg-[#f5f7f2] lg:flex">
 
     {{-- Overlay para móvil --}}
     <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false"
@@ -23,20 +25,35 @@
 
     {{-- Sidebar --}}
     <aside
-        :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
-        class="fixed inset-y-0 left-0 z-40 flex w-52 flex-col transform border-r border-white/10 bg-gradient-to-b from-[#1e6a00] via-[#2a7a00] to-[#4db100] text-white shadow-[0_30px_70px_rgba(25,80,0,0.32)] transition-transform duration-200 lg:static lg:translate-x-0">
+        :class="(sidebarOpen ? 'translate-x-0' : '-translate-x-full') + ' ' + (sidebarCollapsed ? 'lg:w-20' : 'lg:w-60')"
+        class="fixed inset-y-0 left-0 z-40 flex w-60 flex-col transform border-r border-white/10 bg-gradient-to-b from-[#1e6a00] via-[#2a7a00] to-[#4db100] text-white shadow-[0_30px_70px_rgba(25,80,0,0.32)] transition-all duration-200 lg:static lg:translate-x-0">
 
-        <div class="flex h-14 items-center gap-3 border-b border-white/10 px-4 sm:px-5">
-            <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/90 shadow-sm ring-1 ring-white/30">
-                <img src="https://oficinavirtualderadicacion.sena.edu.co/oficinavirtual/Resources/logoSenaNaranja.png" alt="Logosímbolo SENA" class="h-6 w-auto">
+        <div class="flex h-14 items-center justify-between gap-2 border-b border-white/10 px-4">
+            <div class="flex items-center gap-3 overflow-hidden">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/90 shadow-sm ring-1 ring-white/30">
+                    <img src="https://oficinavirtualderadicacion.sena.edu.co/oficinavirtual/Resources/logoSenaNaranja.png" alt="Logosímbolo SENA" class="h-6 w-auto">
+                </div>
+                <div class="leading-tight" :class="sidebarCollapsed && 'lg:hidden'">
+                    <p class="text-base font-extrabold tracking-tight text-white">GEVLA</p>
+                    <p class="text-xs font-semibold text-white/80">SENA Regional</p>
+                </div>
             </div>
-            <div class="leading-tight">
-                <p class="text-base font-extrabold tracking-tight text-white">Asistencias</p>
-                <p class="text-xs font-semibold text-white/80">SENA Regional</p>
-            </div>
+            <button type="button" @click="sidebarCollapsed = !sidebarCollapsed"
+                    class="hidden h-8 w-8 shrink-0 items-center justify-center rounded-xl text-white/80 transition hover:bg-white/10 hover:text-white lg:flex"
+                    :title="sidebarCollapsed ? 'Desplegar menú' : 'Colapsar menú'">
+                <svg class="h-5 w-5 transition-transform duration-200" :class="sidebarCollapsed && 'rotate-180'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 6l-6 6 6 6"/>
+                </svg>
+            </button>
+            <button type="button" @click="sidebarOpen = false"
+                    class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-white/80 transition hover:bg-white/10 lg:hidden">
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 6l12 12M18 6 6 18"/>
+                </svg>
+            </button>
         </div>
 
-        <nav class="flex-1 overflow-y-auto px-4 py-4.5">
+        <nav class="flex-1 overflow-y-auto px-3 py-4">
             @php
                 $navItems = [
                     ['label' => 'Mi Dashboard', 'route' => 'instructor.dashboard', 'icon' => 'home'],
@@ -47,48 +64,91 @@
                     'bell' => 'M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9',
                 ];
             @endphp
-            <p class="px-2 pb-2 text-[11px] font-bold uppercase tracking-[0.22em] text-white/45">Principal</p>
+            <p class="px-2 pb-2 text-[11px] font-bold uppercase tracking-[0.22em] text-white/45" :class="sidebarCollapsed && 'lg:hidden'">Principal</p>
             @foreach($navItems as $item)
                 @php $active = request()->routeIs($item['route'].'*'); @endphp
                 <a href="{{ route($item['route']) }}"
-                   class="mb-1.5 flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-semibold transition-all
+                   :class="sidebarCollapsed && 'lg:justify-center'"
+                   class="group relative mb-1.5 flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-semibold transition-all
                     {{ $active ? 'bg-white text-[#39A900] shadow-[0_10px_24px_rgba(0,0,0,0.08)]' : 'text-white/85 hover:bg-white/10 hover:text-white' }}">
                     <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="{{ $icons[$item['icon']] }}"/>
                     </svg>
-                    {{ $item['label'] }}
+                    <span :class="sidebarCollapsed && 'lg:hidden'">{{ $item['label'] }}</span>
+                    <span x-show="sidebarCollapsed" x-cloak
+                          class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 hidden -translate-y-1/2 whitespace-nowrap rounded-lg bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100 lg:block">
+                        {{ $item['label'] }}
+                    </span>
                 </a>
             @endforeach
         </nav>
 
-        <div class="border-t border-white/10 p-4">
-            <span class="inline-flex items-center gap-2 rounded-full bg-white/12 px-3 py-1.5 text-[11px] font-medium text-white/80 ring-1 ring-white/10 backdrop-blur">
-                <span class="h-1.5 w-1.5 rounded-full bg-white"></span>
-                Portal Instructor
-            </span>
+        {{-- Cerrar sesión en la parte inferior del dashboard --}}
+        <div class="border-t border-white/10 p-3">
+            <form method="POST" action="{{ route('logout') }}"
+                  onsubmit="return confirm('¿Estás seguro de que deseas cerrar sesión?');">
+                @csrf
+                <button type="submit"
+                        :class="sidebarCollapsed && 'lg:justify-center'"
+                        class="group relative flex w-full items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-semibold text-white/90 transition hover:bg-white/10 hover:text-white">
+                    <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 7V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2"/>
+                        <path d="M13 12h8m0 0-3-3m3 3-3 3"/>
+                    </svg>
+                    <span :class="sidebarCollapsed && 'lg:hidden'">Cerrar sesión</span>
+                    <span x-show="sidebarCollapsed" x-cloak
+                          class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 hidden -translate-y-1/2 whitespace-nowrap rounded-lg bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100 lg:block">
+                        Cerrar sesión
+                    </span>
+                </button>
+            </form>
         </div>
     </aside>
 
     {{-- Contenido principal --}}
     <div class="flex min-h-screen flex-1 flex-col">
         <header class="flex h-14 items-center justify-between border-b border-[#e3e7df] bg-white px-4 sm:px-5 lg:px-6 shadow-[0_8px_24px_rgba(0,0,0,0.03)]">
+            @php $enDashboard = request()->routeIs('instructor.dashboard'); @endphp
             <div class="flex items-center gap-3">
                 <button @click="sidebarOpen = true" class="text-slate-500 transition hover:text-[#39A900] lg:hidden">
                     <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/>
                     </svg>
                 </button>
+                @unless($enDashboard)
+                    <a href="{{ route('instructor.dashboard') }}" title="Ir al panel principal"
+                       class="flex h-9 w-9 items-center justify-center rounded-xl bg-[#39A900]/10 text-[#39A900] ring-1 ring-[#39A900]/15 transition hover:bg-[#39A900]/20">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 11.5 12 4l9 7.5M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/>
+                        </svg>
+                    </a>
+                @endunless
                 <h1 class="text-sm font-bold text-slate-900 sm:text-[15px]">@yield('titulo', 'Panel del Instructor')</h1>
             </div>
 
             <div class="flex items-center gap-3 sm:gap-4">
+                <div class="hidden items-center gap-3 text-slate-600 md:flex">
+                    <svg class="h-5 w-5 text-[#39A900]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 8v4l3 3" />
+                        <circle cx="12" cy="12" r="9" />
+                    </svg>
+                    <div class="min-w-0 text-sm leading-tight">
+                        <p class="truncate font-semibold text-slate-900" data-reloj>{{ now()->timezone('America/Bogota')->format('h:i:s A') }}</p>
+                        <p class="truncate text-xs uppercase tracking-[0.22em] text-slate-400" data-fecha>Hora local · Bogotá</p>
+                    </div>
+                </div>
+
                 <div class="relative" @keydown.escape.window="profileMenuOpen = false; profileModalOpen = false">
                     <button type="button"
                             @click="profileMenuOpen = !profileMenuOpen"
                             class="flex items-center gap-3 rounded-full border border-[#dce3d5] bg-white px-4 py-2 shadow-[0_8px_24px_rgba(0,0,0,0.03)] transition hover:border-[#c9d7be]">
-                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#39A900]/10 text-sm font-black text-[#39A900] ring-2 ring-white">
-                            {{ substr(auth()->user()->nombres ?? 'I', 0, 1) }}{{ substr(auth()->user()->apellidos ?? '', 0, 1) }}
-                        </div>
+                        @if(auth()->user()->fotoUrl())
+                            <img src="{{ auth()->user()->fotoUrl() }}" alt="Foto de perfil" class="h-9 w-9 shrink-0 rounded-full object-cover ring-2 ring-white">
+                        @else
+                            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#39A900]/10 text-sm font-black text-[#39A900] ring-2 ring-white">
+                                {{ auth()->user()->iniciales() }}
+                            </div>
+                        @endif
                         <div class="hidden text-right sm:block">
                             <p class="text-base font-bold text-slate-900">{{ auth()->user()->nombres ?? 'Instructor' }} {{ auth()->user()->apellidos ?? '' }}</p>
                             <p class="text-xs font-medium text-slate-500">Instructor SENA</p>
@@ -129,5 +189,18 @@
     </div>
 </div>
 
+    <script>
+        (function () {
+            function actualizarReloj() {
+                const ahora = new Date();
+                const hora = ahora.toLocaleTimeString('es-CO', { timeZone: 'America/Bogota', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+                const fecha = ahora.toLocaleDateString('es-CO', { timeZone: 'America/Bogota', weekday: 'long', day: '2-digit', month: 'long' });
+                document.querySelectorAll('[data-reloj]').forEach(el => el.textContent = hora);
+                document.querySelectorAll('[data-fecha]').forEach(el => el.textContent = fecha.charAt(0).toUpperCase() + fecha.slice(1) + ' · Bogotá');
+            }
+            actualizarReloj();
+            setInterval(actualizarReloj, 1000);
+        })();
+    </script>
 </body>
 </html>

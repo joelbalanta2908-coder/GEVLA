@@ -88,7 +88,7 @@
             </div>
 
             <div class="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <a href="{{ route('perfil.edit') }}" class="inline-flex items-center justify-center rounded-full bg-[#39A900] px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#247200]">
+                <a href="{{ route('perfil.show') }}" class="inline-flex items-center justify-center rounded-full bg-[#39A900] px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#247200]">
                     Editar mi perfil
                 </a>
                 <a href="{{ route('perfil.show') }}" class="inline-flex items-center justify-center rounded-full border border-[#d8e2cf] bg-white px-6 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50">
