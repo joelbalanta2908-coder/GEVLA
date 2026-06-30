@@ -10,6 +10,7 @@ use App\Models\HistorialProcesoDisciplinario;
 use App\Models\ProcesoDisciplinario;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -33,7 +34,34 @@ class ProcesoController extends Controller
 
         $procesos = $query->orderByDesc('fecha_inicio')->paginate(15)->withQueryString();
 
-        return view('coordinacion.procesos.index', compact('procesos'));
+        $months = collect(range(5, 0, -1))
+            ->map(fn (int $monthsAgo) => now()->subMonths($monthsAgo))
+            ->map(fn (Carbon $date) => [
+                'key' => $date->format('Y-m'),
+                'label' => $date->locale('es')->translatedFormat('M Y'),
+            ]);
+
+        $monthKeys = $months->pluck('key')->toArray();
+        $trendLabels = $months->pluck('label')->toArray();
+
+        $procesosPorMes = ProcesoDisciplinario::selectRaw('DATE_FORMAT(fecha_inicio, "%Y-%m") as month')
+            ->selectRaw('COUNT(*) as total')
+            ->whereBetween('fecha_inicio', [now()->subMonths(5)->startOfMonth(), now()->endOfMonth()])
+            ->groupBy('month')
+            ->pluck('total', 'month')
+            ->toArray();
+
+        $procesosTrend = array_map(fn ($key) => $procesosPorMes[$key] ?? 0, $monthKeys);
+
+        $statusLabels = ['activo', 'suspendido', 'finalizado', 'apelacion'];
+        $procesosPorEstado = ProcesoDisciplinario::selectRaw('estado_proceso as estado')
+            ->selectRaw('COUNT(*) as total')
+            ->groupBy('estado_proceso')
+            ->pluck('total', 'estado')
+            ->toArray();
+        $procesosEstadoData = array_map(fn ($key) => $procesosPorEstado[$key] ?? 0, $statusLabels);
+
+        return view('coordinacion.procesos.index', compact('procesos', 'trendLabels', 'procesosTrend', 'statusLabels', 'procesosEstadoData'));
     }
 
     /**

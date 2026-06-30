@@ -33,6 +33,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/ver', [\App\Http\Controllers\PerfilController::class, 'show'])->name('show');
         Route::get('/editar', [\App\Http\Controllers\PerfilController::class, 'edit'])->name('edit');
         Route::put('/actualizar', [\App\Http\Controllers\PerfilController::class, 'update'])->name('update');
+        Route::get('/ayuda', [\App\Http\Controllers\PerfilController::class, 'help'])->name('help');
     });
     // Rutas de Aprendiz
     Route::prefix('aprendiz')->name('aprendiz.')->group(function () {

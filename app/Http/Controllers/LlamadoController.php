@@ -9,6 +9,7 @@ use App\Models\Instructor;
 use App\Models\LlamadoAtencion;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -42,7 +43,34 @@ class LlamadoController extends Controller
 
         $llamados = $query->orderByDesc('fecha_llamado')->paginate(15)->withQueryString();
 
-        return view('coordinacion.llamados.index', compact('llamados'));
+        $months = collect(range(5, 0, -1))
+            ->map(fn (int $monthsAgo) => now()->subMonths($monthsAgo))
+            ->map(fn (Carbon $date) => [
+                'key' => $date->format('Y-m'),
+                'label' => $date->locale('es')->translatedFormat('M Y'),
+            ]);
+
+        $monthKeys = $months->pluck('key')->toArray();
+        $trendLabels = $months->pluck('label')->toArray();
+
+        $llamadosPorMes = LlamadoAtencion::selectRaw('DATE_FORMAT(fecha_llamado, "%Y-%m") as month')
+            ->selectRaw('COUNT(*) as total')
+            ->whereBetween('fecha_llamado', [now()->subMonths(5)->startOfMonth(), now()->endOfMonth()])
+            ->groupBy('month')
+            ->pluck('total', 'month')
+            ->toArray();
+
+        $llamadosTrend = array_map(fn ($key) => $llamadosPorMes[$key] ?? 0, $monthKeys);
+
+        $statusLabels = ['registrado', 'en_revision', 'notificado', 'cerrado', 'cancelado'];
+        $llamadosPorEstado = LlamadoAtencion::selectRaw('estado_llamado as estado')
+            ->selectRaw('COUNT(*) as total')
+            ->groupBy('estado_llamado')
+            ->pluck('total', 'estado')
+            ->toArray();
+        $llamadosEstadoData = array_map(fn ($key) => $llamadosPorEstado[$key] ?? 0, $statusLabels);
+
+        return view('coordinacion.llamados.index', compact('llamados', 'trendLabels', 'llamadosTrend', 'statusLabels', 'llamadosEstadoData'));
     }
 
     /**

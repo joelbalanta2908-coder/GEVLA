@@ -50,6 +50,17 @@ class PerfilController extends Controller
     }
 
     /**
+     * Muestra la vista de ayuda y soporte del perfil.
+     */
+    public function help(): View
+    {
+        $usuario = Auth::user();
+        $layout = $this->getLayoutName($usuario);
+
+        return view('perfil.help', compact('usuario', 'layout'));
+    }
+
+    /**
      * Actualiza los datos del usuario en la base de datos.
      */
     public function update(Request $request): RedirectResponse

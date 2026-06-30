@@ -60,16 +60,40 @@
             'flow' => 'M5 6h4v4H5V6Zm10 0h4v4h-4V6ZM5 16h4v4H5v-4Zm10 0h4v4h-4v-4M9 8h4m2 0h0M9 18h4m2-12v8m0 0v4',
             'pulse' => 'M3 12h4l2-6 4 12 2-6h6',
         ];
-    @endphp
+
+        $llamadosLabels = ['Registrados', 'En revisión', 'Notificados', 'Cerrados', 'Cancelados'];
+        $llamadosEstado = [
+            $llamadosPorEstado['registrado'] ?? 0,
+            $llamadosPorEstado['en_revision'] ?? 0,
+            $llamadosPorEstado['notificado'] ?? 0,
+            $llamadosPorEstado['cerrado'] ?? 0,
+            $llamadosPorEstado['cancelado'] ?? 0,
+        ];
+
+        $actasLabels = ['Expedido', 'Notificado', 'Firme'];
+        $actasEstado = [
+            $actasPorEstado['expedido'] ?? 0,
+            $actasPorEstado['notificado'] ?? 0,
+            $actasPorEstado['firme'] ?? 0,
+        ];
+
+        $procesosLabels = ['Activo', 'Suspendido', 'Finalizado', 'Apelación'];
+        $procesosEstado = [
+            $procesosPorEstado['activo'] ?? 0,
+            $procesosPorEstado['suspendido'] ?? 0,
+            $procesosPorEstado['finalizado'] ?? 0,
+            $procesosPorEstado['apelacion'] ?? 0,
+        ];
+        
+        $statusColors = ['#39A900', '#ff6a13', '#00324d', '#10b981', '#f97316'];
+        
+        @endphp
 
     <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div class="space-y-2">
             <p class="text-[11px] font-extrabold uppercase tracking-[0.32em] text-[#39A900]">Gestión académica</p>
             <h2 class="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-[2rem] lg:text-[2.25rem]">Panel Administrativo</h2>
-            <p class="max-w-2xl text-base text-slate-500">Bienvenido, {{ auth()->user()->nombres ?? 'Coordinador' }}. Aquí tienes el seguimiento general de llamados, actas y procesos disciplinarios.</p>
-        </div>
-
-        <div class="flex flex-wrap gap-3">
+            <p class="max-w-full text-sm font-semibold text-slate-500 break-words">{{ \Carbon\Carbon::now('America/Bogota')->locale('es')->translatedFormat('l, d \d\e F Y \a \l\a\s h:i A') }}</p>
             <a href="{{ route('coordinacion.actas.index') }}" class="rounded-2xl border border-[#d8e2cf] bg-white px-4 py-3 text-sm font-extrabold text-[#39A900] shadow-[0_10px_30px_rgba(0,0,0,0.04)] transition hover:border-[#b9d8a5] hover:shadow-[0_12px_34px_rgba(57,169,0,0.08)]">
                 Reportes
             </a>
@@ -94,6 +118,70 @@
                 <p class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-[2rem]">{{ $metrica['value'] }}</p>
             </div>
         @endforeach
+    </div>
+
+    @isset($trendLabels)
+        <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
+            <div class="overflow-hidden rounded-[28px] border border-[#e6eadf] bg-white shadow-[0_10px_28px_rgba(0,0,0,0.04)]">
+                <div class="border-b border-[#eef1e8] bg-[#fafbf8] px-5 py-4">
+                    <h3 class="text-base font-extrabold text-slate-900">Tendencia de llamados</h3>
+                    <p class="mt-1 text-sm text-slate-500">Llamados de atención registrados en los últimos 6 meses.</p>
+                </div>
+                <div class="p-5">
+                    <canvas id="chart-llamados" class="w-full h-64"></canvas>
+                </div>
+            </div>
+
+            <div class="overflow-hidden rounded-[28px] border border-[#e6eadf] bg-white shadow-[0_10px_28px_rgba(0,0,0,0.04)]">
+                <div class="border-b border-[#eef1e8] bg-[#fafbf8] px-5 py-4">
+                    <h3 class="text-base font-extrabold text-slate-900">Actas expedidas</h3>
+                    <p class="mt-1 text-sm text-slate-500">Actas expedidas por mes.</p>
+                </div>
+                <div class="p-5">
+                    <canvas id="chart-actas" class="w-full h-64"></canvas>
+                </div>
+            </div>
+
+            <div class="overflow-hidden rounded-[28px] border border-[#e6eadf] bg-white shadow-[0_10px_28px_rgba(0,0,0,0.04)]">
+                <div class="border-b border-[#eef1e8] bg-[#fafbf8] px-5 py-4">
+                    <h3 class="text-base font-extrabold text-slate-900">Procesos iniciados</h3>
+                    <p class="mt-1 text-sm text-slate-500">Procesos disciplinarios iniciados en los últimos 6 meses.</p>
+                </div>
+                <div class="p-5">
+                    <canvas id="chart-procesos" class="w-full h-64"></canvas>
+                </div>
+            </div>
+        </div>
+    @endisset
+
+    <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
+        <div class="overflow-hidden rounded-[28px] border border-[#e6eadf] bg-white shadow-[0_10px_28px_rgba(0,0,0,0.04)]">
+            <div class="border-b border-[#eef1e8] bg-[#fafbf8] px-5 py-4">
+                <h3 class="text-base font-extrabold text-slate-900">Llamados por estado</h3>
+                <p class="mt-1 text-sm text-slate-500">Distribución actual de los estados de los llamados.</p>
+            </div>
+            <div class="p-5">
+                <canvas id="chart-llamados-status" class="w-full h-56"></canvas>
+            </div>
+        </div>
+        <div class="overflow-hidden rounded-[28px] border border-[#e6eadf] bg-white shadow-[0_10px_28px_rgba(0,0,0,0.04)]">
+            <div class="border-b border-[#eef1e8] bg-[#fafbf8] px-5 py-4">
+                <h3 class="text-base font-extrabold text-slate-900">Actas por estado</h3>
+                <p class="mt-1 text-sm text-slate-500">Estado actual de las actas expedidas.</p>
+            </div>
+            <div class="p-5">
+                <canvas id="chart-actas-status" class="w-full h-56"></canvas>
+            </div>
+        </div>
+        <div class="overflow-hidden rounded-[28px] border border-[#e6eadf] bg-white shadow-[0_10px_28px_rgba(0,0,0,0.04)]">
+            <div class="border-b border-[#eef1e8] bg-[#fafbf8] px-5 py-4">
+                <h3 class="text-base font-extrabold text-slate-900">Procesos por estado</h3>
+                <p class="mt-1 text-sm text-slate-500">Estado actual de los procesos disciplinarios.</p>
+            </div>
+            <div class="p-5">
+                <canvas id="chart-procesos-status" class="w-full h-56"></canvas>
+            </div>
+        </div>
     </div>
 
     <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
@@ -198,4 +286,89 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    const dashboardLabels = @json($trendLabels ?? []);
+    const dashboardLlamados = @json($llamadosTrend ?? []);
+    const dashboardActas = @json($actasTrend ?? []);
+    const dashboardProcesos = @json($procesosTrend ?? []);
+
+    function createTrendChart(canvasId, type, label, data, color) {
+        const ctx = document.getElementById(canvasId);
+        if (!ctx) return;
+        new Chart(ctx, {
+            type,
+            data: {
+                labels: dashboardLabels,
+                datasets: [{
+                    label,
+                    data,
+                    borderColor: color,
+                    backgroundColor: type === 'bar' ? color + '33' : color + '22',
+                    fill: type === 'line',
+                    tension: 0.4,
+                    pointRadius: 4,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#e9ecef' } },
+                    x: { grid: { display: false } },
+                },
+            },
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        createTrendChart('chart-llamados', 'line', 'Llamados', dashboardLlamados, '#39A900');
+        createTrendChart('chart-actas', 'bar', 'Actas', dashboardActas, '#00324d');
+        createTrendChart('chart-procesos', 'line', 'Procesos', dashboardProcesos, '#ff6a13');
+
+        const dashboardLlamadosStatusLabels = @json($llamadosLabels ?? []);
+        const dashboardLlamadosStatusData = @json($llamadosEstado ?? []);
+        const dashboardActasStatusLabels = @json($actasLabels ?? []);
+        const dashboardActasStatusData = @json($actasEstado ?? []);
+        const dashboardProcesosStatusLabels = @json($procesosLabels ?? []);
+        const dashboardProcesosStatusData = @json($procesosEstado ?? []);
+
+        function createStatusChart(canvasId, labels, data, color) {
+            const ctx = document.getElementById(canvasId);
+            if (!ctx) return;
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Cantidad',
+                        data,
+                        backgroundColor: labels.map((_, index) => [
+                            '#39A90033', '#ff6a1333', '#00324d33', '#10b98133', '#f9731633',
+                        ][index % 5]),
+                        borderColor: labels.map((_, index) => [
+                            '#39A900', '#ff6a13', '#00324d', '#10b981', '#f97316',
+                        ][index % 5]),
+                        borderWidth: 1,
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, grid: { color: '#e9ecef' } }, x: { grid: { display: false } } },
+                },
+            });
+        }
+
+        createStatusChart('chart-llamados-status', dashboardLlamadosStatusLabels, dashboardLlamadosStatusData, '#39A900');
+        createStatusChart('chart-actas-status', dashboardActasStatusLabels, dashboardActasStatusData, '#00324d');
+        createStatusChart('chart-procesos-status', dashboardProcesosStatusLabels, dashboardProcesosStatusData, '#ff6a13');
+    });
+</script>
 @endsection

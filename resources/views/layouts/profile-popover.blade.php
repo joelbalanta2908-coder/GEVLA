@@ -6,31 +6,67 @@
      x-show="profileMenuOpen"
      x-transition.origin.top.right
      @click.away="profileMenuOpen = false"
-    class="absolute right-0 top-full z-50 mt-2.5 w-60 overflow-hidden rounded-2xl border border-[#dce3d5] bg-white shadow-[0_18px_40px_rgba(0,0,0,0.12)]">
-    <button type="button"
-            @click="profileMenuOpen = false; profileModalOpen = true"
-            class="group flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-        <span class="flex h-8 w-8 items-center justify-center rounded-full bg-[#39A900]/10 text-xs font-black text-[#39A900] transition group-hover:bg-[#39A900]/15 group-hover:text-[#247200]">
-            <span class="h-2.5 w-2.5 rounded-full bg-[#39A900] transition group-hover:scale-125 group-hover:bg-[#247200]"></span>
-        </span>
-        <span>Mi perfil</span>
-    </button>
-
-    <div class="h-px bg-slate-100"></div>
-
-    <form method="POST" action="{{ route('logout') }}">
-        @csrf
-        <button type="submit" class="group flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-red-50 text-red-600">
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M10 17h4" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M14 7V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M13 12h8m0 0-3-3m3 3-3 3" stroke-linecap="round" stroke-linejoin="round"/>
+    class="absolute right-0 top-full z-50 mt-2.5 w-72 overflow-hidden rounded-3xl border border-[#dce3d5] bg-white shadow-[0_18px_40px_rgba(0,0,0,0.12)]">
+    <div class="space-y-2 bg-[#f8faf7] px-4 py-4">
+        <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Mi cuenta</p>
+        <div class="flex items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-sm">
+            <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#39A900]/10 text-sm font-black text-[#39A900]">
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" />
+                    <path d="M6 20v-1c0-2.21 1.79-4 4-4h4c2.21 0 4 1.79 4 4v1" />
                 </svg>
             </span>
-            <span>Cerrar sesión</span>
-        </button>
-    </form>
+            <div>
+                <p class="text-sm font-bold text-slate-900">{{ $usuario->nombres }} {{ $usuario->apellidos }}</p>
+                <p class="text-xs uppercase tracking-[0.22em] text-slate-400">{{ $usuario->rolPrincipal() ?? 'Usuario' }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="space-y-1 px-2 py-2">
+        <a href="{{ route('perfil.show') }}" class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-[#39A900]/10 text-[#39A900]">
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" />
+                    <path d="M6 20v-1c0-2.21 1.79-4 4-4h4c2.21 0 4 1.79 4 4v1" />
+                </svg>
+            </span>
+            <span>Ver mi perfil</span>
+        </a>
+        @if(!$usuario->tieneRol('Aprendiz') || $usuario->tieneRol('Coordinador') || $usuario->tieneRol('Instructor'))
+            <a href="{{ route('perfil.edit') }}" class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-[#00324d]/10 text-[#00324d]">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20h9" />
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
+                    </svg>
+                </span>
+                <span>Editar perfil</span>
+            </a>
+        @endif
+        <a href="{{ route('perfil.help') }}" class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-[#ffb703]/10 text-[#ffb703]">
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 6v6l4 2" />
+                    <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+            </span>
+            <span>Soporte y ayuda</span>
+        </a>
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" class="group flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-red-50 text-red-600">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10 17h4" />
+                        <path d="M14 7V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2" />
+                        <path d="M13 12h8m0 0-3-3m3 3-3 3" />
+                    </svg>
+                </span>
+                <span>Cerrar sesión</span>
+            </button>
+        </form>
+    </div>
 </div>
 
 <div x-cloak

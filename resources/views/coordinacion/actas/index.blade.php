@@ -16,6 +16,29 @@
         </a>
     </div>
 
+    @isset($trendLabels)
+        <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+            <div class="overflow-hidden rounded-[28px] border border-gray-200 bg-white shadow-sm">
+                <div class="border-b border-gray-100 bg-gray-50 px-5 py-4">
+                    <h3 class="text-base font-extrabold text-slate-900">Tendencia de actas</h3>
+                    <p class="mt-1 text-sm text-slate-500">Actas expedidas en los últimos 6 meses.</p>
+                </div>
+                <div class="p-5">
+                    <canvas id="chart-actas-trend" class="w-full h-72"></canvas>
+                </div>
+            </div>
+            <div class="overflow-hidden rounded-[28px] border border-gray-200 bg-white shadow-sm">
+                <div class="border-b border-gray-100 bg-gray-50 px-5 py-4">
+                    <h3 class="text-base font-extrabold text-slate-900">Actas por estado</h3>
+                    <p class="mt-1 text-sm text-slate-500">Distribución de estados actuales.</p>
+                </div>
+                <div class="p-5">
+                    <canvas id="chart-actas-state" class="w-full h-72"></canvas>
+                </div>
+            </div>
+        </div>
+    @endisset
+
     <form method="GET" class="flex flex-wrap gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
         <select name="tipo_acta" class="rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
             <option value="">Tipo: todas</option>
@@ -85,4 +108,59 @@
         {{ $actas->links() }}
     @endif
 </div>
+
+@section('scripts')
+<script>
+    const actasTrendLabels = @json($trendLabels ?? []);
+    const actasTrendData = @json($actasTrend ?? []);
+    const actasElement = document.getElementById('chart-actas-trend');
+
+    if (actasElement) {
+        new Chart(actasElement, {
+            type: 'bar',
+            data: {
+                labels: actasTrendLabels,
+                datasets: [{
+                    label: 'Actas',
+                    data: actasTrendData,
+                    backgroundColor: '#00324dcc',
+                    borderColor: '#00324d',
+                    borderWidth: 1,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, grid: { color: '#e5e7eb' } }, x: { grid: { display: false } } },
+            },
+        });
+    }
+
+    const actasStateLabels = @json($statusLabels ?? ['Expedido','Notificado','Firme']);
+    const actasStateData = @json($actasEstadoData ?? []);
+    const actasStateElement = document.getElementById('chart-actas-state');
+
+    if (actasStateElement) {
+        new Chart(actasStateElement, {
+            type: 'bar',
+            data: {
+                labels: actasStateLabels,
+                datasets: [{
+                    label: 'Estados',
+                    data: actasStateData,
+                    backgroundColor: ['#00324d33','#ff6a1333','#10b98133'],
+                    borderColor: ['#00324d','#ff6a13','#10b981'],
+                    borderWidth: 1,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, grid: { color: '#e5e7eb' } }, x: { grid: { display: false } } },
+            },
+        });
+    }
+</script>
 @endsection

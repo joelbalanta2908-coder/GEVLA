@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>GEVLA | @yield('titulo', 'Coordinador')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -111,24 +112,31 @@
             </div>
 
             <div class="flex items-center gap-3 sm:gap-4">
-                <div class="hidden items-center gap-3 rounded-full border border-[#dce3d5] bg-white px-4 py-2 shadow-[0_8px_24px_rgba(0,0,0,0.03)] md:flex">
-                    <div class="text-right">
-                        <p class="text-xs font-medium text-[#6f8a73]">{{ \Illuminate\Support\Str::title(now()->locale('es')->translatedFormat('l, j \d\e F \d\e Y')) }}</p>
-                        <p class="text-base font-extrabold tracking-tight text-slate-800">{{ now()->format('h:i A') }}</p>
+                <div class="hidden items-center gap-3 text-slate-600 md:flex">
+                    <svg class="h-5 w-5 text-[#39A900]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 8v4l3 3" />
+                        <circle cx="12" cy="12" r="9" />
+                    </svg>
+                    <div class="min-w-0 text-sm leading-tight">
+                        <p class="truncate font-semibold text-slate-900">{{ now()->timezone('America/Bogota')->format('h:i A') }}</p>
+                        <p class="truncate text-[11px] uppercase tracking-[0.22em] text-slate-400">Hora local · Bogotá</p>
                     </div>
                 </div>
 
                 <div class="relative" @keydown.escape.window="profileMenuOpen = false; profileModalOpen = false">
                     <button type="button"
                             @click="profileMenuOpen = !profileMenuOpen"
-                            class="flex items-center gap-3 rounded-full border border-[#dce3d5] bg-white px-3 py-1.5 shadow-[0_8px_24px_rgba(0,0,0,0.03)] transition hover:border-[#c9d7be]">
-                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#39A900]/10 text-sm font-black text-[#39A900] ring-2 ring-white">
+                            class="flex items-center gap-3 rounded-full bg-white px-3 py-1.5 shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition duration-200 hover:shadow-[0_14px_40px_rgba(0,0,0,0.10)]">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#39A900]/10 text-sm font-black text-[#39A900] ring-2 ring-[#39A900]/20">
                             {{ substr(auth()->user()->nombres ?? 'C', 0, 1) }}{{ substr(auth()->user()->apellidos ?? '', 0, 1) }}
                         </div>
-                        <div class="hidden text-right sm:block">
+                        <div class="hidden text-left sm:block">
                             <p class="text-base font-bold text-slate-900">{{ auth()->user()->nombres ?? 'Coordinador' }}</p>
                             <p class="text-xs font-medium text-slate-500">{{ optional(auth()->user()->coordinacion)->cargo ?? 'Coordinación' }}</p>
                         </div>
+                        <svg class="hidden h-4 w-4 text-slate-400 sm:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
                     </button>
 
                     @include('layouts.profile-popover')
@@ -165,5 +173,6 @@
     </div>
 </div>
 
+    @yield('scripts')
 </body>
 </html>

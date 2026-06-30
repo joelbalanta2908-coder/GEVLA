@@ -10,6 +10,7 @@ use App\Models\Falta;
 use App\Models\LlamadoAtencion;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -32,7 +33,34 @@ class ActaController extends Controller
 
         $actas = $query->orderByDesc('fecha_expedicion')->paginate(15)->withQueryString();
 
-        return view('coordinacion.actas.index', compact('actas'));
+        $months = collect(range(5, 0, -1))
+            ->map(fn (int $monthsAgo) => now()->subMonths($monthsAgo))
+            ->map(fn (Carbon $date) => [
+                'key' => $date->format('Y-m'),
+                'label' => $date->locale('es')->translatedFormat('M Y'),
+            ]);
+
+        $monthKeys = $months->pluck('key')->toArray();
+        $trendLabels = $months->pluck('label')->toArray();
+
+        $actasPorMes = ActaCoordinacion::selectRaw('DATE_FORMAT(fecha_expedicion, "%Y-%m") as month')
+            ->selectRaw('COUNT(*) as total')
+            ->whereBetween('fecha_expedicion', [now()->subMonths(5)->startOfMonth(), now()->endOfMonth()])
+            ->groupBy('month')
+            ->pluck('total', 'month')
+            ->toArray();
+
+        $actasTrend = array_map(fn ($key) => $actasPorMes[$key] ?? 0, $monthKeys);
+
+        $statusLabels = ['expedido', 'notificado', 'firme'];
+        $actasPorEstado = ActaCoordinacion::selectRaw('estado_acta as estado')
+            ->selectRaw('COUNT(*) as total')
+            ->groupBy('estado_acta')
+            ->pluck('total', 'estado')
+            ->toArray();
+        $actasEstadoData = array_map(fn ($key) => $actasPorEstado[$key] ?? 0, $statusLabels);
+
+        return view('coordinacion.actas.index', compact('actas', 'trendLabels', 'actasTrend', 'statusLabels', 'actasEstadoData'));
     }
 
     /**

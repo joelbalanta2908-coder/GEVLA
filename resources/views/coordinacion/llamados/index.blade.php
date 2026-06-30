@@ -10,6 +10,29 @@
         <p class="text-gray-500">Revisa y da seguimiento a los llamados reportados por los instructores.</p>
     </div>
 
+    @isset($trendLabels)
+        <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+            <div class="overflow-hidden rounded-[28px] border border-gray-200 bg-white shadow-sm">
+                <div class="border-b border-gray-100 bg-gray-50 px-5 py-4">
+                    <h3 class="text-base font-extrabold text-slate-900">Tendencia de llamados</h3>
+                    <p class="mt-1 text-sm text-slate-500">Evolución mensual de los llamados de atención.</p>
+                </div>
+                <div class="p-5">
+                    <canvas id="chart-llamados-trend" class="w-full h-72"></canvas>
+                </div>
+            </div>
+            <div class="overflow-hidden rounded-[28px] border border-gray-200 bg-white shadow-sm">
+                <div class="border-b border-gray-100 bg-gray-50 px-5 py-4">
+                    <h3 class="text-base font-extrabold text-slate-900">Llamados por estado</h3>
+                    <p class="mt-1 text-sm text-slate-500">Distribución de estados actuales.</p>
+                </div>
+                <div class="p-5">
+                    <canvas id="chart-llamados-state" class="w-full h-72"></canvas>
+                </div>
+            </div>
+        </div>
+    @endisset
+
     <form method="GET" class="flex flex-wrap gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
         <input type="text" name="buscar" value="{{ request('buscar') }}" placeholder="Buscar por aprendiz o asunto"
                class="min-w-[220px] flex-1 rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
@@ -86,4 +109,61 @@
         {{ $llamados->links() }}
     @endif
 </div>
+
+@section('scripts')
+<script>
+    const llamadosTrendLabels = @json($trendLabels ?? []);
+    const llamadosTrendData = @json($llamadosTrend ?? []);
+    const llamadosElement = document.getElementById('chart-llamados-trend');
+
+    if (llamadosElement) {
+        new Chart(llamadosElement, {
+            type: 'line',
+            data: {
+                labels: llamadosTrendLabels,
+                datasets: [{
+                    label: 'Llamados',
+                    data: llamadosTrendData,
+                    borderColor: '#39A900',
+                    backgroundColor: '#39A90033',
+                    tension: 0.35,
+                    pointRadius: 4,
+                    fill: true,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, grid: { color: '#e5e7eb' } }, x: { grid: { display: false } } },
+            },
+        });
+    }
+
+    const llamadosStateLabels = @json($statusLabels ?? ['Registrado','En revisión','Notificado','Cerrado','Cancelado']);
+    const llamadosStateData = @json($llamadosEstadoData ?? []);
+    const llamadosStateElement = document.getElementById('chart-llamados-state');
+
+    if (llamadosStateElement) {
+        new Chart(llamadosStateElement, {
+            type: 'bar',
+            data: {
+                labels: llamadosStateLabels,
+                datasets: [{
+                    label: 'Estados',
+                    data: llamadosStateData,
+                    backgroundColor: ['#39A90033','#ff6a1333','#00324d33','#10b98133','#f9731633'],
+                    borderColor: ['#39A900','#ff6a13','#00324d','#10b981','#f97316'],
+                    borderWidth: 1,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, grid: { color: '#e5e7eb' } }, x: { grid: { display: false } } },
+            },
+        });
+    }
+</script>
 @endsection
