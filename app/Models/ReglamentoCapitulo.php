@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -25,8 +26,13 @@ class ReglamentoCapitulo extends Model
         'descripcion',
     ];
 
+    public function reglamento(): BelongsTo
+    {
+        return $this->belongsTo(ReglamentoAprendiz::class, 'id_reglamento', 'id_reglamento');
+    }
+
     public function articulos(): HasMany
     {
-        return $this->hasMany(ReglamentoArticulo::class, 'id_capitulo', 'id_capitulo');
+        return $this->hasMany(ReglamentoArticulo::class, 'id_capitulo', 'id_capitulo')->orderBy('id_articulo');
     }
 }

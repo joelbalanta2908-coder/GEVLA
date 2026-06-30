@@ -60,4 +60,12 @@ class Instructor extends Model
     {
         return $this->hasMany(Falta::class, 'id_instructor', 'id_instructor');
     }
+
+    /**
+     * Fichas (grupos) en las que este instructor es líder.
+     */
+    public function fichasLideradas(): HasMany
+    {
+        return $this->hasMany(Ficha::class, 'id_instructor_lider', 'id_instructor');
+    }
 }

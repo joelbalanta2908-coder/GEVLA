@@ -60,15 +60,21 @@
             @php
                 $navItems = [
                     ['label' => 'Dashboard', 'route' => 'coordinacion.dashboard', 'icon' => 'home'],
+                    ['label' => 'Aprendices', 'route' => 'coordinacion.aprendices.index', 'icon' => 'users'],
+                    ['label' => 'Fichas', 'route' => 'coordinacion.fichas.index', 'icon' => 'grid'],
                     ['label' => 'Llamados de atención', 'route' => 'coordinacion.llamados.index', 'icon' => 'bell'],
                     ['label' => 'Actas de coordinación', 'route' => 'coordinacion.actas.index', 'icon' => 'doc'],
                     ['label' => 'Procesos disciplinarios', 'route' => 'coordinacion.procesos.index', 'icon' => 'flow'],
+                    ['label' => 'Reglamento', 'route' => 'reglamento.index', 'icon' => 'book'],
                 ];
                 $icons = [
                     'home' => 'M3 11.5 12 4l9 7.5M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9',
                     'bell' => 'M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9',
                     'doc'  => 'M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm7 0v5h5M9 12h6M9 16h6',
                     'flow' => 'M5 6h4v4H5V6Zm10 0h4v4h-4V6ZM5 16h4v4H5v-4Zm10 0h4v4h-4v-4M9 8h4m2 0h0M9 18h4m2-12v8m0 0v4',
+                    'users' => 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm14 10v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',
+                    'grid' => 'M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z',
+                    'book' => 'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z',
                 ];
             @endphp
 

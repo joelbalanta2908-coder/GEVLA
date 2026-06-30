@@ -4,7 +4,12 @@
       "Bash(php -l app/Http/Controllers/InstructorLlamadoController.php)",
       "Bash(php -l app/Models/ReglamentoArticulo.php)",
       "Bash(php -l app/Models/LlamadoAtencion.php)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(php -l app/Http/Controllers/ReglamentoController.php)",
+      "Bash(php -l app/Http/Controllers/InstructorController.php)",
+      "Bash(php -l app/Http/Controllers/CoordinacionController.php)",
+      "Bash(php -l app/Http/Controllers/AprendizController.php)",
+      "Bash(php artisan *)"
     ]
   }
 }

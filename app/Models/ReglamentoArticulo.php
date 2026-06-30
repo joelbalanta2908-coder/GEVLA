@@ -7,6 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Artículo del Reglamento del Aprendiz SENA.
@@ -38,5 +39,10 @@ class ReglamentoArticulo extends Model
     public function capitulo(): BelongsTo
     {
         return $this->belongsTo(ReglamentoCapitulo::class, 'id_capitulo', 'id_capitulo');
+    }
+
+    public function paragrafos(): HasMany
+    {
+        return $this->hasMany(ReglamentoParagrafo::class, 'id_articulo', 'id_articulo');
     }
 }

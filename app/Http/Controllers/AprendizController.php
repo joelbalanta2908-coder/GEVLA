@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LlamadoAtencion;
 use App\Models\ActaCoordinacion;
+use App\Models\Notificacion;
 use App\Models\ProcesoDisciplinario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -110,5 +111,16 @@ class AprendizController extends Controller
             ->where('id_aprendiz', $aprendiz->id_aprendiz)
             ->findOrFail($id);
         return view('aprendiz.procesos.show', compact('proceso'));
+    }
+
+    // --- NOTIFICACIONES ---
+    public function notificaciones(): View
+    {
+        $aprendiz = $this->getAprendiz();
+        $notificaciones = Notificacion::with(['llamado', 'acta'])
+            ->where('id_aprendiz', $aprendiz->id_aprendiz)
+            ->orderByDesc('fecha_envio')
+            ->paginate(15);
+        return view('aprendiz.notificaciones.index', compact('notificaciones'));
     }
 }

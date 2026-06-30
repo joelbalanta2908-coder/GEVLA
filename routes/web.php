@@ -7,6 +7,7 @@ use App\Http\Controllers\CoordinacionController;
 use App\Http\Controllers\InstructorController;
 use App\Http\Controllers\LlamadoController;
 use App\Http\Controllers\ProcesoController;
+use App\Http\Controllers\ReglamentoController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,6 +29,9 @@ Route::post('/logout', [LoginController::class, 'logout'])
 
 Route::middleware('auth')->group(function () {
     
+    // Consulta del Reglamento del Aprendiz (compartido por los tres roles)
+    Route::get('/reglamento', [ReglamentoController::class, 'index'])->name('reglamento.index');
+
     // Perfil de Usuario
     Route::prefix('perfil')->name('perfil.')->group(function () {
         Route::get('/ver', [\App\Http\Controllers\PerfilController::class, 'show'])->name('show');
@@ -48,12 +52,22 @@ Route::middleware('auth')->group(function () {
         
         Route::get('/procesos', [AprendizController::class, 'procesos'])->name('procesos.index');
         Route::get('/procesos/{id}', [AprendizController::class, 'showProceso'])->name('procesos.show');
+
+        Route::get('/notificaciones', [AprendizController::class, 'notificaciones'])->name('notificaciones.index');
     });
 
     // Rutas de Instructor
     Route::prefix('instructor')->name('instructor.')->group(function () {
         Route::get('/dashboard', [InstructorController::class, 'dashboard'])->name('dashboard');
-        
+
+        // Fichas a cargo y hoja de vida del aprendiz
+        Route::get('/fichas', [InstructorController::class, 'fichas'])->name('fichas.index');
+        Route::get('/aprendices/{id}', [InstructorController::class, 'aprendizShow'])->name('aprendices.show');
+
+        // Seguimiento de procesos y notificaciones
+        Route::get('/procesos', [InstructorController::class, 'procesos'])->name('procesos.index');
+        Route::get('/notificaciones', [InstructorController::class, 'notificaciones'])->name('notificaciones.index');
+
         // Gestión de Llamados (CRUD)
         Route::resource('llamados', \App\Http\Controllers\InstructorLlamadoController::class)->parameters(['llamados' => 'llamado']);
     });
@@ -61,6 +75,13 @@ Route::middleware('auth')->group(function () {
     // Rutas de Coordinación
     Route::prefix('coordinacion')->name('coordinacion.')->group(function () {
         Route::get('/dashboard', [CoordinacionController::class, 'dashboard'])->name('dashboard');
+
+        // Aprendices (listado y hoja de vida)
+        Route::get('/aprendices', [CoordinacionController::class, 'aprendices'])->name('aprendices.index');
+        Route::get('/aprendices/{id}', [CoordinacionController::class, 'aprendizShow'])->name('aprendices.show');
+
+        // Fichas (con instructor líder e instructores asignados)
+        Route::get('/fichas', [CoordinacionController::class, 'fichas'])->name('fichas.index');
 
         // Llamados de atención
         Route::resource('llamados', LlamadoController::class)->parameters(['llamados' => 'llamado']);

@@ -93,7 +93,7 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login')->with('status', 'Has cerrado sesion correctamente.');
+        return redirect('/login')->with('status', 'Has cerrado sesión correctamente.');
     }
 
     private function buscarUsuarioPorIdentificador(string $identifier): ?Usuario

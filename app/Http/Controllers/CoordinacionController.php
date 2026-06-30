@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\ActaCoordinacion;
+use App\Models\Aprendiz;
+use App\Models\Ficha;
 use App\Models\LlamadoAtencion;
 use App\Models\ProcesoDisciplinario;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
@@ -102,5 +105,82 @@ class CoordinacionController extends Controller
             'actasPorEstado',
             'procesosPorEstado',
         ));
+    }
+
+    /**
+     * Listado de aprendices con buscador y resumen disciplinario.
+     */
+    public function aprendices(Request $request): View
+    {
+        $buscar = trim((string) $request->input('buscar', ''));
+        $estado = $request->input('estado_academico');
+
+        $aprendices = Aprendiz::query()
+            ->with('usuario')
+            ->withCount(['llamadosAtencion', 'procesosDisciplinarios', 'actasCoordinacion'])
+            ->when($buscar !== '', function ($q) use ($buscar) {
+                $q->whereHas('usuario', function ($sub) use ($buscar) {
+                    $sub->where('nombres', 'like', "%{$buscar}%")
+                        ->orWhere('apellidos', 'like', "%{$buscar}%")
+                        ->orWhere('correo', 'like', "%{$buscar}%");
+                });
+            })
+            ->when($estado, fn ($q) => $q->where('estado_academico', $estado))
+            ->orderBy('id_aprendiz')
+            ->paginate(15)
+            ->withQueryString();
+
+        $estados = ['en_formacion', 'aplazado', 'cancelado', 'certificado'];
+
+        return view('coordinacion.aprendices.index', compact('aprendices', 'buscar', 'estado', 'estados'));
+    }
+
+    /**
+     * Hoja de vida consolidada de un aprendiz (vista compartida).
+     */
+    public function aprendizShow(string $id): View
+    {
+        $aprendiz = Aprendiz::with([
+            'usuario',
+            'llamadosAtencion' => fn ($q) => $q->orderByDesc('fecha_llamado'),
+            'llamadosAtencion.instructor.usuario',
+            'actasCoordinacion' => fn ($q) => $q->orderByDesc('fecha_expedicion'),
+            'procesosDisciplinarios' => fn ($q) => $q->orderByDesc('fecha_inicio'),
+            'matriculas.ficha.programa',
+        ])->findOrFail($id);
+
+        $volver = route('coordinacion.aprendices.index');
+        $layout = 'layouts.coordinador';
+
+        return view('aprendices.show', compact('aprendiz', 'volver', 'layout'));
+    }
+
+    /**
+     * Fichas con su instructor líder, los instructores con intervención
+     * y los aprendices matriculados.
+     */
+    public function fichas(): View
+    {
+        $fichas = Ficha::with(['programa', 'instructorLider.usuario', 'matriculas.aprendiz.usuario'])
+            ->orderByDesc('fecha_inicio')
+            ->get();
+
+        // Instructores que han intervenido (a partir de los llamados de los
+        // aprendices de cada ficha), además del líder.
+        $involucrados = [];
+        foreach ($fichas as $ficha) {
+            $aprendizIds = $ficha->matriculas->pluck('id_aprendiz')->filter()->all();
+            $involucrados[$ficha->id_ficha] = empty($aprendizIds)
+                ? collect()
+                : LlamadoAtencion::with('instructor.usuario')
+                    ->whereIn('id_aprendiz', $aprendizIds)
+                    ->get()
+                    ->pluck('instructor')
+                    ->filter()
+                    ->unique('id_instructor')
+                    ->values();
+        }
+
+        return view('coordinacion.fichas.index', compact('fichas', 'involucrados'));
     }
 }

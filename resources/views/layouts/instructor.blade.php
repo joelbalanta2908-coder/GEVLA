@@ -58,10 +58,18 @@
                 $navItems = [
                     ['label' => 'Mi Dashboard', 'route' => 'instructor.dashboard', 'icon' => 'home'],
                     ['label' => 'Mis Reportes', 'route' => 'instructor.llamados.index', 'icon' => 'bell'],
+                    ['label' => 'Mis Fichas', 'route' => 'instructor.fichas.index', 'icon' => 'grid'],
+                    ['label' => 'Procesos', 'route' => 'instructor.procesos.index', 'icon' => 'flow'],
+                    ['label' => 'Notificaciones', 'route' => 'instructor.notificaciones.index', 'icon' => 'inbox'],
+                    ['label' => 'Reglamento', 'route' => 'reglamento.index', 'icon' => 'book'],
                 ];
                 $icons = [
                     'home' => 'M3 11.5 12 4l9 7.5M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9',
                     'bell' => 'M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9',
+                    'grid' => 'M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z',
+                    'flow' => 'M5 6h4v4H5V6Zm10 0h4v4h-4V6ZM5 16h4v4H5v-4Zm10 0h4v4h-4v-4M9 8h4m2 0h0M9 18h4m2-12v8m0 0v4',
+                    'inbox' => 'M22 12h-6l-2 3h-4l-2-3H2M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z',
+                    'book' => 'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z',
                 ];
             @endphp
             <p class="px-2 pb-2 text-[11px] font-bold uppercase tracking-[0.22em] text-white/45" :class="sidebarCollapsed && 'lg:hidden'">Principal</p>

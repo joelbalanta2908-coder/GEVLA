@@ -77,4 +77,20 @@ class Aprendiz extends Model
     {
         return $this->hasMany(ProcesoDisciplinario::class, 'id_aprendiz', 'id_aprendiz');
     }
+
+    /**
+     * Matrículas del aprendiz (lo vinculan a fichas/grupos).
+     */
+    public function matriculas(): HasMany
+    {
+        return $this->hasMany(Matricula::class, 'id_aprendiz', 'id_aprendiz');
+    }
+
+    /**
+     * Notificaciones dirigidas al aprendiz.
+     */
+    public function notificaciones(): HasMany
+    {
+        return $this->hasMany(Notificacion::class, 'id_aprendiz', 'id_aprendiz');
+    }
 }
