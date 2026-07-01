@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\CreaUsuarios;
 use App\Models\Aprendiz;
 use App\Models\Ficha;
 use App\Models\HistorialInstructorLider;
 use App\Models\Instructor;
 use App\Models\Matricula;
 use App\Models\ProgramaFormacion;
+use App\Support\Roles;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,6 +28,8 @@ use Illuminate\View\View;
  */
 class FichaController extends Controller
 {
+    use CreaUsuarios;
+
     /**
      * Aborta si el usuario autenticado no es Coordinador Misional. Se usa en las
      * acciones sensibles (designar líder) que el reglamento reserva a ese rol.
@@ -389,6 +393,58 @@ class FichaController extends Controller
         return redirect()
             ->route('coordinacion.fichas.show', $ficha)
             ->with('success', 'Aprendiz retirado de la ficha.');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Alta de nuevas personas (aprendices / instructores) desde la ficha
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Crea un instructor nuevo (usuario + perfil + rol) y lo asocia a la ficha
+     * dentro de una sola transacción. La contraseña inicial es el documento.
+     */
+    public function crearInstructor(Request $request, Ficha $ficha): RedirectResponse
+    {
+        $datos = $this->validarPersona($request, [
+            'codigo_instructor' => ['nullable', 'string', 'max:30', 'unique:instructor,codigo_instructor'],
+            'area_formacion'    => ['nullable', 'string', 'max:120'],
+            'tipo_docente'      => ['nullable', Rule::in(array_keys(Instructor::tiposDocente()))],
+        ]);
+
+        DB::transaction(function () use ($datos, $request, $ficha) {
+            $usuario = $this->crearUsuarioConRol($datos, Roles::INSTRUCTOR);
+
+            $instructor = Instructor::create([
+                'id_usuario'        => $usuario->id_usuario,
+                'codigo_instructor' => $request->input('codigo_instructor') ?: $this->generarCodigoInstructor(),
+                'area_formacion'    => $request->input('area_formacion'),
+                'tipo_docente'      => $request->input('tipo_docente') ?: null,
+                'estado_instructor' => 'activo',
+            ]);
+
+            $ficha->instructores()->syncWithoutDetaching([
+                $instructor->id_instructor => ['fecha_asignacion' => now()->toDateString()],
+            ]);
+        });
+
+        return redirect()
+            ->route('coordinacion.fichas.show', $ficha)
+            ->with('success', 'Instructor creado y asociado a la ficha. Su contraseña inicial es el número de documento.');
+    }
+
+    /**
+     * Genera el siguiente código de instructor consecutivo (INS-001, INS-002…).
+     */
+    private function generarCodigoInstructor(): string
+    {
+        $maximo = Instructor::where('codigo_instructor', 'like', 'INS-%')
+            ->get()
+            ->map(fn (Instructor $i) => (int) preg_replace('/\D/', '', (string) $i->codigo_instructor))
+            ->max();
+
+        return 'INS-' . str_pad((string) (((int) $maximo) + 1), 3, '0', STR_PAD_LEFT);
     }
 
     /*

@@ -5,9 +5,12 @@
 @section('contenido')
 <div class="space-y-6">
 
-    <div>
-        <h2 class="text-2xl font-bold text-gray-900">Procesos disciplinarios</h2>
-        <p class="text-gray-500">Seguimiento de las etapas de cada proceso abierto a partir de un llamado de atención.</p>
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">Procesos disciplinarios</h2>
+            <p class="text-gray-500">Seguimiento de las etapas de cada proceso abierto a partir de un llamado de atención.</p>
+        </div>
+        @include('reportes._botones', ['rutaBase' => 'coordinacion.procesos.export'])
     </div>
 
     @isset($trendLabels)

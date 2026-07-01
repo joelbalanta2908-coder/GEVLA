@@ -4,15 +4,22 @@
 
 @section('contenido')
 <div class="space-y-6">
-    <div>
-        <h2 class="text-xl font-bold text-gray-900">Aprendices</h2>
-        <p class="mt-1 text-sm text-gray-500">Consulta el historial disciplinario y formativo de cada aprendiz.</p>
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+            <h2 class="text-xl font-bold text-gray-900">Aprendices</h2>
+            <p class="mt-1 text-sm text-gray-500">Consulta el historial disciplinario y formativo de cada aprendiz.</p>
+        </div>
+        <a href="{{ route('coordinacion.aprendices.crear') }}"
+           class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#39A900] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#2D8200]">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            Nuevo aprendiz
+        </a>
     </div>
 
-    <form method="GET" action="{{ route('coordinacion.aprendices.index') }}" class="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <input type="text" name="buscar" value="{{ $buscar }}" placeholder="Buscar por nombre, apellido o correo..."
+    <form method="GET" action="{{ route('coordinacion.aprendices.index') }}" data-live-form class="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <input type="text" name="buscar" value="{{ $buscar }}" data-live placeholder="Buscar por nombre, apellido o correo..."
                class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm caret-[#39A900] focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30 sm:max-w-md">
-        <select name="estado_academico" class="rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
+        <select name="estado_academico" data-live class="rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
             <option value="">Todos los estados</option>
             @foreach($estados as $e)
                 <option value="{{ $e }}" @selected($estado == $e)>{{ ucfirst(str_replace('_',' ', $e)) }}</option>

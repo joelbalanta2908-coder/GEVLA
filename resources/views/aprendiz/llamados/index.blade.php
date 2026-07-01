@@ -9,6 +9,7 @@
             <h2 class="text-xl font-bold text-gray-900">Historial de Llamados</h2>
             <p class="mt-1 text-sm text-gray-500">Consulta todos los llamados de atención que has recibido.</p>
         </div>
+        @include('reportes._botones', ['rutaBase' => 'aprendiz.llamados.export'])
     </div>
 
     <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">

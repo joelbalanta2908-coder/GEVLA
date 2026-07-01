@@ -25,7 +25,7 @@
             <div>
                 <div class="flex items-center gap-3">
                     <h2 class="text-xl font-bold text-gray-900">Ficha {{ $ficha->numero_ficha }}</h2>
-                    <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $eb }}">{{ $ficha->estado_label }}</span>
+                    <span class="estado-badge inline-flex rounded-full px-2.5 py-1 text-xs font-medium {{ $eb }}">{{ $ficha->estado_label }}</span>
                 </div>
                 <p class="mt-1 text-sm text-gray-600">{{ optional($ficha->programa)->nombre_programa ?? 'Programa' }}</p>
                 <p class="mt-0.5 text-xs text-gray-500">
@@ -118,6 +118,41 @@
                 </form>
             @endif
 
+            {{-- Crear un instructor nuevo y asociarlo a la ficha --}}
+            <div x-data="{ open: {{ old('_form') === 'instructor' ? 'true' : 'false' }} }" class="border-t border-gray-100 pt-4">
+                <button type="button" @click="open = !open" class="flex w-full items-center justify-between text-sm font-semibold text-gray-700">
+                    <span>Crear nuevo instructor</span>
+                    <svg class="h-4 w-4 text-gray-400 transition-transform" :class="open && 'rotate-45'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                </button>
+                <form x-show="open" x-cloak method="POST" action="{{ route('coordinacion.fichas.instructores.crear', $ficha) }}" class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    @csrf
+                    <input type="hidden" name="_form" value="instructor">
+                    @include('coordinacion.fichas._persona_campos')
+                    <div>
+                        <label class="mb-1 block text-xs font-semibold text-gray-600">Código <span class="font-normal text-gray-400">(opcional)</span></label>
+                        <input type="text" name="codigo_instructor" value="{{ old('codigo_instructor') }}" maxlength="30" placeholder="Se genera automáticamente"
+                               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-xs font-semibold text-gray-600">Área de formación <span class="font-normal text-gray-400">(opcional)</span></label>
+                        <input type="text" name="area_formacion" value="{{ old('area_formacion') }}" maxlength="120"
+                               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="mb-1 block text-xs font-semibold text-gray-600">Tipo de docente <span class="font-normal text-gray-400">(opcional)</span></label>
+                        <select name="tipo_docente" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
+                            <option value="">No definido</option>
+                            @foreach(\App\Models\Instructor::tiposDocente() as $valor => $etiqueta)
+                                <option value="{{ $valor }}" @selected(old('tipo_docente') === $valor)>{{ $etiqueta }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="sm:col-span-2 flex justify-end">
+                        <button class="rounded-lg bg-[#39A900] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2D8200]">Crear y asociar</button>
+                    </div>
+                </form>
+            </div>
+
             {{-- Designar instructor líder (solo Coordinador Misional) --}}
             <div class="border-t border-gray-100 pt-4">
                 <p class="text-sm font-semibold text-gray-700">Instructor líder</p>
@@ -204,6 +239,12 @@
                     <p class="text-xs text-gray-400">Un aprendiz no puede tener matrícula activa en otra ficha del mismo programa.</p>
                 </form>
             @endif
+
+            <p class="border-t border-gray-100 pt-4 text-xs text-gray-400">
+                ¿Necesitas registrar un aprendiz que aún no existe?
+                <a href="{{ route('coordinacion.aprendices.crear', ['id_ficha' => $ficha->id_ficha]) }}" class="font-semibold text-[#39A900] hover:underline">Créalo desde Aprendices</a>
+                y quedará matriculado en esta ficha.
+            </p>
         </div>
     </div>
 

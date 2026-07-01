@@ -8,6 +8,7 @@ use App\Http\Controllers\FichaController;
 use App\Http\Controllers\InstructorController;
 use App\Http\Controllers\LlamadoController;
 use App\Http\Controllers\ProcesoController;
+use App\Http\Controllers\ProgramaController;
 use App\Http\Controllers\ReglamentoController;
 use App\Http\Controllers\RolController;
 use App\Support\Roles;
@@ -48,14 +49,20 @@ Route::middleware('auth')->group(function () {
     // Rutas de Aprendiz
     Route::prefix('aprendiz')->name('aprendiz.')->middleware('rol:Aprendiz')->group(function () {
         Route::get('/dashboard', [AprendizController::class, 'dashboard'])->name('dashboard');
-        
+
+        // Exportación de reportes propios (PDF / Excel / Word). Deben ir ANTES de
+        // las rutas /{id} para no colisionar.
+        Route::get('llamados/export/{formato}', [\App\Http\Controllers\AprendizReporteController::class, 'llamados'])->where('formato', 'pdf|excel|word')->name('llamados.export');
+        Route::get('actas/export/{formato}', [\App\Http\Controllers\AprendizReporteController::class, 'actas'])->where('formato', 'pdf|excel|word')->name('actas.export');
+        Route::get('procesos/export/{formato}', [\App\Http\Controllers\AprendizReporteController::class, 'procesos'])->where('formato', 'pdf|excel|word')->name('procesos.export');
+
         // Historial (Solo lectura)
         Route::get('/llamados', [AprendizController::class, 'llamados'])->name('llamados.index');
         Route::get('/llamados/{id}', [AprendizController::class, 'showLlamado'])->name('llamados.show');
-        
+
         Route::get('/actas', [AprendizController::class, 'actas'])->name('actas.index');
         Route::get('/actas/{id}', [AprendizController::class, 'showActa'])->name('actas.show');
-        
+
         Route::get('/procesos', [AprendizController::class, 'procesos'])->name('procesos.index');
         Route::get('/procesos/{id}', [AprendizController::class, 'showProceso'])->name('procesos.show');
 
@@ -87,24 +94,43 @@ Route::middleware('auth')->group(function () {
         Route::resource('llamados', \App\Http\Controllers\InstructorLlamadoController::class)->parameters(['llamados' => 'llamado']);
     });
 
+    // Rutas de Administrador (gestión de cuentas de usuario)
+    Route::prefix('admin')->name('admin.')->middleware('rol:Administrador')->group(function () {
+        Route::get('/usuarios', [\App\Http\Controllers\Admin\UsuarioController::class, 'index'])->name('usuarios.index');
+        Route::patch('/usuarios/{usuario}/estado', [\App\Http\Controllers\Admin\UsuarioController::class, 'actualizarEstado'])->name('usuarios.estado');
+    });
+
     // Rutas de Coordinación
     Route::prefix('coordinacion')->name('coordinacion.')->middleware('rol:Coordinador')->group(function () {
         Route::get('/dashboard', [CoordinacionController::class, 'dashboard'])->name('dashboard');
 
-        // Aprendices (listado y hoja de vida)
+        // Aprendices (listado, alta y hoja de vida)
         Route::get('/aprendices', [CoordinacionController::class, 'aprendices'])->name('aprendices.index');
+        Route::get('/aprendices/crear', [CoordinacionController::class, 'crearAprendizForm'])->name('aprendices.crear');
+        Route::post('/aprendices', [CoordinacionController::class, 'crearAprendiz'])->name('aprendices.store');
         Route::get('/aprendices/{id}', [CoordinacionController::class, 'aprendizShow'])->name('aprendices.show');
+
+        // Docentes (instructores): fichas asignadas, liderazgo y tipo (materia/transversal)
+        Route::get('/docentes', [CoordinacionController::class, 'docentes'])->name('docentes.index');
+        Route::patch('/docentes/{instructor}/tipo', [CoordinacionController::class, 'actualizarTipoDocente'])->name('docentes.tipo');
+        Route::get('/docentes/{instructor}', [CoordinacionController::class, 'docenteShow'])->name('docentes.show');
 
         // Gestión de Fichas (CRUD + asociaciones + instructor líder).
         // Las acciones específicas van declaradas junto al resource; usan verbos
         // distintos a GET show, por lo que no colisionan con /fichas/{ficha}.
         Route::patch('fichas/{ficha}/estado', [FichaController::class, 'actualizarEstado'])->name('fichas.actualizarEstado');
         Route::post('fichas/{ficha}/instructores', [FichaController::class, 'asociarInstructores'])->name('fichas.instructores.store');
+        Route::post('fichas/{ficha}/instructores/nuevo', [FichaController::class, 'crearInstructor'])->name('fichas.instructores.crear');
         Route::delete('fichas/{ficha}/instructores/{instructor}', [FichaController::class, 'eliminarInstructor'])->name('fichas.instructores.destroy');
         Route::put('fichas/{ficha}/lider', [FichaController::class, 'asignarLider'])->name('fichas.lider');
         Route::post('fichas/{ficha}/aprendices', [FichaController::class, 'asociarAprendices'])->name('fichas.aprendices.store');
         Route::delete('fichas/{ficha}/aprendices/{matricula}', [FichaController::class, 'retirarAprendiz'])->name('fichas.aprendices.destroy');
         Route::resource('fichas', FichaController::class)->parameters(['fichas' => 'ficha']);
+
+        // Programas de formación (catálogo base de las fichas).
+        Route::resource('programas', ProgramaController::class)
+            ->parameters(['programas' => 'programa'])
+            ->except(['show']);
 
         // Exportación de reportes (PDF / Excel / Word). Deben ir ANTES de los
         // resource para no chocar con /{llamado}, /{acta}, /{proceso}.

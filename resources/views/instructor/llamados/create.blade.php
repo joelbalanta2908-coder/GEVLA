@@ -46,7 +46,7 @@
                                @keydown="if (/[0-9]/.test($event.key)) $event.preventDefault()"
                                @focus="abierto = true" autocomplete="off" inputmode="text"
                                placeholder="Escribe el nombre del aprendiz..."
-                               class="mt-1 w-full rounded-lg border border-gray-300 text-sm caret-[#39A900] focus:border-[#39A900] focus:ring-2 focus:ring-[#39A900]/30">
+                               class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm caret-[#39A900] focus:border-[#39A900] focus:ring-2 focus:ring-[#39A900]/30">
 
                         <ul x-show="abierto && sugerencias.length" x-cloak
                             class="absolute z-20 mt-1 max-h-56 w-full overflow-auto rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
@@ -66,12 +66,12 @@
                 <div>
                     <label class="block text-sm font-bold text-gray-700">Fecha del llamado</label>
                     <input type="date" name="fecha_llamado" required value="{{ old('fecha_llamado', now()->toDateString()) }}" max="{{ now()->toDateString() }}"
-                           class="mt-1 w-full rounded-lg border border-gray-300 text-sm caret-[#39A900] focus:border-[#39A900] focus:ring-2 focus:ring-[#39A900]/30">
+                           class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm caret-[#39A900] focus:border-[#39A900] focus:ring-2 focus:ring-[#39A900]/30">
                 </div>
 
                 <div>
                     <label class="block text-sm font-bold text-gray-700">Tipo de llamado</label>
-                    <select name="tipo_llamado" required class="mt-1 w-full rounded-lg border border-gray-300 text-sm caret-[#39A900] focus:border-[#39A900] focus:ring-2 focus:ring-[#39A900]/30">
+                    <select name="tipo_llamado" required class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm caret-[#39A900] focus:border-[#39A900] focus:ring-2 focus:ring-[#39A900]/30">
                         @foreach(\App\Models\LlamadoAtencion::tipos() as $valor => $etiqueta)
                             <option value="{{ $valor }}" @selected(old('tipo_llamado', \App\Models\LlamadoAtencion::TIPO_LLAMADO_ESCRITO) == $valor)>{{ $etiqueta }}</option>
                         @endforeach
@@ -80,7 +80,7 @@
 
                 <div>
                     <label class="block text-sm font-bold text-gray-700">Categoría</label>
-                    <select name="categoria" required class="mt-1 w-full rounded-lg border border-gray-300 text-sm caret-[#39A900] focus:border-[#39A900] focus:ring-2 focus:ring-[#39A900]/30">
+                    <select name="categoria" required class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm caret-[#39A900] focus:border-[#39A900] focus:ring-2 focus:ring-[#39A900]/30">
                         <option value="academico" @selected(old('categoria') == 'academico')>Académico</option>
                         <option value="disciplinario" @selected(old('categoria') == 'disciplinario')>Disciplinario</option>
                     </select>
@@ -92,7 +92,7 @@
                 <div>
                     <label class="block text-sm font-bold text-gray-700">Calificación de la falta</label>
                     <select name="calificacion_falta" x-model="calificacion" required
-                            class="mt-1 w-full rounded-lg border border-gray-300 text-sm caret-[#39A900] focus:border-[#39A900] focus:ring-2 focus:ring-[#39A900]/30">
+                            class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm caret-[#39A900] focus:border-[#39A900] focus:ring-2 focus:ring-[#39A900]/30">
                         <option value="">Seleccione la calificación...</option>
                         @foreach($calificaciones as $valor => $etiqueta)
                             <option value="{{ $valor }}">{{ $etiqueta }}</option>
@@ -104,7 +104,7 @@
                 <div>
                     <label class="block text-sm font-bold text-gray-700">Artículo / falta del reglamento</label>
                     <select name="id_articulo" required :disabled="!calificacion"
-                            class="mt-1 w-full rounded-lg border border-gray-300 text-sm caret-[#39A900] focus:border-[#39A900] focus:ring-2 focus:ring-[#39A900]/30 disabled:bg-gray-100 disabled:text-gray-400">
+                            class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm caret-[#39A900] focus:border-[#39A900] focus:ring-2 focus:ring-[#39A900]/30 disabled:bg-gray-100 disabled:text-gray-400">
                         <option value="">Seleccione primero la calificación</option>
                         <template x-for="art in (articulos[calificacion] || [])" :key="art.id">
                             <option :value="art.id" x-text="art.texto" :selected="String(art.id) === '{{ old('id_articulo') }}'"></option>
@@ -117,19 +117,19 @@
             <div>
                 <label class="block text-sm font-bold text-gray-700">Asunto</label>
                 <input type="text" name="asunto" required value="{{ old('asunto') }}" placeholder="Ej: Inasistencia injustificada reiterativa"
-                       class="mt-1 w-full rounded-lg border border-gray-300 text-sm caret-[#39A900] focus:border-[#39A900] focus:ring-2 focus:ring-[#39A900]/30">
+                       class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm caret-[#39A900] focus:border-[#39A900] focus:ring-2 focus:ring-[#39A900]/30">
             </div>
 
             <div>
                 <label class="block text-sm font-bold text-gray-700">Descripción de los hechos</label>
                 <textarea name="descripcion_hechos" rows="4" required
-                          class="mt-1 w-full rounded-lg border border-gray-300 text-sm caret-[#39A900] focus:border-[#39A900] focus:ring-2 focus:ring-[#39A900]/30">{{ old('descripcion_hechos') }}</textarea>
+                          class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm caret-[#39A900] focus:border-[#39A900] focus:ring-2 focus:ring-[#39A900]/30">{{ old('descripcion_hechos') }}</textarea>
             </div>
 
             <div>
                 <label class="block text-sm font-bold text-gray-700">Pruebas aportadas (Opcional)</label>
                 <textarea name="pruebas_aportadas" rows="3" placeholder="Ej: Control de asistencia firmado, pantallazos, etc."
-                          class="mt-1 w-full rounded-lg border border-gray-300 text-sm caret-[#39A900] focus:border-[#39A900] focus:ring-2 focus:ring-[#39A900]/30">{{ old('pruebas_aportadas') }}</textarea>
+                          class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm caret-[#39A900] focus:border-[#39A900] focus:ring-2 focus:ring-[#39A900]/30">{{ old('pruebas_aportadas') }}</textarea>
             </div>
 
             <div class="flex items-center justify-end gap-3 border-t border-gray-100 pt-5">

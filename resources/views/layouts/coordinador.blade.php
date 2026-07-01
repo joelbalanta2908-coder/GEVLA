@@ -6,6 +6,19 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>GEVLA | @yield('titulo', 'Coordinador')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    {{-- Navegación instantánea entre páginas del panel (sin recargar). --}}
+    <meta name="turbo-cache-control" content="no-preview">
+    <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.12/dist/turbo.es2017-umd.min.js"></script>
+    <script>
+        // Los formularios se envían de forma normal (recarga) para no alterar los
+        // flujos existentes; solo la navegación por enlaces es instantánea.
+        try {
+            if (window.Turbo) {
+                if (typeof Turbo.setFormMode === 'function') Turbo.setFormMode('optin');
+                else if (Turbo.config && Turbo.config.forms) Turbo.config.forms.mode = 'optin';
+            }
+        } catch (e) {}
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,8 +42,8 @@
         :class="(sidebarOpen ? 'translate-x-0' : '-translate-x-full') + ' ' + (sidebarCollapsed ? 'lg:w-20' : 'lg:w-60')"
         class="fixed inset-y-0 left-0 z-40 flex w-60 flex-col transform border-r border-white/10 bg-gradient-to-b from-[#1e6a00] via-[#2a7a00] to-[#4db100] text-white shadow-[0_30px_70px_rgba(25,80,0,0.32)] transition-all duration-200 lg:static lg:h-screen lg:translate-x-0">
 
-        <div class="flex h-16 items-center justify-between gap-2 border-b border-white/10 px-4">
-            <div class="flex items-center gap-3 overflow-hidden">
+        <div class="flex h-16 items-center justify-between gap-2 border-b border-white/10 px-4" :class="sidebarCollapsed && 'lg:justify-center'">
+            <div class="flex items-center gap-3 overflow-hidden" :class="sidebarCollapsed && 'lg:hidden'">
                 <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/90 shadow-sm ring-1 ring-white/30" :class="sidebarCollapsed && 'lg:hidden'">
                     <img src="https://oficinavirtualderadicacion.sena.edu.co/oficinavirtual/Resources/logoSenaNaranja.png" alt="Logosímbolo SENA" class="h-6 w-auto">
                 </div>
@@ -56,12 +69,14 @@
             </button>
         </div>
 
-        <nav class="flex-1 overflow-y-auto px-3 py-4" :class="sidebarCollapsed && 'lg:overflow-y-visible'">
+        <nav class="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4" :class="sidebarCollapsed && 'lg:overflow-x-visible lg:overflow-y-visible'">
             @php
                 $navItems = [
                     ['label' => 'Dashboard', 'route' => 'coordinacion.dashboard', 'icon' => 'home'],
                     ['label' => 'Aprendices', 'route' => 'coordinacion.aprendices.index', 'icon' => 'users'],
+                    ['label' => 'Docentes', 'route' => 'coordinacion.docentes.index', 'icon' => 'chalk'],
                     ['label' => 'Fichas', 'route' => 'coordinacion.fichas.index', 'icon' => 'grid'],
+                    ['label' => 'Programas', 'route' => 'coordinacion.programas.index', 'icon' => 'cap'],
                     ['label' => 'Llamados de atención', 'route' => 'coordinacion.llamados.index', 'icon' => 'bell'],
                     ['label' => 'Actas de coordinación', 'route' => 'coordinacion.actas.index', 'icon' => 'doc'],
                     ['label' => 'Procesos disciplinarios', 'route' => 'coordinacion.procesos.index', 'icon' => 'flow'],
@@ -74,6 +89,8 @@
                     'flow' => 'M5 6h4v4H5V6Zm10 0h4v4h-4V6ZM5 16h4v4H5v-4Zm10 0h4v4h-4v-4M9 8h4m2 0h0M9 18h4m2-12v8m0 0v4',
                     'users' => 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm14 10v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',
                     'grid' => 'M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z',
+                    'cap'  => 'M22 10 12 5 2 10l10 5 10-5zM6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5',
+                    'chalk' => 'M4 4h16v11H4zM4 19h16M9 19v2m6-2v2M8 8h8M8 11h5',
                     'book' => 'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z',
                 ];
             @endphp
@@ -185,14 +202,14 @@
             </div>
         </header>
 
-        <main class="flex-1 overflow-y-auto bg-[#f5f7f2] p-4 sm:p-5 lg:p-6">
+        <main class="flex-1 overflow-y-auto bg-white p-4 sm:p-5 lg:p-6">
             <div class="mx-auto max-w-7xl space-y-5">
-                @if (session('success'))
+                @if (session('success') || session('login_success'))
                     <div class="flex items-center gap-3 rounded-2xl border border-[#39A900]/20 bg-[#39A900]/10 px-4 py-3 text-sm font-medium text-[#247200] shadow-sm">
                         <svg class="h-4 w-4 text-[#39A900]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
-                        {{ session('success') }}
+                        {{ session('success') ?? session('login_success') }}
                     </div>
                 @endif
                 @if ($errors->any())
@@ -229,7 +246,7 @@
                 document.querySelectorAll('[data-saludo]').forEach(el => el.textContent = saludo);
             }
             actualizarReloj();
-            setInterval(actualizarReloj, 1000);
+            if (!window.__gevlaClock) { window.__gevlaClock = setInterval(actualizarReloj, 1000); }
         })();
     </script>
     @yield('scripts')

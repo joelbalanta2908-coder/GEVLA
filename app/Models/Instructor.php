@@ -35,8 +35,28 @@ class Instructor extends Model
         'id_usuario',
         'codigo_instructor',
         'area_formacion',
+        'tipo_docente',
         'estado_instructor',
     ];
+
+    /**
+     * Tipos de docente: dicta una materia (formación específica) o una
+     * competencia transversal.
+     *
+     * @return array<string, string>
+     */
+    public static function tiposDocente(): array
+    {
+        return [
+            'materia'     => 'Materia',
+            'transversal' => 'Transversal',
+        ];
+    }
+
+    public function getTipoDocenteLabelAttribute(): string
+    {
+        return self::tiposDocente()[$this->tipo_docente] ?? 'No definido';
+    }
 
     /**
      * Relación con el usuario asociado.

@@ -5,9 +5,10 @@
     $rolAct = $rolActivo ?? \App\Support\Roles::porDefecto($usuario);
     $rolActLabel = $rolAct ? \App\Support\Roles::etiqueta($rolAct, $usuario) : ($usuario->rolPrincipal() ?? 'Usuario');
     $rolIconos = [
-        \App\Support\Roles::COORDINADOR => 'M12 3l8 4v5c0 4.5-3 8-8 9-5-1-8-4.5-8-9V7l8-4z',
-        \App\Support\Roles::INSTRUCTOR  => 'M3 5h18v11H3zM3 20h18M9 9h6',
-        \App\Support\Roles::APRENDIZ    => 'M22 10L12 5 2 10l10 5 10-5zM6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5',
+        \App\Support\Roles::ADMINISTRADOR => 'M12 3l8 4v5c0 4.5-3 8-8 9-5-1-8-4.5-8-9V7l8-4zM9 12l2 2 4-4',
+        \App\Support\Roles::COORDINADOR   => 'M12 3l8 4v5c0 4.5-3 8-8 9-5-1-8-4.5-8-9V7l8-4z',
+        \App\Support\Roles::INSTRUCTOR    => 'M3 5h18v11H3zM3 20h18M9 9h6',
+        \App\Support\Roles::APRENDIZ      => 'M22 10L12 5 2 10l10 5 10-5zM6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5',
     ];
 @endphp
 

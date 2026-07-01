@@ -6,6 +6,17 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>GEVLA | @yield('titulo', 'Aprendiz')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    {{-- Navegación instantánea entre páginas del panel (sin recargar). --}}
+    <meta name="turbo-cache-control" content="no-preview">
+    <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.12/dist/turbo.es2017-umd.min.js"></script>
+    <script>
+        try {
+            if (window.Turbo) {
+                if (typeof Turbo.setFormMode === 'function') Turbo.setFormMode('optin');
+                else if (Turbo.config && Turbo.config.forms) Turbo.config.forms.mode = 'optin';
+            }
+        } catch (e) {}
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -28,8 +39,8 @@
         :class="(sidebarOpen ? 'translate-x-0' : '-translate-x-full') + ' ' + (sidebarCollapsed ? 'lg:w-20' : 'lg:w-60')"
         class="fixed inset-y-0 left-0 z-40 flex w-60 flex-col transform border-r border-white/10 bg-gradient-to-b from-[#1e6a00] via-[#2a7a00] to-[#4db100] text-white shadow-[0_30px_70px_rgba(25,80,0,0.32)] transition-all duration-200 lg:static lg:h-screen lg:translate-x-0">
 
-        <div class="flex h-16 items-center justify-between gap-2 border-b border-white/10 px-4">
-            <div class="flex items-center gap-3 overflow-hidden">
+        <div class="flex h-16 items-center justify-between gap-2 border-b border-white/10 px-4" :class="sidebarCollapsed && 'lg:justify-center'">
+            <div class="flex items-center gap-3 overflow-hidden" :class="sidebarCollapsed && 'lg:hidden'">
                 <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/90 shadow-sm ring-1 ring-white/30" :class="sidebarCollapsed && 'lg:hidden'">
                     <img src="https://oficinavirtualderadicacion.sena.edu.co/oficinavirtual/Resources/logoSenaNaranja.png" alt="Logosímbolo SENA" class="h-6 w-auto">
                 </div>
@@ -53,7 +64,7 @@
             </button>
         </div>
 
-        <nav class="flex-1 overflow-y-auto px-3 py-4" :class="sidebarCollapsed && 'lg:overflow-y-visible'">
+        <nav class="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4" :class="sidebarCollapsed && 'lg:overflow-x-visible lg:overflow-y-visible'">
             @php
                 $navItems = [
                     ['label' => 'Mi Dashboard', 'route' => 'aprendiz.dashboard', 'icon' => 'home'],
@@ -167,14 +178,14 @@
             </div>
         </header>
 
-        <main class="flex-1 overflow-y-auto bg-[#f5f7f2] p-4 sm:p-5 lg:p-6">
+        <main class="flex-1 overflow-y-auto bg-white p-4 sm:p-5 lg:p-6">
             <div class="mx-auto max-w-7xl space-y-5">
-                @if (session('success'))
+                @if (session('success') || session('login_success'))
                     <div class="flex items-center gap-3 rounded-2xl border border-[#39A900]/20 bg-[#39A900]/10 px-4 py-3 text-sm font-medium text-[#247200] shadow-sm">
                         <svg class="h-4 w-4 text-[#39A900]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
-                        {{ session('success') }}
+                        {{ session('success') ?? session('login_success') }}
                     </div>
                 @endif
                 @if ($errors->any())
@@ -211,7 +222,7 @@
                 document.querySelectorAll('[data-saludo]').forEach(el => el.textContent = saludo);
             }
             actualizarReloj();
-            setInterval(actualizarReloj, 1000);
+            if (!window.__gevlaClock) { window.__gevlaClock = setInterval(actualizarReloj, 1000); }
         })();
     </script>
 </body>

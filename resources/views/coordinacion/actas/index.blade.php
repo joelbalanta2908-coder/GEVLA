@@ -10,10 +10,15 @@
             <h2 class="text-2xl font-bold text-gray-900">Actas de coordinación</h2>
             <p class="text-gray-500">Acondicionamientos y cancelaciones expedidas por coordinación.</p>
         </div>
-        <a href="{{ route('coordinacion.actas.create') }}"
-           class="inline-flex items-center justify-center rounded-lg bg-[#39A900] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2D8200]">
-            + Expedir nueva acta
-        </a>
+        <div class="flex flex-wrap items-center gap-4">
+            @include('reportes._botones', ['rutaBase' => 'coordinacion.actas.export'])
+            <span class="hidden h-8 w-px bg-[#e3e7df] sm:block"></span>
+            <a href="{{ route('coordinacion.actas.create') }}"
+               class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#39A900] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2D8200]">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                Expedir nueva acta
+            </a>
+        </div>
     </div>
 
     @isset($trendLabels)

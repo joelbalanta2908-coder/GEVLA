@@ -32,14 +32,15 @@
                     <div class="flex flex-wrap items-center gap-3">
                         <span class="inline-flex items-center gap-2 rounded-full border border-[#d8e2cf] bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm">
                             <svg class="h-4 w-4 text-[#39A900]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 3v18M3 12h18" />
+                                <circle cx="12" cy="12" r="9" />
+                                <path d="M9 12l2 2 4-4" />
                             </svg>
                             {{ ucfirst($usuario->estado_usuario ?? 'Desconocido') }}
                         </span>
                         <span class="inline-flex items-center gap-2 rounded-full bg-[#39A900]/10 px-3 py-2 text-sm font-semibold text-[#1f5a16]">
                             <svg class="h-4 w-4 text-[#39A900]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                                <path d="M4.5 20.5a8.5 8.5 0 0 1 15 0" />
+                                <path d="M12 3l8 4v5c0 4.5-3 8-8 9-5-1-8-4.5-8-9V7l8-4z" />
+                                <path d="M9 12l2 2 4-4" />
                             </svg>
                             {{ $usuario->rolPrincipal() ?? 'Sin rol principal' }}
                         </span>
@@ -155,7 +156,7 @@
                     <div class="flex items-center justify-between rounded-3xl bg-[#f8faf7] px-4 py-4">
                         <div>
                             <p class="text-xs uppercase tracking-[0.18em] text-slate-400">Acceso</p>
-                            <p class="mt-1 text-lg font-extrabold text-slate-900">{{ $usuario->ultimo_acceso ? $usuario->ultimo_acceso->diffForHumans() : 'Nunca' }}</p>
+                            <p class="mt-1 text-lg font-extrabold text-slate-900">{{ $usuario->ultimo_acceso ? $usuario->ultimo_acceso->locale('es')->diffForHumans() : 'Nunca' }}</p>
                         </div>
                         <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-[#39A900]/10 text-[#39A900]">
                             <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -182,7 +183,7 @@
                         </div>
                         <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-[#ff6a13]/10 text-[#ff6a13]">
                             <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 3v18M3 12h18" />
+                                <path d="M3 7h18v13H3zM8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                             </svg>
                         </span>
                     </div>
@@ -211,13 +212,21 @@
         </aside>
     </div>
 
-    {{-- Edición de perfil integrada dentro de "Ver mi perfil" --}}
-    <section x-show="editando" x-cloak x-transition
-             class="overflow-hidden rounded-[30px] border border-[#e6eadf] bg-white shadow-[0_12px_40px_rgba(0,0,0,0.06)]">
-        <div class="border-b border-[#eef1e8] bg-[#fafbf8] px-8 py-6">
-            <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Detalles de la cuenta</p>
-            <h2 class="mt-2 text-2xl font-extrabold text-slate-900">Editar mi perfil</h2>
-            <p class="mt-1 text-sm text-slate-500">Actualiza tus datos personales y tu foto de perfil.</p>
+    {{-- Edición de perfil en modal --}}
+    <div x-show="editando" x-cloak x-transition.opacity @keydown.escape.window="editando = false"
+         class="fixed inset-0 z-[70] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/50" @click="editando = false"></div>
+        <section x-show="editando" x-transition.scale.origin.center
+                 class="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[30px] border border-[#e6eadf] bg-white shadow-[0_30px_80px_rgba(0,0,0,0.25)]">
+        <div class="flex items-start justify-between gap-4 border-b border-[#eef1e8] bg-[#fafbf8] px-8 py-6">
+            <div>
+                <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Detalles de la cuenta</p>
+                <h2 class="mt-2 text-2xl font-extrabold text-slate-900">Editar mi perfil</h2>
+                <p class="mt-1 text-sm text-slate-500">Actualiza tus datos personales y tu foto de perfil.</p>
+            </div>
+            <button type="button" @click="editando = false" class="rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700">
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
         </div>
 
         <div class="px-8 py-8">
@@ -276,6 +285,7 @@
                 </div>
             </form>
         </div>
-    </section>
+        </section>
+    </div>
 </div>
 @endsection

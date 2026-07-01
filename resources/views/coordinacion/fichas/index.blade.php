@@ -17,23 +17,23 @@
     </div>
 
     {{-- Filtros combinables --}}
-    <form method="GET" action="{{ route('coordinacion.fichas.index') }}" class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <input type="text" name="buscar" value="{{ $buscar }}" placeholder="N.º de ficha o programa..."
+    <form method="GET" action="{{ route('coordinacion.fichas.index') }}" data-live-form class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <input type="text" name="buscar" value="{{ $buscar }}" data-live placeholder="N.º de ficha o programa..."
                class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm caret-[#39A900] focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30 lg:col-span-2">
-        <select name="id_programa" class="rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
+        <select name="id_programa" data-live class="rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
             <option value="">Todos los programas</option>
             @foreach($programas as $p)
                 <option value="{{ $p->id_programa }}" @selected((string) $programa === (string) $p->id_programa)>{{ $p->nombre_programa }}</option>
             @endforeach
         </select>
-        <select name="modalidad" class="rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
+        <select name="modalidad" data-live class="rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
             <option value="">Todas las modalidades</option>
             @foreach($modalidades as $valor => $etiqueta)
                 <option value="{{ $valor }}" @selected($modalidad === $valor)>{{ $etiqueta }}</option>
             @endforeach
         </select>
         <div class="flex gap-2">
-            <select name="estado_ficha" class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
+            <select name="estado_ficha" data-live class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
                 <option value="">Todos los estados</option>
                 @foreach($estados as $valor => $etiqueta)
                     <option value="{{ $valor }}" @selected($estado === $valor)>{{ $etiqueta }}</option>
@@ -78,7 +78,7 @@
                         <td class="px-5 py-3 text-center" data-label="Aprendices">{{ $ficha->matriculas_count }}</td>
                         <td class="px-5 py-3 text-center" data-label="Instructores">{{ $ficha->instructores_count }}</td>
                         <td class="px-5 py-3" data-label="Estado">
-                            <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $eb }}">{{ $ficha->estado_label }}</span>
+                            <span class="estado-badge inline-flex rounded-full px-2.5 py-1 text-xs font-medium {{ $eb }}">{{ $ficha->estado_label }}</span>
                         </td>
                         <td class="px-5 py-3 text-right" data-label="Acción">
                             <a href="{{ route('coordinacion.fichas.show', $ficha) }}" class="font-medium text-[#39A900] hover:underline">Gestionar</a>

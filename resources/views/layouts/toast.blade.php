@@ -1,9 +1,9 @@
 {{-- Toast de notificación (login exitoso u otros mensajes flash tipo "toast").
      Elegante, con icono de éxito, animación suave y cierre automático. --}}
-@if(session('login_success') || session('toast'))
+@if(session('toast'))
     @php
-        $toastMensaje = session('login_success') ?? session('toast');
-        $toastTitulo  = session('login_success') ? '¡Bienvenido!' : 'Listo';
+        $toastMensaje = session('toast');
+        $toastTitulo  = 'Listo';
     @endphp
     <div
         x-data="{ show: false }"
@@ -17,7 +17,7 @@
         x-transition:leave-start="translate-x-0 opacity-100"
         x-transition:leave-end="translate-x-6 opacity-0"
         role="status" aria-live="polite"
-        class="fixed right-4 top-4 z-[100] w-[min(92vw,22rem)] overflow-hidden rounded-2xl border border-[#39A900]/20 bg-white shadow-[0_18px_45px_rgba(0,0,0,0.16)] sm:right-6 sm:top-6">
+        class="fixed right-4 top-20 z-[100] w-[min(92vw,22rem)] overflow-hidden rounded-2xl border border-[#39A900]/20 bg-white shadow-[0_18px_45px_rgba(0,0,0,0.16)] sm:right-6 sm:top-20">
         <div class="flex items-start gap-3 p-4">
             <span class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#39A900]/12 text-[#39A900]">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4">
@@ -43,3 +43,28 @@
         </div>
     </div>
 @endif
+
+{{-- Búsqueda en tiempo real: cualquier <form data-live-form> se envía solo al
+     escribir (con retardo) o al cambiar un select/fecha marcados con data-live. --}}
+<script>
+    (function () {
+        function wire() {
+            document.querySelectorAll('form[data-live-form]').forEach(function (form) {
+                if (form.__liveWired) return;
+                form.__liveWired = true;
+                var timer = null;
+                form.querySelectorAll('[data-live]').forEach(function (el) {
+                    var evento = (el.tagName === 'SELECT' || el.type === 'date') ? 'change' : 'input';
+                    el.addEventListener(evento, function () {
+                        clearTimeout(timer);
+                        timer = setTimeout(function () {
+                            (form.requestSubmit ? form.requestSubmit() : form.submit());
+                        }, evento === 'input' ? 450 : 0);
+                    });
+                });
+            });
+        }
+        wire();
+        document.addEventListener('turbo:load', wire);
+    })();
+</script>

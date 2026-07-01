@@ -9,6 +9,7 @@
             <h2 class="text-xl font-bold text-gray-900">Historial de Actas</h2>
             <p class="mt-1 text-sm text-gray-500">Consulta todas tus actas de coordinación y descargos.</p>
         </div>
+        @include('reportes._botones', ['rutaBase' => 'aprendiz.actas.export'])
     </div>
 
     <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">

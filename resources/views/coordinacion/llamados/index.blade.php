@@ -5,9 +5,12 @@
 @section('contenido')
 <div class="space-y-6">
 
-    <div>
-        <h2 class="text-2xl font-bold text-gray-900">Llamados de atención</h2>
-        <p class="text-gray-500">Revisa y da seguimiento a los llamados reportados por los instructores.</p>
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">Llamados de atención</h2>
+            <p class="text-gray-500">Revisa y da seguimiento a los llamados reportados por los instructores.</p>
+        </div>
+        @include('reportes._botones', ['rutaBase' => 'coordinacion.llamados.export'])
     </div>
 
     @isset($trendLabels)

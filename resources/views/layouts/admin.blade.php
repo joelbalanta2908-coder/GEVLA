@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>GEVLA | @yield('titulo', 'Instructor')</title>
+    <title>GEVLA | @yield('titulo', 'Administrador')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     {{-- Navegación instantánea entre páginas del panel (sin recargar). --}}
     <meta name="turbo-cache-control" content="no-preview">
@@ -30,11 +30,9 @@
      x-effect="localStorage.setItem('gevlaSidebarCollapsed', sidebarCollapsed)"
      class="min-h-screen bg-[#f5f7f2] lg:flex lg:h-screen lg:overflow-hidden">
 
-    {{-- Overlay para móvil --}}
     <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false"
          class="fixed inset-0 z-30 bg-black/40 lg:hidden"></div>
 
-    {{-- Sidebar --}}
     <aside
         :class="(sidebarOpen ? 'translate-x-0' : '-translate-x-full') + ' ' + (sidebarCollapsed ? 'lg:w-20' : 'lg:w-60')"
         class="fixed inset-y-0 left-0 z-40 flex w-60 flex-col transform border-r border-white/10 bg-gradient-to-b from-[#1e6a00] via-[#2a7a00] to-[#4db100] text-white shadow-[0_30px_70px_rgba(25,80,0,0.32)] transition-all duration-200 lg:static lg:h-screen lg:translate-x-0">
@@ -46,7 +44,7 @@
                 </div>
                 <div class="leading-tight" :class="sidebarCollapsed && 'lg:hidden'">
                     <p class="text-base font-extrabold tracking-tight text-white">GEVLA</p>
-                    <p class="text-xs font-semibold text-white/80">SENA Regional</p>
+                    <p class="text-xs font-semibold text-white/80">Administración</p>
                 </div>
             </div>
             <button type="button" @click="sidebarCollapsed = !sidebarCollapsed"
@@ -67,29 +65,22 @@
         <nav class="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4" :class="sidebarCollapsed && 'lg:overflow-x-visible lg:overflow-y-visible'">
             @php
                 $navItems = [
-                    ['label' => 'Mi Dashboard', 'route' => 'instructor.dashboard', 'icon' => 'home'],
-                    ['label' => 'Mis Reportes', 'route' => 'instructor.llamados.index', 'icon' => 'bell'],
-                    ['label' => 'Mis Fichas', 'route' => 'instructor.fichas.index', 'icon' => 'grid'],
-                    ['label' => 'Procesos', 'route' => 'instructor.procesos.index', 'icon' => 'flow'],
-                    ['label' => 'Notificaciones', 'route' => 'instructor.notificaciones.index', 'icon' => 'inbox'],
+                    ['label' => 'Usuarios', 'route' => 'admin.usuarios.index', 'icon' => 'users'],
                     ['label' => 'Reglamento', 'route' => 'reglamento.index', 'icon' => 'book'],
                 ];
                 $icons = [
-                    'home' => 'M3 11.5 12 4l9 7.5M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9',
-                    'bell' => 'M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9',
-                    'grid' => 'M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z',
-                    'flow' => 'M5 6h4v4H5V6Zm10 0h4v4h-4V6ZM5 16h4v4H5v-4Zm10 0h4v4h-4v-4M9 8h4m2 0h0M9 18h4m2-12v8m0 0v4',
-                    'inbox' => 'M22 12h-6l-2 3h-4l-2-3H2M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z',
+                    'users' => 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm14 10v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',
                     'book' => 'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z',
                 ];
             @endphp
+
             <p class="px-2 pb-2 text-[11px] font-bold uppercase tracking-[0.22em] text-white/45" :class="sidebarCollapsed && 'lg:hidden'">Principal</p>
             @foreach($navItems as $item)
                 @php $active = request()->routeIs($item['route'].'*'); @endphp
                 <a href="{{ route($item['route']) }}"
                    :class="sidebarCollapsed && 'lg:justify-center'"
-                   class="group relative mb-1.5 flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-semibold transition-all
-                    {{ $active ? 'bg-white text-[#39A900] shadow-[0_10px_24px_rgba(0,0,0,0.08)]' : 'text-white/85 hover:bg-white/10 hover:text-white' }}">
+                   class="group relative mb-1 flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-semibold transition-all duration-200
+                          {{ $active ? 'bg-white/18 text-white shadow-[0_10px_30px_rgba(0,0,0,0.08)] ring-1 ring-white/15' : 'text-white/85 hover:bg-white/10 hover:text-white' }}">
                     <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="{{ $icons[$item['icon']] }}"/>
                     </svg>
@@ -102,7 +93,6 @@
             @endforeach
         </nav>
 
-        {{-- Cerrar sesión en la parte inferior del dashboard --}}
         <div class="border-t border-white/10 p-3">
             <form id="logout-form" method="POST" action="{{ route('logout') }}">
                 @csrf
@@ -114,34 +104,28 @@
                         <path d="M13 12h8m0 0-3-3m3 3-3 3"/>
                     </svg>
                     <span :class="sidebarCollapsed && 'lg:hidden'">Cerrar sesión</span>
-                    <span x-show="sidebarCollapsed" x-cloak
-                          class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 hidden -translate-y-1/2 whitespace-nowrap rounded-lg bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100 lg:block">
-                        Cerrar sesión
-                    </span>
                 </button>
             </form>
         </div>
     </aside>
 
-    {{-- Contenido principal --}}
     <div class="flex min-h-screen flex-1 flex-col lg:h-screen lg:min-h-0">
         <header class="flex h-16 items-center justify-between border-b border-[#e3e7df] bg-white px-4 sm:px-5 lg:px-6 shadow-[0_8px_24px_rgba(0,0,0,0.03)]">
-            @php $enDashboard = request()->routeIs('instructor.dashboard'); @endphp
             <div class="flex items-center gap-3">
                 <button @click="sidebarOpen = true" class="text-slate-500 transition hover:text-[#39A900] lg:hidden">
                     <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/>
                     </svg>
                 </button>
-                @unless($enDashboard)
-                    <a href="{{ route('instructor.dashboard') }}" title="Ir al panel principal"
-                       class="flex h-9 w-9 items-center justify-center rounded-xl bg-[#39A900]/10 text-[#39A900] ring-1 ring-[#39A900]/15 transition hover:bg-[#39A900]/20">
-                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 11.5 12 4l9 7.5M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/>
-                        </svg>
-                    </a>
-                @endunless
-                <h1 class="text-sm font-bold text-slate-900 sm:text-[15px]">@yield('titulo', 'Panel del Instructor')</h1>
+                <div class="flex items-center gap-3">
+                    <div class="flex h-7 w-7 items-center justify-center rounded-xl bg-[#39A900]/10 text-[#39A900] ring-1 ring-[#39A900]/15">
+                        <img src="https://oficinavirtualderadicacion.sena.edu.co/oficinavirtual/Resources/logoSenaNaranja.png" alt="SENA" class="h-4 w-auto">
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-slate-900">Panel Administrador — SENA</p>
+                        <p class="text-xs font-medium text-slate-500">@yield('titulo', 'Gestión de cuentas')</p>
+                    </div>
+                </div>
             </div>
 
             <div class="flex items-center gap-3 sm:gap-4">
@@ -161,16 +145,19 @@
                             @click="profileMenuOpen = !profileMenuOpen"
                             class="flex items-center gap-3 rounded-full border border-transparent bg-white px-4 py-2 transition duration-200 hover:border-black">
                         @if(auth()->user()->fotoUrl())
-                            <img src="{{ auth()->user()->fotoUrl() }}" alt="Foto de perfil" class="h-9 w-9 shrink-0 rounded-full object-cover ring-2 ring-white">
+                            <img src="{{ auth()->user()->fotoUrl() }}" alt="Foto de perfil" class="h-9 w-9 shrink-0 rounded-full object-cover ring-2 ring-[#39A900]/20">
                         @else
-                            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#39A900]/10 text-sm font-black text-[#39A900] ring-2 ring-white">
+                            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#39A900]/10 text-sm font-black text-[#39A900] ring-2 ring-[#39A900]/20">
                                 {{ auth()->user()->iniciales() }}
                             </div>
                         @endif
-                        <div class="hidden text-right sm:block">
-                            <p class="text-base font-bold text-slate-900">{{ auth()->user()->nombres ?? 'Instructor' }} {{ auth()->user()->apellidos ?? '' }}</p>
-                            <p class="text-xs font-medium text-slate-500">Instructor SENA</p>
+                        <div class="hidden text-left sm:block">
+                            <p class="text-base font-bold text-slate-900">{{ auth()->user()->nombres ?? 'Administrador' }}</p>
+                            <p class="text-xs font-medium text-slate-500">Administrador</p>
                         </div>
+                        <svg class="hidden h-4 w-4 text-slate-400 sm:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
                     </button>
 
                     @include('layouts.profile-popover')
@@ -209,21 +196,19 @@
 
 @include('layouts.toast')
 
-    <script>
-        (function () {
-            function actualizarReloj() {
-                const ahora = new Date();
-                const hora = ahora.toLocaleTimeString('es-CO', { timeZone: 'America/Bogota', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
-                const fecha = ahora.toLocaleDateString('es-CO', { timeZone: 'America/Bogota', weekday: 'long', day: '2-digit', month: 'long' });
-                document.querySelectorAll('[data-reloj]').forEach(el => el.textContent = hora);
-                document.querySelectorAll('[data-fecha]').forEach(el => el.textContent = fecha.charAt(0).toUpperCase() + fecha.slice(1) + ' · Bogotá');
-                const h = parseInt(ahora.toLocaleString('en-US', { timeZone: 'America/Bogota', hour: '2-digit', hour12: false }), 10);
-                const saludo = h < 12 ? 'Buenos días' : (h < 19 ? 'Buenas tardes' : 'Buenas noches');
-                document.querySelectorAll('[data-saludo]').forEach(el => el.textContent = saludo);
-            }
-            actualizarReloj();
-            if (!window.__gevlaClock) { window.__gevlaClock = setInterval(actualizarReloj, 1000); }
-        })();
-    </script>
+<script>
+    (function () {
+        function actualizarReloj() {
+            const ahora = new Date();
+            const hora = ahora.toLocaleTimeString('es-CO', { timeZone: 'America/Bogota', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+            const fecha = ahora.toLocaleDateString('es-CO', { timeZone: 'America/Bogota', weekday: 'long', day: '2-digit', month: 'long' });
+            document.querySelectorAll('[data-reloj]').forEach(el => el.textContent = hora);
+            document.querySelectorAll('[data-fecha]').forEach(el => el.textContent = fecha.charAt(0).toUpperCase() + fecha.slice(1) + ' · Bogotá');
+        }
+        actualizarReloj();
+        if (!window.__gevlaClock) { window.__gevlaClock = setInterval(actualizarReloj, 1000); }
+    })();
+</script>
+@yield('scripts')
 </body>
 </html>

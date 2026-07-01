@@ -75,3 +75,24 @@ INSERT IGNORE INTO `ficha_instructor` (`id_ficha`, `id_instructor`, `fecha_asign
 SELECT `id_ficha`, `id_instructor_lider`, `fecha_inicio`
 FROM `ficha`
 WHERE `id_instructor_lider` IS NOT NULL;
+
+-- ---------------------------------------------------------------------------
+-- 5) Columna tipo_docente en instructor (materia / transversal) — módulo Docentes
+-- ---------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS `gevla_add_tipo_docente`;
+DELIMITER //
+CREATE PROCEDURE `gevla_add_tipo_docente`()
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'instructor'
+      AND COLUMN_NAME = 'tipo_docente'
+  ) THEN
+    ALTER TABLE `instructor`
+      ADD COLUMN `tipo_docente` ENUM('materia','transversal') DEFAULT NULL AFTER `area_formacion`;
+  END IF;
+END //
+DELIMITER ;
+CALL `gevla_add_tipo_docente`();
+DROP PROCEDURE IF EXISTS `gevla_add_tipo_docente`;
