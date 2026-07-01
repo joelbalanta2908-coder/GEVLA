@@ -27,14 +27,6 @@
 
         .login-shell { animation: fadeSlideUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
 
-        .role-card input:checked + span {
-            border-color: var(--gevla-green);
-            background: #f0fdf4;
-            box-shadow: 0 0 0 4px rgba(57, 169, 0, 0.12);
-        }
-
-        .role-card input:checked + span .role-icon { color: var(--gevla-green); }
-
         /* ---------- Carrusel: overlay con paleta institucional, no slate/negro genérico ---------- */
         .carousel-slide {
             opacity: 0;
@@ -99,8 +91,29 @@
             </div>
             <h1 class="copy-on-photo text-6xl font-extrabold tracking-tight">GEVLA</h1>
             <p class="copy-on-photo mt-5 max-w-lg text-lg leading-8 text-white/90">
-                Acceso seguro por rol para aprendices, instructores y coordinadores del sistema de seguimiento disciplinario y formativo.
+                Gestión y seguimiento del proceso disciplinario y formativo de aprendices, instructores y coordinación.
             </p>
+
+            <ul class="mt-9 space-y-4">
+                @php
+                    $features = [
+                        ['t' => 'Seguimiento disciplinario y formativo', 'd' => 'Llamados de atención, procesos y actas en un solo lugar.', 'p' => 'M9 12l2 2 4-4M12 3l7 4v5c0 4.5-3 8-7 9-4-1-7-4.5-7-9V7l7-4z'],
+                        ['t' => 'Acceso seguro y auditable', 'd' => 'Autenticación por credenciales y permisos por rol.', 'p' => 'M12 3l8 4v5c0 4.5-3 8-8 9-5-1-8-4.5-8-9V7l8-4zM9 12l2 2 4-4'],
+                        ['t' => 'Fichas, reportes y notificaciones', 'd' => 'Información centralizada y siempre actualizada.', 'p' => 'M4 5h16v14H4zM4 9h16M9 13h7M9 16h7'],
+                    ];
+                @endphp
+                @foreach($features as $f)
+                    <li class="flex items-start gap-4">
+                        <span class="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/20 bg-white/10 backdrop-blur">
+                            <svg class="h-5 w-5 text-[#8fe36b]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ $f['p'] }}"/></svg>
+                        </span>
+                        <div>
+                            <p class="copy-on-photo text-base font-bold text-white">{{ $f['t'] }}</p>
+                            <p class="copy-on-photo text-sm text-white/75">{{ $f['d'] }}</p>
+                        </div>
+                    </li>
+                @endforeach
+            </ul>
 
             <div class="mt-10 flex items-center gap-3" aria-label="Indicadores del carrusel">
                 <button type="button" class="carousel-dot is-active h-2.5 w-2.5 rounded-full bg-white/70 transition-all" aria-label="Ver imagen 1" data-carousel-dot="0"></button>
@@ -109,24 +122,29 @@
             </div>
         </section>
 
-        <section class="mx-auto w-full max-w-[480px] rounded-lg border border-white/70 bg-white/97 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.32)] backdrop-blur sm:p-8">
-            <div class="mb-7 flex items-center gap-4">
-                <img src="https://oficinavirtualderadicacion.sena.edu.co/oficinavirtual/Resources/logoSenaNaranja.png" alt="Logosímbolo SENA" class="h-14 w-auto sm:h-16">
-                <div>
-                    <p class="text-3xl font-extrabold tracking-tight text-[#39A900]">GEVLA</p>
-                    <p class="text-sm font-medium text-slate-500">Inicio de sesion por rol</p>
+        <section class="relative mx-auto w-full max-w-[440px] overflow-hidden rounded-2xl border border-white/70 bg-white/97 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.32)] backdrop-blur sm:p-8">
+            <div class="mb-6 flex items-center gap-3">
+                <img src="https://oficinavirtualderadicacion.sena.edu.co/oficinavirtual/Resources/logoSenaNaranja.png" alt="Logosímbolo SENA" class="h-16 w-auto sm:h-[68px]">
+                <div class="leading-tight">
+                    <p class="text-2xl font-extrabold tracking-tight text-[#39A900]">GEVLA</p>
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">SENA</p>
                 </div>
             </div>
 
+            <div class="mb-6">
+                <h2 class="text-2xl font-extrabold tracking-tight text-slate-900">Bienvenido de nuevo</h2>
+                <p class="mt-1 text-sm text-slate-500">Ingresa tus credenciales para acceder a tu cuenta.</p>
+            </div>
+
             @if ($errors->has('login'))
-                <div class="mb-5 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-                    <span class="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-100 text-xs">!</span>
+                <div class="mb-5 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+                    <svg class="mt-0.5 h-5 w-5 shrink-0 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     <p>{{ $errors->first('login') }}</p>
                 </div>
             @endif
 
             @if (session('status'))
-                <div id="status-flash" class="mb-5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 transition-opacity duration-500">
+                <div id="status-flash" class="mb-5 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 transition-opacity duration-500">
                     {{ session('status') }}
                 </div>
                 <script>
@@ -142,50 +160,41 @@
             <form method="POST" action="{{ url('/login') }}" id="login-form" class="space-y-5">
                 @csrf
 
-                <fieldset>
-                    <legend class="mb-3 text-sm font-semibold text-slate-700">Selecciona tu rol</legend>
-                    <div class="grid gap-3 sm:grid-cols-3">
-                        @php($selectedRole = old('role', 'Aprendiz'))
-                        @php($roleIcons = ['Aprendiz' => 'ri-graduation-cap-line', 'Instructor' => 'ri-presentation-line', 'Coordinador' => 'ri-shield-user-line'])
-                        @foreach (['Aprendiz', 'Instructor', 'Coordinador'] as $role)
-                            <label class="role-card cursor-pointer">
-                                <input type="radio" name="role" value="{{ $role }}" class="sr-only" @checked($selectedRole === $role)>
-                                <span class="flex h-full min-h-[70px] flex-col items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2 py-2 text-center transition">
-                                    <i class="{{ $roleIcons[$role] }} role-icon text-3xl text-slate-400 transition"></i>
-                                    <span class="text-sm font-bold text-slate-800">{{ $role }}</span>
-                                </span>
-                            </label>
-                        @endforeach
-                    </div>
-                </fieldset>
-
                 <div>
-                    <label for="username" class="mb-2 block text-sm font-semibold text-slate-700">Correo personal</label>
-                    <input
-                        type="email"
-                        name="username"
-                        id="username"
-                        value="{{ old('username') }}"
-                        placeholder="correo.personal@ejemplo.com"
-                        required
-                        autocomplete="email"
-                        class="w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#39A900] focus:bg-white focus:ring-4 focus:ring-green-100"
-                    >
+                    <label for="username" class="mb-2 block text-sm font-semibold text-slate-700">Correo o usuario</label>
+                    <div class="group relative">
+                        <span class="pointer-events-none absolute inset-y-0 left-0 flex w-11 items-center justify-center text-slate-400 transition group-focus-within:text-[#39A900]">
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4zM4 7l8 6 8-6"/></svg>
+                        </span>
+                        <input
+                            type="text"
+                            name="username"
+                            id="username"
+                            value="{{ old('username') }}"
+                            placeholder="correo.personal@ejemplo.com"
+                            required
+                            autocomplete="username"
+                            class="w-full rounded-xl border border-slate-300 bg-slate-50 py-3 pl-11 pr-4 text-sm text-slate-900 outline-none transition focus:border-[#39A900] focus:bg-white focus:ring-4 focus:ring-green-100"
+                        >
+                    </div>
                 </div>
 
                 <div>
-                    <label for="password" class="mb-2 block text-sm font-semibold text-slate-700">Contrasena</label>
-                    <div class="relative">
+                    <label for="password" class="mb-2 block text-sm font-semibold text-slate-700">Contraseña</label>
+                    <div class="group relative">
+                        <span class="pointer-events-none absolute inset-y-0 left-0 flex w-11 items-center justify-center text-slate-400 transition group-focus-within:text-[#39A900]">
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+                        </span>
                         <input
                             type="password"
                             name="password"
                             id="password"
-                            placeholder="Ingresa tu contrasena"
+                            placeholder="Ingresa tu contraseña"
                             required
                             autocomplete="current-password"
-                            class="w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-3 pr-12 text-sm text-slate-900 outline-none transition focus:border-[#39A900] focus:bg-white focus:ring-4 focus:ring-green-100"
+                            class="w-full rounded-xl border border-slate-300 bg-slate-50 py-3 pl-11 pr-12 text-sm text-slate-900 outline-none transition focus:border-[#39A900] focus:bg-white focus:ring-4 focus:ring-green-100"
                         >
-                        <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-slate-400 transition hover:text-slate-700" aria-label="Mostrar u ocultar contrasena">
+                        <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-slate-400 transition hover:text-slate-700" aria-label="Mostrar u ocultar contraseña">
                             <svg id="icon-eye-open" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -202,16 +211,19 @@
                         <input type="checkbox" name="remember" class="h-4 w-4 rounded border-slate-300" style="accent-color: #39A900;">
                         Recordarme
                     </label>
+                    <span class="text-xs font-medium text-slate-400">¿Problemas para ingresar? Contacta a coordinación.</span>
                 </div>
 
-                <button type="submit" class="btn-primary w-full rounded-lg px-4 py-3 text-sm font-bold text-white transition focus:outline-none">
+                <button type="submit" class="btn-primary group flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold text-white transition focus:outline-none">
                     Ingresar a GEVLA
+                    <svg class="h-4 w-4 transition-transform group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
                 </button>
             </form>
 
-            <p class="mt-6 text-center text-xs font-medium text-slate-400">
-                &copy; {{ date('Y') }} SENA - GEVLA
-            </p>
+            <div class="mt-6 flex items-center justify-center gap-2 border-t border-slate-100 pt-5 text-xs font-medium text-slate-400">
+                <svg class="h-4 w-4 text-[#39A900]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+                Conexión segura · &copy; {{ date('Y') }} SENA — GEVLA
+            </div>
         </section>
     </main>
 

@@ -6,7 +6,6 @@ namespace App\Http\Controllers;
 
 use App\Models\ActaCoordinacion;
 use App\Models\Aprendiz;
-use App\Models\Ficha;
 use App\Models\LlamadoAtencion;
 use App\Models\ProcesoDisciplinario;
 use Illuminate\Http\Request;
@@ -155,32 +154,6 @@ class CoordinacionController extends Controller
         return view('aprendices.show', compact('aprendiz', 'volver', 'layout'));
     }
 
-    /**
-     * Fichas con su instructor líder, los instructores con intervención
-     * y los aprendices matriculados.
-     */
-    public function fichas(): View
-    {
-        $fichas = Ficha::with(['programa', 'instructorLider.usuario', 'matriculas.aprendiz.usuario'])
-            ->orderByDesc('fecha_inicio')
-            ->get();
-
-        // Instructores que han intervenido (a partir de los llamados de los
-        // aprendices de cada ficha), además del líder.
-        $involucrados = [];
-        foreach ($fichas as $ficha) {
-            $aprendizIds = $ficha->matriculas->pluck('id_aprendiz')->filter()->all();
-            $involucrados[$ficha->id_ficha] = empty($aprendizIds)
-                ? collect()
-                : LlamadoAtencion::with('instructor.usuario')
-                    ->whereIn('id_aprendiz', $aprendizIds)
-                    ->get()
-                    ->pluck('instructor')
-                    ->filter()
-                    ->unique('id_instructor')
-                    ->values();
-        }
-
-        return view('coordinacion.fichas.index', compact('fichas', 'involucrados'));
-    }
+    // La gestión de fichas (listado, CRUD, asociaciones e instructor líder) se
+    // trasladó a App\Http\Controllers\FichaController.
 }

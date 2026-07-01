@@ -1,5 +1,14 @@
 @php
     $usuario = auth()->user();
+    // Roles reales del usuario y rol activo (compartidos por ShareActiveRole).
+    $rolesDisp = $rolesDisponibles ?? \App\Support\Roles::disponiblesPara($usuario);
+    $rolAct = $rolActivo ?? \App\Support\Roles::porDefecto($usuario);
+    $rolActLabel = $rolAct ? \App\Support\Roles::etiqueta($rolAct, $usuario) : ($usuario->rolPrincipal() ?? 'Usuario');
+    $rolIconos = [
+        \App\Support\Roles::COORDINADOR => 'M12 3l8 4v5c0 4.5-3 8-8 9-5-1-8-4.5-8-9V7l8-4z',
+        \App\Support\Roles::INSTRUCTOR  => 'M3 5h18v11H3zM3 20h18M9 9h6',
+        \App\Support\Roles::APRENDIZ    => 'M22 10L12 5 2 10l10 5 10-5zM6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5',
+    ];
 @endphp
 
 <div x-cloak
@@ -19,10 +28,39 @@
             @endif
             <div>
                 <p class="text-sm font-bold text-slate-900">{{ $usuario->nombres }} {{ $usuario->apellidos }}</p>
-                <p class="text-xs uppercase tracking-[0.22em] text-slate-400">{{ $usuario->rolPrincipal() ?? 'Usuario' }}</p>
+                <p class="text-xs uppercase tracking-[0.22em] text-slate-400">{{ $rolActLabel }}</p>
             </div>
         </div>
     </div>
+
+    {{-- Selector de cambio de rol: solo si el usuario tiene más de un rol asignado --}}
+    @if(count($rolesDisp) > 1)
+        <div class="border-t border-[#e6eadf] px-2 py-2">
+            <p class="px-2 pb-1 pt-1 text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Cambiar de rol</p>
+            @foreach($rolesDisp as $rol)
+                @php($esActivo = $rolAct === $rol)
+                <form method="POST" action="{{ route('rol.cambiar') }}">
+                    @csrf
+                    <input type="hidden" name="rol" value="{{ $rol }}">
+                    <button type="submit" @disabled($esActivo)
+                        class="group flex w-full items-center justify-between gap-3 rounded-2xl border border-transparent px-4 py-2.5 text-sm font-semibold transition
+                               {{ $esActivo ? 'bg-[#39A900]/10 text-[#247200]' : 'text-slate-700 hover:border-black hover:bg-slate-50' }}">
+                        <span class="flex items-center gap-3">
+                            <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl {{ $esActivo ? 'bg-[#39A900]/15 text-[#39A900]' : 'bg-slate-100 text-slate-500' }}">
+                                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="{{ $rolIconos[$rol] ?? '' }}"/>
+                                </svg>
+                            </span>
+                            <span>{{ \App\Support\Roles::etiqueta($rol, $usuario) }}</span>
+                        </span>
+                        @if($esActivo)
+                            <span class="rounded-full bg-[#39A900]/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#247200]">Activo</span>
+                        @endif
+                    </button>
+                </form>
+            @endforeach
+        </div>
+    @endif
 
     <div class="space-y-1 px-2 py-2">
         <a href="{{ route('perfil.show') }}" class="group flex items-center gap-3 rounded-2xl border border-transparent px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-black hover:bg-slate-50">
@@ -61,7 +99,7 @@
                 </div>
                 <div>
                     <h3 class="text-lg font-extrabold text-slate-900">Mi perfil</h3>
-                    <p class="text-sm text-slate-500">{{ $usuario->rolPrincipal() ?? 'Usuario del sistema' }}</p>
+                    <p class="text-sm text-slate-500">{{ $rolActLabel }}</p>
                 </div>
             </div>
             <button type="button" @click="profileModalOpen = false" class="rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700">

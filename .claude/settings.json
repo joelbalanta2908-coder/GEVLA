@@ -9,7 +9,8 @@
       "Bash(php -l app/Http/Controllers/InstructorController.php)",
       "Bash(php -l app/Http/Controllers/CoordinacionController.php)",
       "Bash(php -l app/Http/Controllers/AprendizController.php)",
-      "Bash(php artisan *)"
+      "Bash(php artisan *)",
+      "Bash(echo \"---exit:$?---\")"
     ]
   }
 }

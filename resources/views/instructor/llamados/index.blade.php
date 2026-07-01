@@ -44,7 +44,78 @@
         </div>
     </div>
 
+    {{-- Buscador avanzado --}}
+    <form method="GET" action="{{ route('instructor.llamados.index') }}" id="filtros-reportes"
+          class="rounded-[24px] border border-[#e6eadf] bg-white p-5 shadow-[0_10px_28px_rgba(0,0,0,0.04)] sm:p-6">
+        {{-- Se preserva el orden actual al filtrar --}}
+        <input type="hidden" name="orden" value="{{ $orden }}">
+        <input type="hidden" name="dir" value="{{ $dir }}">
+
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="lg:col-span-2">
+                <label class="mb-1 block text-xs font-bold uppercase tracking-[0.1em] text-slate-500">Aprendiz / Documento / Asunto</label>
+                <input type="text" name="buscar" value="{{ $buscar }}" data-autosubmit placeholder="Nombre, documento o asunto..."
+                       class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm caret-[#39A900] focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
+            </div>
+            <div>
+                <label class="mb-1 block text-xs font-bold uppercase tracking-[0.1em] text-slate-500">N.º de ficha</label>
+                <input type="text" name="numero_ficha" value="{{ $numeroFicha }}" data-autosubmit placeholder="Ej. 2758934"
+                       class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm caret-[#39A900] focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
+            </div>
+            <div>
+                <label class="mb-1 block text-xs font-bold uppercase tracking-[0.1em] text-slate-500">Programa</label>
+                <select name="id_programa" data-autosubmit class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
+                    <option value="">Todos</option>
+                    @foreach($programas as $p)
+                        <option value="{{ $p->id_programa }}" @selected((string) $idPrograma === (string) $p->id_programa)>{{ $p->nombre_programa }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label class="mb-1 block text-xs font-bold uppercase tracking-[0.1em] text-slate-500">Estado</label>
+                <select name="estado" data-autosubmit class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
+                    <option value="">Todos</option>
+                    @foreach($estados as $valor => $etiqueta)
+                        <option value="{{ $valor }}" @selected($estado === $valor)>{{ $etiqueta }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label class="mb-1 block text-xs font-bold uppercase tracking-[0.1em] text-slate-500">Tipo de reporte</label>
+                <select name="tipo_llamado" data-autosubmit class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
+                    <option value="">Todos</option>
+                    @foreach($tipos as $valor => $etiqueta)
+                        <option value="{{ $valor }}" @selected($tipo === $valor)>{{ $etiqueta }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label class="mb-1 block text-xs font-bold uppercase tracking-[0.1em] text-slate-500">Desde</label>
+                <input type="date" name="fecha_desde" value="{{ $fechaDesde }}" data-autosubmit
+                       class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
+            </div>
+            <div>
+                <label class="mb-1 block text-xs font-bold uppercase tracking-[0.1em] text-slate-500">Hasta</label>
+                <input type="date" name="fecha_hasta" value="{{ $fechaHasta }}" data-autosubmit
+                       class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
+            </div>
+        </div>
+
+        <div class="mt-4 flex items-center justify-end gap-3">
+            <a href="{{ route('instructor.llamados.index') }}" class="rounded-full border border-gray-300 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-gray-50">Limpiar</a>
+            <button class="rounded-full bg-[#39A900] px-5 py-2 text-sm font-bold text-white hover:bg-[#247200]">Buscar</button>
+        </div>
+    </form>
+
     {{-- Listado --}}
+    @php
+        // Genera los parámetros de una columna ordenable conservando los filtros.
+        $sortLink = function (string $clave) use ($orden, $dir) {
+            $nuevaDir = ($orden === $clave && $dir === 'asc') ? 'desc' : 'asc';
+            return request()->fullUrlWithQuery(['orden' => $clave, 'dir' => $nuevaDir]);
+        };
+        $sortIcon = fn (string $clave) => $orden === $clave ? ($dir === 'asc' ? '▲' : '▼') : '⇅';
+    @endphp
     <div class="overflow-hidden rounded-[24px] border border-[#e6eadf] bg-white shadow-[0_10px_28px_rgba(0,0,0,0.04)]">
         @if($llamados->isEmpty())
             <div class="px-6 py-16 text-center">
@@ -61,11 +132,11 @@
                 <table class="responsive-cards w-full min-w-[640px] text-left text-sm text-slate-600">
                     <thead class="border-b border-[#eef1e8] bg-[#fafbf8] text-xs font-bold uppercase tracking-[0.12em] text-slate-500">
                         <tr>
-                            <th class="px-6 py-4">ID</th>
-                            <th class="px-6 py-4">Fecha</th>
+                            <th class="px-6 py-4"><a href="{{ $sortLink('id') }}" class="inline-flex items-center gap-1 hover:text-[#39A900]">ID <span class="text-[10px]">{{ $sortIcon('id') }}</span></a></th>
+                            <th class="px-6 py-4"><a href="{{ $sortLink('fecha') }}" class="inline-flex items-center gap-1 hover:text-[#39A900]">Fecha <span class="text-[10px]">{{ $sortIcon('fecha') }}</span></a></th>
                             <th class="px-6 py-4">Aprendiz</th>
-                            <th class="px-6 py-4">Asunto</th>
-                            <th class="px-6 py-4">Estado</th>
+                            <th class="px-6 py-4"><a href="{{ $sortLink('asunto') }}" class="inline-flex items-center gap-1 hover:text-[#39A900]">Asunto <span class="text-[10px]">{{ $sortIcon('asunto') }}</span></a></th>
+                            <th class="px-6 py-4"><a href="{{ $sortLink('estado') }}" class="inline-flex items-center gap-1 hover:text-[#39A900]">Estado <span class="text-[10px]">{{ $sortIcon('estado') }}</span></a></th>
                             <th class="px-6 py-4 text-right">Acciones</th>
                         </tr>
                     </thead>
@@ -121,5 +192,22 @@
             </div>
         @endif
     </div>
+
+    <script>
+        // Búsqueda en tiempo real: envía el formulario de filtros con un pequeño
+        // retardo al escribir y de inmediato al cambiar selects o fechas.
+        (function () {
+            const form = document.getElementById('filtros-reportes');
+            if (!form) return;
+            let timer = null;
+            form.querySelectorAll('[data-autosubmit]').forEach(function (el) {
+                const evento = el.tagName === 'SELECT' || el.type === 'date' ? 'change' : 'input';
+                el.addEventListener(evento, function () {
+                    clearTimeout(timer);
+                    timer = setTimeout(function () { form.submit(); }, evento === 'input' ? 450 : 0);
+                });
+            });
+        })();
+    </script>
 </div>
 @endsection

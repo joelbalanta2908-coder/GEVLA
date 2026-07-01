@@ -13,6 +13,16 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->redirectGuestsTo('/login');
         $middleware->redirectUsersTo('/');
+
+        // Comparte el rol activo y los roles disponibles con todas las vistas.
+        $middleware->web(append: [
+            \App\Http\Middleware\ShareActiveRole::class,
+        ]);
+
+        // Alias para restringir rutas por rol: ->middleware('rol:Coordinador')
+        $middleware->alias([
+            'rol' => \App\Http\Middleware\EnsureUserHasRole::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

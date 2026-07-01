@@ -28,7 +28,7 @@
         :class="(sidebarOpen ? 'translate-x-0' : '-translate-x-full') + ' ' + (sidebarCollapsed ? 'lg:w-20' : 'lg:w-60')"
         class="fixed inset-y-0 left-0 z-40 flex w-60 flex-col transform border-r border-white/10 bg-gradient-to-b from-[#1e6a00] via-[#2a7a00] to-[#4db100] text-white shadow-[0_30px_70px_rgba(25,80,0,0.32)] transition-all duration-200 lg:static lg:h-screen lg:translate-x-0">
 
-        <div class="flex h-14 items-center justify-between gap-2 border-b border-white/10 px-4">
+        <div class="flex h-16 items-center justify-between gap-2 border-b border-white/10 px-4">
             <div class="flex items-center gap-3 overflow-hidden">
                 <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/90 shadow-sm ring-1 ring-white/30" :class="sidebarCollapsed && 'lg:hidden'">
                     <img src="https://oficinavirtualderadicacion.sena.edu.co/oficinavirtual/Resources/logoSenaNaranja.png" alt="Logosímbolo SENA" class="h-6 w-auto">
@@ -114,7 +114,7 @@
 
     {{-- Contenido principal --}}
     <div class="flex min-h-screen flex-1 flex-col lg:h-screen lg:min-h-0">
-        <header class="flex h-14 items-center justify-between border-b border-[#e3e7df] bg-white px-4 sm:px-5 lg:px-6 shadow-[0_8px_24px_rgba(0,0,0,0.03)]">
+        <header class="flex h-16 items-center justify-between border-b border-[#e3e7df] bg-white px-4 sm:px-5 lg:px-6 shadow-[0_8px_24px_rgba(0,0,0,0.03)]">
             @php $enDashboard = request()->routeIs('aprendiz.dashboard'); @endphp
             <div class="flex items-center gap-3">
                 <button @click="sidebarOpen = true" class="text-slate-500 transition hover:text-[#39A900] lg:hidden">
@@ -148,7 +148,7 @@
                 <div class="relative" @keydown.escape.window="profileMenuOpen = false; profileModalOpen = false">
                     <button type="button"
                             @click="profileMenuOpen = !profileMenuOpen"
-                            class="flex items-center gap-3 rounded-full border border-[#dce3d5] bg-white px-4 py-2 shadow-[0_8px_24px_rgba(0,0,0,0.03)] transition hover:border-[#c9d7be]">
+                            class="flex items-center gap-3 rounded-full border border-transparent bg-white px-4 py-2 transition duration-200 hover:border-black">
                         @if(auth()->user()->fotoUrl())
                             <img src="{{ auth()->user()->fotoUrl() }}" alt="Foto de perfil" class="h-9 w-9 shrink-0 rounded-full object-cover ring-2 ring-white">
                         @else

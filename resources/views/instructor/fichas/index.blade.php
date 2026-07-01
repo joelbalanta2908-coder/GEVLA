@@ -5,8 +5,8 @@
 @section('contenido')
 <div class="space-y-6">
     <div>
-        <h2 class="text-xl font-bold text-gray-900">Fichas a cargo</h2>
-        <p class="mt-1 text-sm text-gray-500">Grupos de formación que lideras y sus aprendices.</p>
+        <h2 class="text-xl font-bold text-gray-900">Mis Fichas</h2>
+        <p class="mt-1 text-sm text-gray-500">Fichas en las que estás asignado y sus aprendices. Consulta el historial disciplinario de cada grupo.</p>
     </div>
 
     @forelse($fichas as $ficha)
@@ -40,6 +40,13 @@
             </button>
 
             <div x-show="abierto" x-cloak class="border-t border-gray-100">
+                <div class="flex items-center justify-between gap-3 border-b border-gray-100 bg-gray-50/60 px-6 py-3">
+                    <p class="text-xs font-bold uppercase tracking-[0.16em] text-gray-400">Aprendices de la ficha</p>
+                    <a href="{{ route('instructor.fichas.show', $ficha) }}" class="inline-flex items-center gap-1.5 rounded-full bg-[#39A900]/10 px-3 py-1.5 text-xs font-bold text-[#247200] transition hover:bg-[#39A900]/20">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6m-6 4h6M9 8h6M5 3h11l4 4v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/></svg>
+                        Historial disciplinario
+                    </a>
+                </div>
                 @if($ficha->matriculas->isEmpty())
                     <p class="px-6 py-6 text-center text-sm text-gray-400">Esta ficha no tiene aprendices matriculados.</p>
                 @else
@@ -69,7 +76,7 @@
         </div>
     @empty
         <div class="rounded-2xl border border-gray-200 bg-white p-10 text-center text-gray-500 shadow-sm">
-            <p class="text-sm">Aún no tienes fichas asignadas como instructor líder.</p>
+            <p class="text-sm">Aún no estás asignado a ninguna ficha.</p>
         </div>
     @endforelse
 </div>

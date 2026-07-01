@@ -6,12 +6,11 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Usuario;
+use App\Support\Roles;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class LoginController extends Controller
@@ -43,15 +42,15 @@ class LoginController extends Controller
      */
     public function login(Request $request): RedirectResponse
     {
+        // Ya no se solicita el rol: el usuario solo ingresa sus credenciales y el
+        // backend determina los roles asociados.
         $request->validate([
-            'role' => ['required', 'string', Rule::in(['Aprendiz', 'Instructor', 'Coordinador'])],
             'username' => ['required', 'string'],
             'password' => ['required', 'string'],
         ]);
 
         $identifier = trim((string) $request->input('username'));
         $password = (string) $request->input('password');
-        $role = (string) $request->input('role');
 
         $usuario = $this->buscarUsuarioPorIdentificador($identifier);
 
@@ -67,12 +66,15 @@ class LoginController extends Controller
             return $this->rechazarLogin($request, 'Tu cuenta esta inactiva.');
         }
 
-        if (!$this->usuarioTieneRolOperativo($usuario, $role)) {
-            return $this->rechazarLogin($request, "El usuario no tiene el rol {$role} activo.");
-        }
-
         if (!$this->passwordValida($usuario, $password)) {
             return $this->rechazarLogin($request, 'Las credenciales son incorrectas o tu cuenta no esta activa.');
+        }
+
+        // El backend calcula los roles reales del usuario.
+        $roles = Roles::disponiblesPara($usuario);
+
+        if (empty($roles)) {
+            return $this->rechazarLogin($request, 'Tu usuario no tiene un rol o perfil activo para ingresar al sistema.');
         }
 
         Auth::login($usuario, $request->boolean('remember'));
@@ -80,8 +82,12 @@ class LoginController extends Controller
 
         $request->session()->regenerate();
 
+        // Rol activo inicial = rol por defecto (principal) definido por el backend.
+        $rolActivo = Roles::porDefecto($usuario);
+        $request->session()->put('rol_activo', $rolActivo);
+
         return redirect()
-            ->intended($this->obtenerRutaPorRol($role))
+            ->intended(route(Roles::dashboardRoute($rolActivo)))
             ->with('login_success', 'Has iniciado sesión correctamente.');
     }
 
@@ -113,29 +119,6 @@ class LoginController extends Controller
             ->first();
     }
 
-    private function usuarioTieneRolOperativo(Usuario $usuario, string $role): bool
-    {
-        if ($usuario->tieneRol($role)) {
-            return true;
-        }
-
-        return match ($role) {
-            'Aprendiz' => DB::table('aprendiz')
-                ->where('id_usuario', $usuario->id_usuario)
-                ->where('estado_academico', 'en_formacion')
-                ->exists(),
-            'Instructor' => DB::table('instructor')
-                ->where('id_usuario', $usuario->id_usuario)
-                ->where('estado_instructor', 'activo')
-                ->exists(),
-            'Coordinador' => DB::table('coordinacion')
-                ->where('id_usuario', $usuario->id_usuario)
-                ->where('estado_coordinacion', 'activo')
-                ->exists(),
-            default => false,
-        };
-    }
-
     private function passwordValida(Usuario $usuario, string $password): bool
     {
         $hash = (string) $usuario->password_hash;
@@ -158,20 +141,7 @@ class LoginController extends Controller
     private function rechazarLogin(Request $request, string $message): RedirectResponse
     {
         return back()
-            ->withInput($request->only('username', 'role'))
+            ->withInput($request->only('username'))
             ->withErrors(['login' => $message]);
-    }
-
-    /**
-     * Determina la ruta de redireccion segun el rol seleccionado.
-     */
-    private function obtenerRutaPorRol(string $rol): string
-    {
-        return match ($rol) {
-            'Aprendiz' => '/aprendiz/dashboard',
-            'Coordinador' => '/coordinacion/dashboard',
-            'Instructor' => '/instructor/dashboard',
-            default => '/login',
-        };
     }
 }

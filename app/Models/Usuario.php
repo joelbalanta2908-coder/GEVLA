@@ -135,6 +135,21 @@ class Usuario extends Authenticatable
     }
 
     /**
+     * Indica si el usuario es Coordinador Misional (única figura autorizada para
+     * designar el instructor líder de una ficha). Se identifica por el `cargo`
+     * de su coordinación activa, ya que la tabla `rol` no distingue subtipos de
+     * coordinador.
+     */
+    public function esCoordinadorMisional(): bool
+    {
+        $coordinacion = $this->coordinacion;
+
+        return $coordinacion !== null
+            && $coordinacion->estado_coordinacion === 'activo'
+            && str_contains(mb_strtolower((string) $coordinacion->cargo), 'misional');
+    }
+
+    /**
      * Relación con el aprendiz (si el usuario es un aprendiz).
      */
     public function aprendiz(): HasOne

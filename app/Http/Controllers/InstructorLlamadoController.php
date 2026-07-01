@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LlamadoAtencion;
 use App\Models\Aprendiz;
+use App\Models\ProgramaFormacion;
 use App\Models\ReglamentoArticulo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -51,18 +52,80 @@ class InstructorLlamadoController extends Controller
     }
 
     /**
-     * Lista los llamados de atención creados por el instructor actual.
+     * Columnas por las que se permite ordenar el listado de reportes.
+     *
+     * @var array<string, string>
      */
-    public function index(): View
+    private const COLUMNAS_ORDEN = [
+        'id'     => 'id_llamado',
+        'fecha'  => 'fecha_llamado',
+        'asunto' => 'asunto',
+        'estado' => 'estado_llamado',
+    ];
+
+    /**
+     * Lista los llamados de atención creados por el instructor actual con un
+     * buscador avanzado: filtros combinables (número de ficha, nombre/documento
+     * del aprendiz, programa, estado, tipo de reporte y rango de fechas),
+     * ordenamiento por columnas y paginación.
+     */
+    public function index(Request $request): View
     {
         $instructor = $this->getInstructor();
 
-        $llamados = LlamadoAtencion::with('aprendiz.usuario')
-            ->where('id_instructor', $instructor->id_instructor)
-            ->orderByDesc('fecha_llamado')
-            ->paginate(15);
+        // Valores de los filtros.
+        $buscar       = trim((string) $request->input('buscar', ''));
+        $numeroFicha  = trim((string) $request->input('numero_ficha', ''));
+        $idPrograma   = $request->input('id_programa');
+        $estado       = $request->input('estado');
+        $tipo         = $request->input('tipo_llamado');
+        $fechaDesde   = $request->input('fecha_desde');
+        $fechaHasta   = $request->input('fecha_hasta');
 
-        return view('instructor.llamados.index', compact('llamados'));
+        // Ordenamiento (con lista blanca para evitar inyección).
+        $orden = (string) $request->input('orden', 'fecha');
+        $dir   = strtolower((string) $request->input('dir', 'desc')) === 'asc' ? 'asc' : 'desc';
+        $columnaOrden = self::COLUMNAS_ORDEN[$orden] ?? 'fecha_llamado';
+
+        $llamados = LlamadoAtencion::query()
+            ->with(['aprendiz.usuario', 'aprendiz.matriculas.ficha.programa'])
+            ->where('id_instructor', $instructor->id_instructor)
+            // Búsqueda por nombre/apellido/documento del aprendiz o asunto.
+            ->when($buscar !== '', function ($q) use ($buscar) {
+                $q->where(function ($sub) use ($buscar) {
+                    $sub->where('asunto', 'like', "%{$buscar}%")
+                        ->orWhereHas('aprendiz.usuario', function ($u) use ($buscar) {
+                            $u->where('nombres', 'like', "%{$buscar}%")
+                                ->orWhere('apellidos', 'like', "%{$buscar}%")
+                                ->orWhere('numero_documento', 'like', "%{$buscar}%");
+                        });
+                });
+            })
+            // Filtro por número de ficha del aprendiz.
+            ->when($numeroFicha !== '', function ($q) use ($numeroFicha) {
+                $q->whereHas('aprendiz.matriculas.ficha', fn ($f) => $f->where('numero_ficha', 'like', "%{$numeroFicha}%"));
+            })
+            // Filtro por programa de formación.
+            ->when($idPrograma, function ($q) use ($idPrograma) {
+                $q->whereHas('aprendiz.matriculas.ficha', fn ($f) => $f->where('id_programa', $idPrograma));
+            })
+            ->when($estado, fn ($q) => $q->where('estado_llamado', $estado))
+            ->when($tipo, fn ($q) => $q->where('tipo_llamado', $tipo))
+            ->when($fechaDesde, fn ($q) => $q->whereDate('fecha_llamado', '>=', $fechaDesde))
+            ->when($fechaHasta, fn ($q) => $q->whereDate('fecha_llamado', '<=', $fechaHasta))
+            ->orderBy($columnaOrden, $dir)
+            ->paginate(15)
+            ->withQueryString();
+
+        $programas = ProgramaFormacion::orderBy('nombre_programa')->get();
+        $estados   = LlamadoAtencion::estados();
+        $tipos     = LlamadoAtencion::tipos();
+
+        return view('instructor.llamados.index', compact(
+            'llamados', 'programas', 'estados', 'tipos',
+            'buscar', 'numeroFicha', 'idPrograma', 'estado', 'tipo', 'fechaDesde', 'fechaHasta',
+            'orden', 'dir'
+        ));
     }
 
     /**
