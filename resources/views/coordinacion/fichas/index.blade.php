@@ -68,7 +68,7 @@
                                 @if($ap)
                                     <li class="flex items-center justify-between gap-3 py-2.5">
                                         <span class="text-sm text-gray-700">{{ optional($ap->usuario)->nombres }} {{ optional($ap->usuario)->apellidos }}</span>
-                                        <a href="{{ route('coordinacion.aprendices.show', $ap->id_aprendiz) }}" class="text-sm font-semibold text-[#39A900] hover:underline">Ver hoja de vida</a>
+                                        <a href="{{ route('coordinacion.aprendices.show', $ap->id_aprendiz) }}" class="text-sm font-semibold text-[#39A900] hover:underline">Ver información</a>
                                     </li>
                                 @endif
                             @endforeach

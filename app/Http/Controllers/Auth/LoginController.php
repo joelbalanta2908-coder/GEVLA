@@ -80,7 +80,9 @@ class LoginController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended($this->obtenerRutaPorRol($role));
+        return redirect()
+            ->intended($this->obtenerRutaPorRol($role))
+            ->with('login_success', 'Has iniciado sesión correctamente.');
     }
 
     /**

@@ -58,7 +58,7 @@
                                         </div>
                                     </div>
                                     <a href="{{ route('instructor.aprendices.show', $ap->id_aprendiz) }}" class="inline-flex items-center gap-1 text-sm font-semibold text-[#39A900] hover:text-[#247200]">
-                                        Ver hoja de vida →
+                                        Ver información →
                                     </a>
                                 </li>
                             @endif

@@ -68,6 +68,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/procesos', [InstructorController::class, 'procesos'])->name('procesos.index');
         Route::get('/notificaciones', [InstructorController::class, 'notificaciones'])->name('notificaciones.index');
 
+        // Exportación de reportes (PDF imprimible / Excel / Word).
+        // Debe registrarse ANTES del resource para no chocar con /llamados/{llamado}.
+        Route::get('llamados/export/{formato}', [\App\Http\Controllers\InstructorLlamadoController::class, 'export'])
+            ->where('formato', 'pdf|excel|word')
+            ->name('llamados.export');
+
         // Gestión de Llamados (CRUD)
         Route::resource('llamados', \App\Http\Controllers\InstructorLlamadoController::class)->parameters(['llamados' => 'llamado']);
     });
@@ -82,6 +88,12 @@ Route::middleware('auth')->group(function () {
 
         // Fichas (con instructor líder e instructores asignados)
         Route::get('/fichas', [CoordinacionController::class, 'fichas'])->name('fichas.index');
+
+        // Exportación de reportes (PDF / Excel / Word). Deben ir ANTES de los
+        // resource para no chocar con /{llamado}, /{acta}, /{proceso}.
+        Route::get('llamados/export/{formato}', [\App\Http\Controllers\CoordinacionReporteController::class, 'llamados'])->where('formato', 'pdf|excel|word')->name('llamados.export');
+        Route::get('actas/export/{formato}', [\App\Http\Controllers\CoordinacionReporteController::class, 'actas'])->where('formato', 'pdf|excel|word')->name('actas.export');
+        Route::get('procesos/export/{formato}', [\App\Http\Controllers\CoordinacionReporteController::class, 'procesos'])->where('formato', 'pdf|excel|word')->name('procesos.export');
 
         // Llamados de atención
         Route::resource('llamados', LlamadoController::class)->parameters(['llamados' => 'llamado']);

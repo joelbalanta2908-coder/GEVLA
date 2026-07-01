@@ -375,9 +375,9 @@ CREATE TABLE `reglamento_articulo` (
 --
 
 INSERT INTO `reglamento_articulo` (`id_articulo`, `id_capitulo`, `numero_articulo`, `titulo`, `contenido`) VALUES
-(1, 2, 'Art. 15', 'Faltas Leves', 'Se considera falta leve el incumplimiento de actividades...'),
-(2, 2, 'Art. 16', 'Faltas Graves', 'Son faltas graves las que vulneren la integridad...'),
-(3, 3, 'Art. 7', 'Porcentaje Asistencia', 'El aprendiz debe cumplir mínimo el 80% de asistencia...');
+(1, 3, 'Art. 15', 'Faltas Leves', 'Se considera falta leve el incumplimiento de actividades...'),
+(2, 3, 'Art. 16', 'Faltas Graves', 'Son faltas graves las que vulneren la integridad...'),
+(3, 2, 'Art. 7', 'Porcentaje Asistencia', 'El aprendiz debe cumplir mínimo el 80% de asistencia...');
 
 -- --------------------------------------------------------
 
@@ -399,8 +399,8 @@ CREATE TABLE `reglamento_capitulo` (
 
 INSERT INTO `reglamento_capitulo` (`id_capitulo`, `id_reglamento`, `numero_capitulo`, `titulo`, `descripcion`) VALUES
 (1, 1, 'I', 'Disposiciones Generales', 'Objeto, ámbito y definiciones'),
-(2, 1, 'III', 'Faltas Disciplinarias', 'Clasificación y procedimiento'),
-(3, 2, 'II', 'Asistencia y Puntualidad', 'Deberes del aprendiz en horario');
+(2, 1, 'II', 'Asistencia y Puntualidad', 'Deberes del aprendiz en horario'),
+(3, 1, 'III', 'Faltas Disciplinarias', 'Clasificación y procedimiento');
 
 -- --------------------------------------------------------
 

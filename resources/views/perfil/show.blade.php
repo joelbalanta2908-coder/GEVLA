@@ -100,7 +100,7 @@
                     </div>
 
                     <div class="mt-6 grid gap-4 sm:grid-cols-2">
-                        <div class="rounded-3xl border border-[#eef1e8] bg-[#f9faf9] p-5">
+                        <div class="rounded-3xl border border-slate-100 bg-[#f9faf9] p-5">
                             <p class="text-xs uppercase tracking-[0.16em] text-slate-400">Coordinación</p>
                             <p class="mt-2 text-base font-semibold text-slate-900">{{ optional($usuario->coordinacion)->cargo ?? 'No aplica' }}</p>
                             <p class="mt-1 text-sm text-slate-500">{{ optional($usuario->coordinacion)->estado_coordinacion ?? 'No disponible' }}</p>

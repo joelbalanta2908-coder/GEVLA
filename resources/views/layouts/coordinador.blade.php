@@ -214,6 +214,8 @@
     </div>
 </div>
 
+@include('layouts.toast')
+
     <script>
         (function () {
             function actualizarReloj() {

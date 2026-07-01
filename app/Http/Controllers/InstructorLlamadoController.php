@@ -66,6 +66,49 @@ class InstructorLlamadoController extends Controller
     }
 
     /**
+     * Exporta los llamados del instructor a PDF (vista imprimible), Excel (.xls)
+     * o Word (.doc). Implementación nativa, sin librerías externas.
+     */
+    public function export(string $formato): \Illuminate\Http\Response
+    {
+        $instructor = $this->getInstructor();
+
+        $llamados = LlamadoAtencion::with('aprendiz.usuario')
+            ->where('id_instructor', $instructor->id_instructor)
+            ->orderByDesc('fecha_llamado')
+            ->get();
+
+        $usuario = Auth::user();
+        $nombreInstructor = trim(($usuario->nombres ?? '') . ' ' . ($usuario->apellidos ?? ''));
+        $fecha = now()->timezone('America/Bogota')->format('Y-m-d_His');
+
+        // PDF: se sirve una vista imprimible; el navegador la guarda como PDF.
+        if ($formato === 'pdf') {
+            return response()->view('instructor.llamados.reporte', [
+                'llamados'         => $llamados,
+                'nombreInstructor' => $nombreInstructor,
+                'imprimir'         => true,
+            ]);
+        }
+
+        // Excel y Word comparten el HTML del reporte; solo cambian las cabeceras.
+        $html = view('instructor.llamados.reporte', [
+            'llamados'         => $llamados,
+            'nombreInstructor' => $nombreInstructor,
+            'imprimir'         => false,
+        ])->render();
+
+        [$mime, $ext] = $formato === 'excel'
+            ? ['application/vnd.ms-excel', 'xls']
+            : ['application/msword', 'doc'];
+
+        return response($html, 200, [
+            'Content-Type'        => $mime . '; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"mis-reportes_{$fecha}.{$ext}\"",
+        ]);
+    }
+
+    /**
      * Muestra el formulario para crear un nuevo llamado de atención.
      */
     public function create(): View
