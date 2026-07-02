@@ -125,22 +125,23 @@
                 </div>
             </div>
 
-            <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div class="rounded-3xl bg-[#f4f9ee] p-5 text-sm text-slate-600">
+            {{-- Consejo de seguridad y acciones: apilados en móvil, en fila en pantallas grandes. --}}
+            <div class="mt-6 flex flex-col gap-4 px-5 pb-6 sm:px-8 lg:flex-row lg:items-center lg:justify-between">
+                <div class="w-full rounded-3xl bg-[#f4f9ee] p-5 text-sm text-slate-600 lg:max-w-md">
                     <p class="font-semibold text-slate-900">Consejo de seguridad</p>
-                    <p class="mt-2">Usa una contraseña segura y actualiza tus datos si cambia tu correo institucional.</p>
+                    <p class="mt-2 break-words">Usa una contraseña segura y actualiza tus datos si cambia tu correo institucional.</p>
                 </div>
-                <div class="flex flex-wrap gap-3">
+                <div class="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap lg:w-auto lg:shrink-0 lg:justify-end">
                     <button type="button" @click="editando = !editando"
-                            class="inline-flex items-center gap-2 rounded-full bg-[#39A900] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#247200] shadow-sm">
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#39A900] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#247200] shadow-sm sm:w-auto">
+                        <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M12 20h9" />
                             <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
                         </svg>
                         <span x-text="editando ? 'Ocultar edición' : 'Editar perfil'">Editar perfil</span>
                     </button>
-                    <a href="{{ $dashboardRoute }}" class="inline-flex items-center gap-2 rounded-full border border-[#d8e2cf] bg-white px-5 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50 shadow-sm">
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <a href="{{ $dashboardRoute }}" class="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[#d8e2cf] bg-white px-5 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50 shadow-sm sm:w-auto">
+                        <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M3 11.5 12 4l9 7.5M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9" />
                         </svg>
                         Ir al Panel

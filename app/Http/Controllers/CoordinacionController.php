@@ -204,6 +204,33 @@ class CoordinacionController extends Controller
     }
 
     /**
+     * Activa o inactiva la cuenta de un aprendiz. Una cuenta inactiva no puede
+     * iniciar sesión (lo valida LoginController). No toca cuentas bloqueadas
+     * por el administrador.
+     */
+    public function actualizarEstadoAprendiz(Aprendiz $aprendiz): RedirectResponse
+    {
+        $usuario = $aprendiz->usuario;
+
+        if (! $usuario) {
+            return back()->withErrors(['error' => 'El aprendiz no tiene una cuenta de usuario asociada.']);
+        }
+
+        if ($usuario->estado_usuario === 'bloqueado') {
+            return back()->withErrors(['error' => 'La cuenta está bloqueada por el administrador; no puede modificarse desde coordinación.']);
+        }
+
+        $nuevo = $usuario->estado_usuario === 'activo' ? 'inactivo' : 'activo';
+        $usuario->update(['estado_usuario' => $nuevo]);
+
+        $nombre = trim($usuario->nombres . ' ' . $usuario->apellidos);
+
+        return back()->with('success', $nuevo === 'activo'
+            ? "Aprendiz {$nombre} activado correctamente."
+            : "Aprendiz {$nombre} inactivado correctamente. No podrá iniciar sesión mientras esté inactivo.");
+    }
+
+    /**
      * Hoja de vida consolidada de un aprendiz (vista compartida).
      */
     public function aprendizShow(string $id): View
@@ -290,6 +317,34 @@ class CoordinacionController extends Controller
         $instructor->update(['tipo_docente' => $validated['tipo_docente'] ?? null]);
 
         return back()->with('success', 'Tipo de docente actualizado correctamente.');
+    }
+
+    /**
+     * Activa o inactiva un instructor. Sincroniza el perfil de instructor y su
+     * cuenta de usuario: un instructor inactivo no aparece en los selectores de
+     * fichas ni puede iniciar sesión. No toca cuentas bloqueadas por el
+     * administrador.
+     */
+    public function actualizarEstadoDocente(Instructor $instructor): RedirectResponse
+    {
+        $usuario = $instructor->usuario;
+
+        if ($usuario && $usuario->estado_usuario === 'bloqueado') {
+            return back()->withErrors(['error' => 'La cuenta está bloqueada por el administrador; no puede modificarse desde coordinación.']);
+        }
+
+        $nuevo = $instructor->estado_instructor === 'activo' ? 'inactivo' : 'activo';
+
+        DB::transaction(function () use ($instructor, $usuario, $nuevo) {
+            $instructor->update(['estado_instructor' => $nuevo]);
+            $usuario?->update(['estado_usuario' => $nuevo]);
+        });
+
+        $nombre = $usuario ? trim($usuario->nombres . ' ' . $usuario->apellidos) : $instructor->codigo_instructor;
+
+        return back()->with('success', $nuevo === 'activo'
+            ? "Instructor {$nombre} activado correctamente."
+            : "Instructor {$nombre} inactivado correctamente. No podrá iniciar sesión mientras esté inactivo.");
     }
 
     // La gestión de fichas (listado, CRUD, asociaciones e instructor líder) se

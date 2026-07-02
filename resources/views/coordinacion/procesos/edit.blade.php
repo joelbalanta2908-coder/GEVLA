@@ -42,7 +42,7 @@
 
                 <div>
                     <label class="block text-sm font-bold text-gray-700">Fecha de inicio</label>
-                    <input type="date" name="fecha_inicio" required value="{{ old('fecha_inicio', $proceso->fecha_inicio) }}"
+                    <input type="date" name="fecha_inicio" required value="{{ old('fecha_inicio', optional($proceso->fecha_inicio)->format('Y-m-d')) }}"
                            class="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
                 </div>
 

@@ -47,7 +47,8 @@
                                 <a href="{{ route('coordinacion.programas.edit', $programa) }}" class="font-medium text-[#39A900] hover:underline">Editar</a>
                                 @if($programa->fichas_count === 0)
                                     <form method="POST" action="{{ route('coordinacion.programas.destroy', $programa) }}"
-                                          onsubmit="return confirm('¿Eliminar este programa? Esta acción no se puede deshacer.');">
+                                          data-confirm="¿Eliminar este programa? Esta acción no se puede deshacer."
+                                          data-confirm-title="Eliminar programa" data-confirm-btn="Sí, eliminar">
                                         @csrf
                                         @method('DELETE')
                                         <button class="font-medium text-red-500 hover:underline">Eliminar</button>

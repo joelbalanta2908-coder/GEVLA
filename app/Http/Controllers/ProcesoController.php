@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\Aprendiz;
+use App\Models\Ficha;
 use App\Models\LlamadoAtencion;
 use App\Models\HistorialProcesoDisciplinario;
 use App\Models\ProcesoDisciplinario;
@@ -61,7 +62,10 @@ class ProcesoController extends Controller
             ->toArray();
         $procesosEstadoData = array_map(fn ($key) => $procesosPorEstado[$key] ?? 0, $statusLabels);
 
-        return view('coordinacion.procesos.index', compact('procesos', 'trendLabels', 'procesosTrend', 'statusLabels', 'procesosEstadoData'));
+        // Fichas para el filtro del reporte exportable.
+        $fichasExport = Ficha::orderBy('numero_ficha')->get();
+
+        return view('coordinacion.procesos.index', compact('procesos', 'trendLabels', 'procesosTrend', 'statusLabels', 'procesosEstadoData', 'fichasExport'));
     }
 
     /**

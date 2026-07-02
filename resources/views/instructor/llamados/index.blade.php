@@ -23,16 +23,8 @@
                 <span class="inline-flex items-center gap-2 rounded-full border border-[#e6eadf] bg-[#f8faf6] px-4 py-2.5 text-sm font-bold text-slate-600">
                     {{ $llamados->total() }} {{ \Illuminate\Support\Str::plural('reporte', $llamados->total()) }}
                 </span>
-                {{-- Exportar reportes --}}
-                <div class="inline-flex items-center rounded-full border border-[#e6eadf] bg-white p-1 shadow-sm">
-                    <span class="px-3 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">Exportar</span>
-                    <a href="{{ route('instructor.llamados.export', 'pdf') }}" target="_blank" rel="noopener"
-                       class="rounded-full px-3 py-1.5 text-xs font-bold text-red-600 transition hover:bg-red-50" title="Abrir versión imprimible / Guardar como PDF">PDF</a>
-                    <a href="{{ route('instructor.llamados.export', 'excel') }}"
-                       class="rounded-full px-3 py-1.5 text-xs font-bold text-[#247200] transition hover:bg-[#39A900]/10" title="Descargar Excel (.xls)">Excel</a>
-                    <a href="{{ route('instructor.llamados.export', 'word') }}"
-                       class="rounded-full px-3 py-1.5 text-xs font-bold text-blue-600 transition hover:bg-blue-50" title="Descargar Word (.doc)">Word</a>
-                </div>
+                {{-- Exportar reportes (con filtro para clasificar por ficha) --}}
+                @include('reportes._botones', ['rutaBase' => 'instructor.llamados.export', 'fichas' => $fichasExport])
                 <a href="{{ route('instructor.llamados.create') }}"
                    class="inline-flex items-center justify-center gap-2 rounded-full bg-[#39A900] px-5 py-2.5 text-sm font-bold text-white shadow-[0_10px_24px_rgba(57,169,0,0.28)] transition hover:bg-[#247200]">
                     <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -171,7 +163,9 @@
                                             <a href="{{ route('instructor.llamados.edit', $llamado->id_llamado) }}" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 text-amber-600 transition hover:bg-amber-100" title="Editar">
                                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                             </a>
-                                            <form method="POST" action="{{ route('instructor.llamados.destroy', $llamado->id_llamado) }}" class="inline" onsubmit="return confirm('¿Estás seguro de eliminar este reporte?');">
+                                            <form method="POST" action="{{ route('instructor.llamados.destroy', $llamado->id_llamado) }}" class="inline"
+                                                  data-confirm="¿Estás seguro de eliminar este reporte? Esta acción no se puede deshacer."
+                                                  data-confirm-title="Eliminar reporte" data-confirm-btn="Sí, eliminar">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-600 transition hover:bg-red-100" title="Eliminar">

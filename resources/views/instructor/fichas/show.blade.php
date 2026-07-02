@@ -156,7 +156,7 @@
                 </div>
 
                 <div class="text-right">
-                    <a href="{{ route('instructor.aprendices.show', $ap->id_aprendiz) }}" class="text-sm font-semibold text-[#39A900] hover:underline">Ver hoja de vida completa →</a>
+                    <a href="{{ route('instructor.aprendices.show', $ap->id_aprendiz) }}" class="text-sm font-semibold text-[#39A900] hover:underline">Ver información del aprendiz →</a>
                 </div>
             </div>
         </div>

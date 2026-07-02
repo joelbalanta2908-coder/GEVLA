@@ -73,8 +73,10 @@ Route::middleware('auth')->group(function () {
     Route::prefix('instructor')->name('instructor.')->middleware('rol:Instructor')->group(function () {
         Route::get('/dashboard', [InstructorController::class, 'dashboard'])->name('dashboard');
 
-        // Fichas a cargo y hoja de vida del aprendiz
+        // Fichas a cargo e información del aprendiz
         Route::get('/fichas', [InstructorController::class, 'fichas'])->name('fichas.index');
+        // Vista adicional: aprendices asociados a la ficha seleccionada.
+        Route::get('/fichas/{ficha}/aprendices', [InstructorController::class, 'fichaAprendices'])->name('fichas.aprendices');
         // Consulta del historial disciplinario de los aprendices de una ficha
         // (disponible para todos los instructores asociados a la ficha).
         Route::get('/fichas/{ficha}', [InstructorController::class, 'fichaShow'])->name('fichas.show');
@@ -104,15 +106,18 @@ Route::middleware('auth')->group(function () {
     Route::prefix('coordinacion')->name('coordinacion.')->middleware('rol:Coordinador')->group(function () {
         Route::get('/dashboard', [CoordinacionController::class, 'dashboard'])->name('dashboard');
 
-        // Aprendices (listado, alta y hoja de vida)
+        // Aprendices (listado, alta, hoja de vida y activación/inactivación)
         Route::get('/aprendices', [CoordinacionController::class, 'aprendices'])->name('aprendices.index');
         Route::get('/aprendices/crear', [CoordinacionController::class, 'crearAprendizForm'])->name('aprendices.crear');
         Route::post('/aprendices', [CoordinacionController::class, 'crearAprendiz'])->name('aprendices.store');
+        Route::patch('/aprendices/{aprendiz}/estado', [CoordinacionController::class, 'actualizarEstadoAprendiz'])->name('aprendices.estado');
         Route::get('/aprendices/{id}', [CoordinacionController::class, 'aprendizShow'])->name('aprendices.show');
 
-        // Docentes (instructores): fichas asignadas, liderazgo y tipo (materia/transversal)
+        // Docentes (instructores): fichas asignadas, liderazgo, tipo (materia/transversal)
+        // y activación/inactivación
         Route::get('/docentes', [CoordinacionController::class, 'docentes'])->name('docentes.index');
         Route::patch('/docentes/{instructor}/tipo', [CoordinacionController::class, 'actualizarTipoDocente'])->name('docentes.tipo');
+        Route::patch('/docentes/{instructor}/estado', [CoordinacionController::class, 'actualizarEstadoDocente'])->name('docentes.estado');
         Route::get('/docentes/{instructor}', [CoordinacionController::class, 'docenteShow'])->name('docentes.show');
 
         // Gestión de Fichas (CRUD + asociaciones + instructor líder).

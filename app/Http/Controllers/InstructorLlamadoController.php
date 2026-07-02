@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LlamadoAtencion;
 use App\Models\Aprendiz;
+use App\Models\Ficha;
 use App\Models\ProgramaFormacion;
 use App\Models\ReglamentoArticulo;
 use Illuminate\Http\Request;
@@ -121,8 +122,14 @@ class InstructorLlamadoController extends Controller
         $estados   = LlamadoAtencion::estados();
         $tipos     = LlamadoAtencion::tipos();
 
+        // Fichas con llamados de este instructor (para el filtro del reporte exportable).
+        $fichasExport = Ficha::whereHas(
+            'matriculas.aprendiz.llamadosAtencion',
+            fn ($q) => $q->where('id_instructor', $instructor->id_instructor)
+        )->orderBy('numero_ficha')->get();
+
         return view('instructor.llamados.index', compact(
-            'llamados', 'programas', 'estados', 'tipos',
+            'llamados', 'programas', 'estados', 'tipos', 'fichasExport',
             'buscar', 'numeroFicha', 'idPrograma', 'estado', 'tipo', 'fechaDesde', 'fechaHasta',
             'orden', 'dir'
         ));
@@ -132,14 +139,27 @@ class InstructorLlamadoController extends Controller
      * Exporta los llamados del instructor a PDF (vista imprimible), Excel (.xls)
      * o Word (.doc). Implementación nativa, sin librerías externas.
      */
-    public function export(string $formato): \Illuminate\Http\Response
+    public function export(Request $request, string $formato): \Illuminate\Http\Response
     {
         $instructor = $this->getInstructor();
 
-        $llamados = LlamadoAtencion::with('aprendiz.usuario')
+        // Filtro opcional para clasificar el reporte por ficha (?ficha=ID).
+        $idFicha = (int) $request->input('ficha', 0);
+        $fichaFiltro = $idFicha > 0 ? Ficha::find($idFicha) : null;
+
+        $query = LlamadoAtencion::with([
+                'aprendiz.usuario',
+                'aprendiz.matriculas.ficha.programa',
+                'aprendiz.matriculas.ficha.instructorLider.usuario',
+            ])
             ->where('id_instructor', $instructor->id_instructor)
-            ->orderByDesc('fecha_llamado')
-            ->get();
+            ->orderByDesc('fecha_llamado');
+
+        if ($fichaFiltro) {
+            $query->whereHas('aprendiz.matriculas', fn ($m) => $m->where('id_ficha', $fichaFiltro->id_ficha));
+        }
+
+        $llamados = $query->get();
 
         $usuario = Auth::user();
         $nombreInstructor = trim(($usuario->nombres ?? '') . ' ' . ($usuario->apellidos ?? ''));
@@ -150,6 +170,7 @@ class InstructorLlamadoController extends Controller
             return response()->view('instructor.llamados.reporte', [
                 'llamados'         => $llamados,
                 'nombreInstructor' => $nombreInstructor,
+                'fichaFiltro'      => $fichaFiltro,
                 'imprimir'         => true,
             ]);
         }
@@ -158,6 +179,7 @@ class InstructorLlamadoController extends Controller
         $html = view('instructor.llamados.reporte', [
             'llamados'         => $llamados,
             'nombreInstructor' => $nombreInstructor,
+            'fichaFiltro'      => $fichaFiltro,
             'imprimir'         => false,
         ])->render();
 

@@ -454,8 +454,9 @@ class FichaController extends Controller
     */
 
     /**
-     * Reglas de validación de la ficha. `numero_ficha` único, fecha de inicio
-     * anterior a la de finalización y programa/instructor existentes.
+     * Reglas de validación de la ficha. `numero_ficha` único, fechas de inicio
+     * y finalización que no pueden quedar en el pasado (al crear, o al editar
+     * si se modifican) y programa/instructor existentes.
      *
      * @return array<string, mixed>
      */
@@ -466,17 +467,42 @@ class FichaController extends Controller
             $numeroUnico->ignore($ficha->id_ficha, 'id_ficha');
         }
 
+        // Las fichas antiguas con modalidad retirada del catálogo (p. ej.
+        // «A distancia») pueden conservar su valor al editarse.
+        $modalidadesPermitidas = array_keys(Ficha::modalidades());
+        if ($ficha && $ficha->modalidad && ! in_array($ficha->modalidad, $modalidadesPermitidas, true)) {
+            $modalidadesPermitidas[] = $ficha->modalidad;
+        }
+
+        // Sin inicios ni finalizaciones en el pasado: siempre al crear; al
+        // editar, solo cuando la fecha correspondiente cambia (para no bloquear
+        // la edición de fichas históricas).
+        $reglasInicio = ['required', 'date'];
+        $reglasFin    = ['nullable', 'date', 'after:fecha_inicio'];
+
+        $inicioCambia = ! $ficha || $request->input('fecha_inicio') !== optional($ficha->fecha_inicio)->format('Y-m-d');
+        $finCambia    = ! $ficha || $request->input('fecha_fin_programada') !== optional($ficha->fecha_fin_programada)->format('Y-m-d');
+
+        if ($inicioCambia) {
+            $reglasInicio[] = 'after_or_equal:today';
+        }
+        if ($finCambia) {
+            $reglasFin[] = 'after_or_equal:today';
+        }
+
         return $request->validate([
             'id_programa'          => ['required', 'integer', 'exists:programa_formacion,id_programa'],
             'id_instructor_lider'  => ['required', 'integer', 'exists:instructor,id_instructor'],
             'numero_ficha'         => ['required', 'string', 'max:20', $numeroUnico],
-            'modalidad'            => ['required', Rule::in(array_keys(Ficha::modalidades()))],
+            'modalidad'            => ['required', Rule::in($modalidadesPermitidas)],
             'estado_ficha'         => ['required', Rule::in(array_keys(Ficha::estados()))],
-            'fecha_inicio'         => ['required', 'date'],
-            'fecha_fin_programada' => ['nullable', 'date', 'after:fecha_inicio'],
+            'fecha_inicio'         => $reglasInicio,
+            'fecha_fin_programada' => $reglasFin,
         ], [
-            'fecha_fin_programada.after' => 'La fecha de finalización debe ser posterior a la fecha de inicio.',
-            'numero_ficha.unique'        => 'Ya existe una ficha con ese número.',
+            'fecha_inicio.after_or_equal'         => 'La fecha de inicio no puede estar en el pasado.',
+            'fecha_fin_programada.after_or_equal' => 'La fecha de finalización no puede estar en el pasado.',
+            'fecha_fin_programada.after'          => 'La fecha de finalización debe ser posterior a la fecha de inicio.',
+            'numero_ficha.unique'                 => 'Ya existe una ficha con ese número.',
         ]);
     }
 }

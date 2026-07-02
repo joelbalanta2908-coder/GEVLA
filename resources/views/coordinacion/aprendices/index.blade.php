@@ -35,6 +35,7 @@
                     <th class="px-5 py-3">Aprendiz</th>
                     <th class="px-5 py-3">Correo</th>
                     <th class="px-5 py-3">Estado</th>
+                    <th class="px-5 py-3">Cuenta</th>
                     <th class="px-5 py-3 text-center">Llamados</th>
                     <th class="px-5 py-3 text-center">Procesos</th>
                     <th class="px-5 py-3 text-right">Acción</th>
@@ -57,14 +58,49 @@
                         <td class="px-5 py-3" data-label="Estado">
                             <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $eb }}">{{ ucfirst(str_replace('_',' ', $ap->estado_academico)) }}</span>
                         </td>
+                        @php
+                            $estadoCuenta = optional($ap->usuario)->estado_usuario;
+                            $cuentaBadge = match($estadoCuenta) {
+                                'activo'    => 'bg-[#39A900]/10 text-[#247200]',
+                                'inactivo'  => 'bg-red-100 text-red-700',
+                                'bloqueado' => 'bg-slate-200 text-slate-700',
+                                default     => 'bg-gray-100 text-gray-500',
+                            };
+                            $cuentaActiva = $estadoCuenta === 'activo';
+                            $nombreAprendiz = trim(optional($ap->usuario)->nombres.' '.optional($ap->usuario)->apellidos);
+                        @endphp
+                        <td class="px-5 py-3" data-label="Cuenta">
+                            <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $cuentaBadge }}">
+                                {{ $estadoCuenta ? ucfirst($estadoCuenta) : 'Sin cuenta' }}
+                            </span>
+                        </td>
                         <td class="px-5 py-3 text-center" data-label="Llamados">{{ $ap->llamados_atencion_count }}</td>
                         <td class="px-5 py-3 text-center" data-label="Procesos">{{ $ap->procesos_disciplinarios_count }}</td>
                         <td class="px-5 py-3 text-right" data-label="Acción">
-                            <a href="{{ route('coordinacion.aprendices.show', $ap->id_aprendiz) }}" class="font-medium text-[#39A900] hover:underline">Ver información</a>
+                            <div class="flex items-center justify-end gap-3">
+                                <a href="{{ route('coordinacion.aprendices.show', $ap->id_aprendiz) }}" class="font-medium text-[#39A900] hover:underline">Ver información</a>
+                                @if($ap->usuario && $estadoCuenta !== 'bloqueado')
+                                    <form method="POST" action="{{ route('coordinacion.aprendices.estado', $ap->id_aprendiz) }}"
+                                          data-confirm="{{ $cuentaActiva
+                                              ? "¿Inactivar al aprendiz {$nombreAprendiz}? No podrá iniciar sesión mientras esté inactivo."
+                                              : "¿Activar al aprendiz {$nombreAprendiz}? Podrá volver a iniciar sesión en el sistema." }}"
+                                          data-confirm-title="{{ $cuentaActiva ? 'Inactivar aprendiz' : 'Activar aprendiz' }}"
+                                          data-confirm-btn="{{ $cuentaActiva ? 'Sí, inactivar' : 'Sí, activar' }}">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit"
+                                                class="rounded-full px-3 py-1.5 text-xs font-bold transition {{ $cuentaActiva
+                                                    ? 'bg-red-50 text-red-600 hover:bg-red-100'
+                                                    : 'bg-[#39A900]/10 text-[#247200] hover:bg-[#39A900]/20' }}">
+                                            {{ $cuentaActiva ? 'Inactivar' : 'Activar' }}
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="6" class="px-5 py-8 text-center text-gray-400">No se encontraron aprendices.</td></tr>
+                    <tr><td colspan="7" class="px-5 py-8 text-center text-gray-400">No se encontraron aprendices.</td></tr>
                 @endforelse
             </tbody>
         </table>

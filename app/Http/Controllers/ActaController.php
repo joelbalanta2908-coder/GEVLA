@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Models\ActaCoordinacion;
 use App\Models\Aprendiz;
 use App\Models\Falta;
+use App\Models\Ficha;
 use App\Models\LlamadoAtencion;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -60,7 +61,10 @@ class ActaController extends Controller
             ->toArray();
         $actasEstadoData = array_map(fn ($key) => $actasPorEstado[$key] ?? 0, $statusLabels);
 
-        return view('coordinacion.actas.index', compact('actas', 'trendLabels', 'actasTrend', 'statusLabels', 'actasEstadoData'));
+        // Fichas para el filtro del reporte exportable.
+        $fichasExport = Ficha::orderBy('numero_ficha')->get();
+
+        return view('coordinacion.actas.index', compact('actas', 'trendLabels', 'actasTrend', 'statusLabels', 'actasEstadoData', 'fichasExport'));
     }
 
     /**

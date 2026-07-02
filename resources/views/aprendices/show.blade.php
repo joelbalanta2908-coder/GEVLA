@@ -1,6 +1,6 @@
 @extends($layout)
 
-@section('titulo', 'Hoja de vida del aprendiz')
+@section('titulo', 'Información del aprendiz')
 
 @section('contenido')
 @php $u = $aprendiz->usuario; @endphp
@@ -72,7 +72,7 @@
                     <div class="flex flex-wrap items-center justify-between gap-3 px-6 py-4">
                         <div>
                             <p class="text-sm font-bold text-slate-900">{{ optional($m->ficha->programa)->nombre_programa ?? 'Programa' }}</p>
-                            <p class="text-xs text-slate-500">Ficha {{ optional($m->ficha)->numero_ficha ?? '—' }} · {{ ucfirst(optional($m->ficha)->modalidad ?? '') }}</p>
+                            <p class="text-xs text-slate-500">Ficha {{ optional($m->ficha)->numero_ficha ?? '—' }} · {{ optional($m->ficha)->modalidad_label ?? '' }}</p>
                         </div>
                         <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">{{ ucfirst($m->estado_matricula) }}</span>
                     </div>

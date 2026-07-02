@@ -31,6 +31,10 @@
             @foreach($modalidades as $valor => $etiqueta)
                 <option value="{{ $valor }}" @selected(old('modalidad', $ficha->modalidad ?? '') === $valor)>{{ $etiqueta }}</option>
             @endforeach
+            {{-- Fichas antiguas con una modalidad retirada del catálogo conservan su valor. --}}
+            @if($esEdicion && $ficha->modalidad && ! array_key_exists($ficha->modalidad, $modalidades))
+                <option value="{{ $ficha->modalidad }}" @selected(old('modalidad', $ficha->modalidad) === $ficha->modalidad)>{{ $ficha->modalidad_label }} (histórica)</option>
+            @endif
         </select>
     </div>
 
@@ -44,19 +48,42 @@
         </select>
     </div>
 
+    @php $hoy = now()->timezone('America/Bogota')->toDateString(); @endphp
+
     <div>
         <label for="fecha_inicio" class="mb-1 block text-sm font-semibold text-gray-700">Fecha de inicio</label>
         <input type="date" id="fecha_inicio" name="fecha_inicio" required
+               @unless($esEdicion) min="{{ $hoy }}" @endunless
                value="{{ old('fecha_inicio', optional($ficha->fecha_inicio ?? null)->format('Y-m-d')) }}"
                class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
+        <p class="mt-1 text-xs text-gray-400">No se permiten inicios de ficha en fechas pasadas.</p>
     </div>
 
     <div>
         <label for="fecha_fin_programada" class="mb-1 block text-sm font-semibold text-gray-700">Fecha de finalización <span class="font-normal text-gray-400">(opcional)</span></label>
         <input type="date" id="fecha_fin_programada" name="fecha_fin_programada"
+               @unless($esEdicion) min="{{ $hoy }}" @endunless
                value="{{ old('fecha_fin_programada', optional($ficha->fecha_fin_programada ?? null)->format('Y-m-d')) }}"
                class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
+        <p class="mt-1 text-xs text-gray-400">Debe ser posterior a la fecha de inicio y no puede estar en el pasado.</p>
     </div>
+
+    <script>
+        // La fecha mínima de finalización se ajusta a la fecha de inicio elegida.
+        (function () {
+            var inicio = document.getElementById('fecha_inicio');
+            var fin = document.getElementById('fecha_fin_programada');
+            if (!inicio || !fin) return;
+            function sincronizar() {
+                if (inicio.value) {
+                    fin.min = inicio.value;
+                    if (fin.value && fin.value < inicio.value) fin.value = '';
+                }
+            }
+            inicio.addEventListener('change', sincronizar);
+            sincronizar();
+        })();
+    </script>
 
     @if($esEdicion)
         {{-- El instructor líder se cambia desde la vista de detalle (acción dedicada con auditoría). --}}

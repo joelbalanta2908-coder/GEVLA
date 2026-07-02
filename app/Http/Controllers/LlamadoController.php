@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\Aprendiz;
+use App\Models\Ficha;
 use App\Models\Instructor;
 use App\Models\LlamadoAtencion;
 use Illuminate\Http\RedirectResponse;
@@ -70,7 +71,10 @@ class LlamadoController extends Controller
             ->toArray();
         $llamadosEstadoData = array_map(fn ($key) => $llamadosPorEstado[$key] ?? 0, $statusLabels);
 
-        return view('coordinacion.llamados.index', compact('llamados', 'trendLabels', 'llamadosTrend', 'statusLabels', 'llamadosEstadoData'));
+        // Fichas para el filtro del reporte exportable.
+        $fichasExport = Ficha::orderBy('numero_ficha')->get();
+
+        return view('coordinacion.llamados.index', compact('llamados', 'trendLabels', 'llamadosTrend', 'statusLabels', 'llamadosEstadoData', 'fichasExport'));
     }
 
     /**

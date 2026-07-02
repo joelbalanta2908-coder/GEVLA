@@ -6,17 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>GEVLA | @yield('titulo', 'Aprendiz')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    {{-- Navegación instantánea entre páginas del panel (sin recargar). --}}
-    <meta name="turbo-cache-control" content="no-preview">
-    <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.12/dist/turbo.es2017-umd.min.js"></script>
-    <script>
-        try {
-            if (window.Turbo) {
-                if (typeof Turbo.setFormMode === 'function') Turbo.setFormMode('optin');
-                else if (Turbo.config && Turbo.config.forms) Turbo.config.forms.mode = 'optin';
-            }
-        } catch (e) {}
-    </script>
+    {{-- Cada navegación recarga la página completa para evitar errores visuales y de gráficas. --}}
+    <link rel="icon" type="image/png" href="https://oficinavirtualderadicacion.sena.edu.co/oficinavirtual/Resources/logoSenaNaranja.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -208,6 +199,7 @@
 </div>
 
 @include('layouts.toast')
+@include('layouts.confirm-modal')
 
     <script>
         (function () {

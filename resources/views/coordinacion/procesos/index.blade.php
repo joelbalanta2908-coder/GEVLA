@@ -10,7 +10,7 @@
             <h2 class="text-2xl font-bold text-gray-900">Procesos disciplinarios</h2>
             <p class="text-gray-500">Seguimiento de las etapas de cada proceso abierto a partir de un llamado de atención.</p>
         </div>
-        @include('reportes._botones', ['rutaBase' => 'coordinacion.procesos.export'])
+        @include('reportes._botones', ['rutaBase' => 'coordinacion.procesos.export', 'fichas' => $fichasExport])
     </div>
 
     @isset($trendLabels)

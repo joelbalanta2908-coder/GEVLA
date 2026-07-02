@@ -81,7 +81,28 @@
                             </span>
                         </td>
                         <td class="px-5 py-3 text-right" data-label="Acción">
-                            <a href="{{ route('coordinacion.docentes.show', $docente->id_instructor) }}" class="font-medium text-[#39A900] hover:underline">Ver</a>
+                            <div class="flex items-center justify-end gap-3">
+                                <a href="{{ route('coordinacion.docentes.show', $docente->id_instructor) }}" class="font-medium text-[#39A900] hover:underline">Ver</a>
+                                @php
+                                    $docenteActivo = $docente->estado_instructor === 'activo';
+                                    $nombreDocente = $du ? trim($du->nombres.' '.$du->apellidos) : $docente->codigo_instructor;
+                                @endphp
+                                <form method="POST" action="{{ route('coordinacion.docentes.estado', $docente->id_instructor) }}"
+                                      data-confirm="{{ $docenteActivo
+                                          ? "¿Inactivar al instructor {$nombreDocente}? No podrá iniciar sesión ni aparecerá en los selectores de fichas."
+                                          : "¿Activar al instructor {$nombreDocente}? Podrá volver a iniciar sesión y ser asignado a fichas." }}"
+                                      data-confirm-title="{{ $docenteActivo ? 'Inactivar instructor' : 'Activar instructor' }}"
+                                      data-confirm-btn="{{ $docenteActivo ? 'Sí, inactivar' : 'Sí, activar' }}">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit"
+                                            class="rounded-full px-3 py-1.5 text-xs font-bold transition {{ $docenteActivo
+                                                ? 'bg-red-50 text-red-600 hover:bg-red-100'
+                                                : 'bg-[#39A900]/10 text-[#247200] hover:bg-[#39A900]/20' }}">
+                                        {{ $docenteActivo ? 'Inactivar' : 'Activar' }}
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 @empty

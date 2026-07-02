@@ -65,6 +65,6 @@
             });
         }
         wire();
-        document.addEventListener('turbo:load', wire);
+        document.addEventListener('DOMContentLoaded', wire);
     })();
 </script>

@@ -55,6 +55,8 @@ class Ficha extends Model
 
     /**
      * Modalidades disponibles con su etiqueta legible.
+     * La modalidad «A distancia» se retiró del catálogo: las fichas nuevas solo
+     * pueden ser presenciales o virtuales (las existentes conservan su valor).
      *
      * @return array<string, string>
      */
@@ -63,7 +65,6 @@ class Ficha extends Model
         return [
             self::MODALIDAD_PRESENCIAL => 'Presencial',
             self::MODALIDAD_VIRTUAL    => 'Virtual',
-            self::MODALIDAD_DISTANCIA  => 'A distancia',
         ];
     }
 
@@ -83,6 +84,10 @@ class Ficha extends Model
 
     public function getModalidadLabelAttribute(): string
     {
+        if ($this->modalidad === self::MODALIDAD_DISTANCIA) {
+            return 'A distancia';
+        }
+
         return self::modalidades()[$this->modalidad] ?? ucfirst((string) $this->modalidad);
     }
 

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Mis Reportes - GEVLA SENA</title>
+    <link rel="icon" type="image/png" href="https://oficinavirtualderadicacion.sena.edu.co/oficinavirtual/Resources/logoSenaNaranja.png">
     <style>
         body { font-family: 'Segoe UI', Calibri, Arial, sans-serif; color: #1e293b; margin: 28px; }
         .encabezado { border-bottom: 3px solid #39A900; padding-bottom: 12px; margin-bottom: 18px; }
@@ -32,6 +33,7 @@
         <h1>Reporte de llamados de atención</h1>
         <div class="meta">
             Instructor: <strong>{{ $nombreInstructor !== '' ? $nombreInstructor : 'No registrado' }}</strong><br>
+            Ficha: <strong>{{ isset($fichaFiltro) && $fichaFiltro ? 'Ficha ' . $fichaFiltro->numero_ficha : 'Todas las fichas' }}</strong><br>
             Generado: {{ \Carbon\Carbon::now('America/Bogota')->locale('es')->translatedFormat('d \d\e F \d\e Y, h:i A') }}<br>
             Total de reportes: {{ $llamados->count() }}
         </div>
@@ -43,21 +45,35 @@
                 <th style="width:48px;">#</th>
                 <th style="width:90px;">Fecha</th>
                 <th>Aprendiz</th>
+                <th style="width:80px;">Documento</th>
+                <th style="width:80px;">Ficha</th>
+                <th>Programa</th>
+                <th>Instructor líder</th>
                 <th>Asunto</th>
                 <th style="width:110px;">Estado</th>
             </tr>
         </thead>
         <tbody>
             @forelse($llamados as $ll)
+                @php
+                    $matriculaAp = $ll->aprendiz?->matriculas->firstWhere('estado_matricula', 'activa')
+                        ?? $ll->aprendiz?->matriculas->sortByDesc('fecha_matricula')->first();
+                    $fichaAp = $matriculaAp?->ficha;
+                    $liderAp = $fichaAp?->instructorLider?->usuario;
+                @endphp
                 <tr>
                     <td>{{ $ll->id_llamado }}</td>
                     <td>{{ \Carbon\Carbon::parse($ll->fecha_llamado)->format('d/m/Y') }}</td>
                     <td>{{ optional($ll->aprendiz->usuario)->nombres }} {{ optional($ll->aprendiz->usuario)->apellidos }}</td>
+                    <td>{{ optional($ll->aprendiz->usuario)->numero_documento ?? '—' }}</td>
+                    <td>{{ $fichaAp?->numero_ficha ?? '—' }}</td>
+                    <td>{{ $fichaAp?->programa?->nombre_programa ?? '—' }}</td>
+                    <td>{{ $liderAp ? trim($liderAp->nombres . ' ' . $liderAp->apellidos) : 'No asignado' }}</td>
                     <td>{{ $ll->asunto }}</td>
                     <td class="estado">{{ str_replace('_', ' ', $ll->estado_llamado) }}</td>
                 </tr>
             @empty
-                <tr><td colspan="5" style="text-align:center; color:#94a3b8;">Sin llamados registrados.</td></tr>
+                <tr><td colspan="9" style="text-align:center; color:#94a3b8;">Sin llamados registrados.</td></tr>
             @endforelse
         </tbody>
     </table>

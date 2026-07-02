@@ -41,6 +41,18 @@ class ProcesoDisciplinario extends Model
     ];
 
     /**
+     * Casts de atributos: las fechas se exponen como instancias de Carbon
+     * para poder usar format() directamente en las vistas.
+     */
+    protected function casts(): array
+    {
+        return [
+            'fecha_inicio' => 'date',
+            'fecha_cierre' => 'date',
+        ];
+    }
+
+    /**
      * Relación con el aprendiz.
      */
     public function aprendiz(): BelongsTo

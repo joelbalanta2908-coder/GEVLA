@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ $titulo }} - GEVLA SENA</title>
+    <link rel="icon" type="image/png" href="https://oficinavirtualderadicacion.sena.edu.co/oficinavirtual/Resources/logoSenaNaranja.png">
     <style>
         body { font-family: 'Segoe UI', Calibri, Arial, sans-serif; color: #1e293b; margin: 28px; }
         .encabezado { border-bottom: 3px solid #39A900; padding-bottom: 12px; margin-bottom: 18px; }

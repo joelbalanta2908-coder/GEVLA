@@ -44,7 +44,8 @@
         <div class="flex shrink-0 items-center gap-2">
             <a href="{{ route('coordinacion.fichas.edit', $ficha) }}" class="rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50">Editar</a>
             <form method="POST" action="{{ route('coordinacion.fichas.destroy', $ficha) }}"
-                  onsubmit="return confirm('¿Eliminar esta ficha? Esta acción no se puede deshacer.');">
+                  data-confirm="¿Eliminar esta ficha? Esta acción no se puede deshacer."
+                  data-confirm-title="Eliminar ficha" data-confirm-btn="Sí, eliminar">
                 @csrf
                 @method('DELETE')
                 <button class="rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50">Eliminar</button>
@@ -87,7 +88,8 @@
                         </span>
                         @unless($esLider)
                             <form method="POST" action="{{ route('coordinacion.fichas.instructores.destroy', [$ficha, $ins->id_instructor]) }}"
-                                  onsubmit="return confirm('¿Desasociar a este instructor de la ficha?');">
+                                  data-confirm="¿Desasociar a este instructor de la ficha?"
+                                  data-confirm-title="Desasociar instructor" data-confirm-btn="Sí, desasociar">
                                 @csrf
                                 @method('DELETE')
                                 <button class="text-xs font-semibold text-red-500 hover:underline">Quitar</button>
@@ -203,7 +205,8 @@
                                 <a href="{{ route('coordinacion.aprendices.show', $ap->id_aprendiz) }}" class="text-xs font-semibold text-[#39A900] hover:underline">Ver</a>
                                 @if($m->estado_matricula === 'activa')
                                     <form method="POST" action="{{ route('coordinacion.fichas.aprendices.destroy', [$ficha, $m->id_matricula]) }}"
-                                          onsubmit="return confirm('¿Retirar a este aprendiz de la ficha?');">
+                                          data-confirm="¿Retirar a este aprendiz de la ficha?"
+                                          data-confirm-title="Retirar aprendiz" data-confirm-btn="Sí, retirar">
                                         @csrf
                                         @method('DELETE')
                                         <button class="text-xs font-semibold text-red-500 hover:underline">Retirar</button>

@@ -11,7 +11,7 @@
             <p class="text-gray-500">Acondicionamientos y cancelaciones expedidas por coordinación.</p>
         </div>
         <div class="flex flex-wrap items-center gap-4">
-            @include('reportes._botones', ['rutaBase' => 'coordinacion.actas.export'])
+            @include('reportes._botones', ['rutaBase' => 'coordinacion.actas.export', 'fichas' => $fichasExport])
             <span class="hidden h-8 w-px bg-[#e3e7df] sm:block"></span>
             <a href="{{ route('coordinacion.actas.create') }}"
                class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#39A900] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2D8200]">

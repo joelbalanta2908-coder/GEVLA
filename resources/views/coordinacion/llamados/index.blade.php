@@ -10,7 +10,7 @@
             <h2 class="text-2xl font-bold text-gray-900">Llamados de atención</h2>
             <p class="text-gray-500">Revisa y da seguimiento a los llamados reportados por los instructores.</p>
         </div>
-        @include('reportes._botones', ['rutaBase' => 'coordinacion.llamados.export'])
+        @include('reportes._botones', ['rutaBase' => 'coordinacion.llamados.export', 'fichas' => $fichasExport])
     </div>
 
     @isset($trendLabels)

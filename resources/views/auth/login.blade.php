@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="GEVLA - Inicio de sesion para aprendices, instructores y coordinadores del SENA.">
     <title>GEVLA | Iniciar sesion</title>
+    <link rel="icon" type="image/png" href="https://oficinavirtualderadicacion.sena.edu.co/oficinavirtual/Resources/logoSenaNaranja.png">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -72,6 +73,23 @@
         }
         .btn-primary:hover { background: var(--gevla-green-dark); }
         .btn-primary:focus { box-shadow: 0 0 0 4px rgba(57, 169, 0, 0.18); }
+        .btn-primary:disabled { cursor: not-allowed; opacity: 0.85; }
+
+        /* Animación de carga del botón "Ingresar a GEVLA" */
+        @keyframes girar {
+            to { transform: rotate(360deg); }
+        }
+        .btn-spinner {
+            display: none;
+            height: 1.1rem;
+            width: 1.1rem;
+            border-radius: 9999px;
+            border: 2.5px solid rgba(255, 255, 255, 0.35);
+            border-top-color: #ffffff;
+            animation: girar 0.7s linear infinite;
+        }
+        .is-loading .btn-spinner { display: inline-block; }
+        .is-loading .btn-arrow { display: none; }
     </style>
 </head>
 <body class="min-h-screen overflow-x-hidden bg-slate-950 text-slate-900">
@@ -214,9 +232,10 @@
                     <span class="text-xs font-medium text-slate-400">¿Problemas para ingresar? Contacta a coordinación.</span>
                 </div>
 
-                <button type="submit" class="btn-primary group flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold text-white transition focus:outline-none">
-                    Ingresar a GEVLA
-                    <svg class="h-4 w-4 transition-transform group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                <button type="submit" id="login-submit" class="btn-primary group flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold text-white transition focus:outline-none">
+                    <span class="btn-spinner" aria-hidden="true"></span>
+                    <span data-btn-texto>Ingresar a GEVLA</span>
+                    <svg class="btn-arrow h-4 w-4 transition-transform group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
                 </button>
             </form>
 
@@ -245,6 +264,25 @@
                 passwordInput.type = isPassword ? 'text' : 'password';
                 iconOpen.classList.toggle('hidden', isPassword);
                 iconClosed.classList.toggle('hidden', !isPassword);
+            });
+
+            // Animación de carga al enviar el formulario de inicio de sesión.
+            const loginForm = document.getElementById('login-form');
+            const submitBtn = document.getElementById('login-submit');
+
+            loginForm.addEventListener('submit', function () {
+                if (submitBtn.disabled) return;
+                submitBtn.classList.add('is-loading');
+                submitBtn.querySelector('[data-btn-texto]').textContent = 'Ingresando...';
+                // Se desactiva después de que el envío ya está en curso para no bloquearlo.
+                window.setTimeout(function () { submitBtn.disabled = true; }, 0);
+            });
+
+            // Si el navegador restaura la página desde caché (botón atrás), el botón se reinicia.
+            window.addEventListener('pageshow', function () {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('is-loading');
+                submitBtn.querySelector('[data-btn-texto]').textContent = 'Ingresar a GEVLA';
             });
 
             const slides = Array.from(document.querySelectorAll('[data-carousel-slide]'));
