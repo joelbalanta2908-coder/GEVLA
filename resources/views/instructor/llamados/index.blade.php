@@ -25,13 +25,6 @@
                 </span>
                 {{-- Exportar reportes (con filtro para clasificar por ficha) --}}
                 @include('reportes._botones', ['rutaBase' => 'instructor.llamados.export', 'fichas' => $fichasExport])
-                <a href="{{ route('instructor.llamados.create') }}"
-                   class="inline-flex items-center justify-center gap-2 rounded-full bg-[#39A900] px-5 py-2.5 text-sm font-bold text-white shadow-[0_10px_24px_rgba(57,169,0,0.28)] transition hover:bg-[#247200]">
-                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/>
-                    </svg>
-                    Nuevo llamado
-                </a>
             </div>
         </div>
     </div>

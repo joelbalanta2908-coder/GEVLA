@@ -155,6 +155,9 @@
             </div>
 
             <div class="flex items-center gap-3 sm:gap-4">
+                {{-- Notificaciones dinámicas del rol (antes de la hora) --}}
+                @include('layouts.notificaciones', ['rolPanel' => 'coordinador'])
+
                 <div class="hidden items-center gap-3 text-slate-600 md:flex">
                     <svg class="h-5 w-5 text-[#39A900]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 8v4l3 3" />

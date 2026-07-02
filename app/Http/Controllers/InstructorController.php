@@ -63,6 +63,28 @@ class InstructorController extends Controller
     }
 
     /**
+     * Vista adicional: todos los aprendices asociados a la ficha seleccionada,
+     * con acceso a la información completa de cada uno.
+     */
+    public function fichaAprendices(Ficha $ficha): View
+    {
+        $instructor = $this->getInstructor();
+
+        // Verificación de permiso en backend: debe estar asignado a la ficha.
+        if (! $this->fichasDelInstructor($instructor)->contains($ficha->id_ficha)) {
+            abort(403, 'No estás asignado a esta ficha.');
+        }
+
+        $ficha->load([
+            'programa',
+            'instructorLider.usuario',
+            'matriculas.aprendiz.usuario',
+        ]);
+
+        return view('instructor.fichas.aprendices', compact('ficha', 'instructor'));
+    }
+
+    /**
      * Historial disciplinario de todos los aprendices de una ficha. Cualquier
      * instructor asociado a la ficha puede consultarlo (solo lectura); el
      * instructor propietario de un registro conserva sus permisos de edición.
