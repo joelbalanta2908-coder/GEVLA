@@ -98,24 +98,24 @@
     </div>
 
     {{-- Sección de acciones rápidas: Reportes y Crear acta --}}
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
-        <a href="{{ route('coordinacion.actas.index') }}" class="group flex items-center justify-between rounded-[26px] border border-[#d8e2cf] bg-white p-5 shadow-[0_10px_28px_rgba(0,0,0,0.04)] transition hover:border-[#b9d8a5] hover:shadow-[0_14px_34px_rgba(57,169,0,0.08)]">
+    <div class="flex flex-col gap-6 sm:flex-row sm:items-stretch">
+        <a href="{{ route('coordinacion.actas.index') }}" class="group flex items-center justify-between rounded-2xl border border-[#d8e2cf] bg-white px-4 py-3 shadow-[0_10px_28px_rgba(0,0,0,0.04)] transition hover:-translate-y-0.5 hover:border-[#b9d8a5] hover:shadow-[0_14px_34px_rgba(57,169,0,0.08)] flex-1 sm:flex-initial sm:min-w-max">
             <div>
-                <p class="text-base font-extrabold text-slate-900">Consultar Reportes</p>
-                <p class="mt-1 text-sm font-medium text-slate-500">Revisar actas y documentos expedidos</p>
+                <p class="text-sm font-extrabold text-slate-900">Consultar Reportes</p>
+                <p class="text-xs font-medium text-slate-500">Revisar actas y documentos expedidos</p>
             </div>
-            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-[#39A900]/10 text-[#39A900] transition group-hover:bg-[#39A900] group-hover:text-white">
+            <div class="ml-3 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-[#39A900]/10 text-[#39A900] transition group-hover:bg-[#39A900] group-hover:text-white">
                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </div>
         </a>
-        <a href="{{ route('coordinacion.actas.create') }}" class="group flex items-center justify-between rounded-[26px] bg-gradient-to-r from-[#39A900] to-[#2f8b00] p-5 shadow-[0_14px_32px_rgba(57,169,0,0.24)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgba(57,169,0,0.35)]">
+        <a href="{{ route('coordinacion.actas.create') }}" class="group flex items-center justify-between rounded-2xl bg-gradient-to-r from-[#39A900] to-[#2f8b00] px-4 py-3 shadow-[0_14px_32px_rgba(57,169,0,0.24)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgba(57,169,0,0.35)] flex-1 sm:flex-initial sm:min-w-max">
             <div>
-                <p class="text-base font-extrabold text-white">Crear Acta</p>
-                <p class="mt-1 text-sm font-medium text-green-100">Registrar una nueva acta de coordinación</p>
+                <p class="text-sm font-extrabold text-white">Crear Acta</p>
+                <p class="text-xs font-medium text-green-100">Registrar una nueva acta de coordinación</p>
             </div>
-            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition group-hover:scale-110">
+            <div class="ml-3 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition group-hover:scale-110">
                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
