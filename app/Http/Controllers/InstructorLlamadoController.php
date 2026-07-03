@@ -7,9 +7,12 @@ namespace App\Http\Controllers;
 use App\Models\LlamadoAtencion;
 use App\Models\Aprendiz;
 use App\Models\Ficha;
+use App\Models\Notificacion;
+use App\Models\NotificacionUsuario;
 use App\Models\ProgramaFormacion;
 use App\Models\ReglamentoArticulo;
 use App\Support\Busqueda;
+use App\Support\Roles;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -244,6 +247,39 @@ class InstructorLlamadoController extends Controller
         $validated['estado_llamado'] = LlamadoAtencion::ESTADO_REGISTRADO; // Estado inicial
 
         $llamado = LlamadoAtencion::create($validated);
+
+        // Notificaciones: al aprendiz le llega el llamado y a los coordinadores
+        // el aviso del nuevo llamado pendiente de revisión.
+        $aprendiz = Aprendiz::with('usuario')->find($llamado->id_aprendiz);
+        $nombreAprendiz = trim(($aprendiz?->usuario?->nombres ?? '') . ' ' . ($aprendiz?->usuario?->apellidos ?? ''));
+        $usuarioActual = Auth::user();
+        $nombreInstructor = trim(($usuarioActual->nombres ?? '') . ' ' . ($usuarioActual->apellidos ?? ''));
+
+        NotificacionUsuario::emitir(
+            $aprendiz?->usuario?->id_usuario,
+            'Nuevo llamado de atención',
+            "Se te registró un llamado de atención: {$llamado->asunto}",
+            route('aprendiz.llamados.show', $llamado->id_llamado, false)
+        );
+        NotificacionUsuario::emitirARol(
+            Roles::COORDINADOR,
+            'Nuevo llamado de atención',
+            "{$nombreInstructor} registró un llamado para {$nombreAprendiz}: {$llamado->asunto}",
+            route('coordinacion.llamados.show', $llamado->id_llamado, false)
+        );
+
+        // Comunicación oficial en el portal del aprendiz (Mis Notificaciones).
+        if ($aprendiz) {
+            Notificacion::create([
+                'id_aprendiz'         => $aprendiz->id_aprendiz,
+                'id_llamado'          => $llamado->id_llamado,
+                'tipo_notificacion'   => 'comunicado_llamado',
+                'fecha_envio'         => now()->toDateString(),
+                'medio_envio'         => 'pagina_web',
+                'contenido_resumen'   => "Se registró un llamado de atención: {$llamado->asunto}",
+                'estado_notificacion' => 'enviada',
+            ]);
+        }
 
         $mensaje = 'Llamado de atención reportado correctamente.';
         if ($llamado->requiereAcompanamiento()) {

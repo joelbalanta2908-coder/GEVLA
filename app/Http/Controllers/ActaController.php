@@ -9,6 +9,7 @@ use App\Models\Aprendiz;
 use App\Models\Falta;
 use App\Models\Ficha;
 use App\Models\LlamadoAtencion;
+use App\Models\NotificacionUsuario;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -108,7 +109,16 @@ class ActaController extends Controller
             'meses_inhabilitacion' => ['nullable', 'integer', 'min:0'],
         ]);
 
-        ActaCoordinacion::create($validated);
+        $acta = ActaCoordinacion::create($validated);
+
+        // Notificación al aprendiz sobre el acta expedida.
+        $aprendizActa = Aprendiz::with('usuario')->find($acta->id_aprendiz);
+        NotificacionUsuario::emitir(
+            $aprendizActa?->usuario?->id_usuario,
+            'Se expidió un acta de coordinación',
+            "Acta {$acta->numero_acta}: " . str_replace('_', ' ', ucfirst((string) $acta->tipo_acta)),
+            route('aprendiz.actas.show', $acta->id_acta, false)
+        );
 
         return redirect()
             ->route('coordinacion.actas.index')

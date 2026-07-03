@@ -8,7 +8,9 @@ use App\Models\Aprendiz;
 use App\Models\Ficha;
 use App\Models\LlamadoAtencion;
 use App\Models\HistorialProcesoDisciplinario;
+use App\Models\NotificacionUsuario;
 use App\Models\ProcesoDisciplinario;
+use App\Support\Busqueda;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -24,6 +26,22 @@ class ProcesoController extends Controller
     public function index(Request $request): View
     {
         $query = ProcesoDisciplinario::with(['aprendiz.usuario']);
+
+        // Búsqueda con inferencia: cada palabra debe coincidir parcialmente con
+        // los datos del aprendiz, la etapa o las observaciones del proceso.
+        if ($buscar = trim((string) $request->input('buscar', ''))) {
+            foreach (Busqueda::tokens($buscar) as $token) {
+                $query->where(function ($q) use ($token) {
+                    $q->where('observaciones', 'like', "%{$token}%")
+                        ->orWhere('etapa_actual', 'like', "%{$token}%")
+                        ->orWhereHas('aprendiz.usuario', function ($sub) use ($token) {
+                            $sub->where('nombres', 'like', "%{$token}%")
+                                ->orWhere('apellidos', 'like', "%{$token}%")
+                                ->orWhere('numero_documento', 'like', "%{$token}%");
+                        });
+                });
+            }
+        }
 
         if ($estadoProceso = $request->input('estado_proceso')) {
             $query->where('estado_proceso', $estadoProceso);
@@ -94,7 +112,22 @@ class ProcesoController extends Controller
             'observaciones'  => ['nullable', 'string'],
         ]);
 
-        ProcesoDisciplinario::create($validated);
+        $procesoNuevo = ProcesoDisciplinario::create($validated);
+
+        // Notificaciones: al aprendiz y al instructor del llamado de origen.
+        $procesoNuevo->load(['aprendiz.usuario', 'llamadoAtencion.instructor.usuario']);
+        NotificacionUsuario::emitir(
+            $procesoNuevo->aprendiz?->usuario?->id_usuario,
+            'Se inició un proceso disciplinario',
+            'Se abrió un proceso disciplinario en tu contra. Consulta el detalle en tu portal.',
+            route('aprendiz.procesos.show', $procesoNuevo->id_proceso, false)
+        );
+        NotificacionUsuario::emitir(
+            $procesoNuevo->llamadoAtencion?->instructor?->usuario?->id_usuario,
+            'Proceso disciplinario iniciado',
+            "Tu llamado #{$procesoNuevo->id_llamado} derivó en un proceso disciplinario",
+            route('instructor.procesos.index', [], false)
+        );
 
         return redirect()
             ->route('coordinacion.procesos.index')

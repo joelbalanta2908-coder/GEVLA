@@ -8,6 +8,7 @@ use App\Models\Aprendiz;
 use App\Models\Ficha;
 use App\Models\Instructor;
 use App\Models\LlamadoAtencion;
+use App\Models\NotificacionUsuario;
 use App\Support\Busqueda;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -113,8 +114,23 @@ class LlamadoController extends Controller
         ]);
 
         $validated['id_usuario_reporta'] = Auth::id() ?? 1; // Fallback por si acaso en entorno dev
-        
-        LlamadoAtencion::create($validated);
+
+        $llamado = LlamadoAtencion::create($validated);
+
+        // Notificaciones: al aprendiz y al instructor asignado.
+        $llamado->load(['aprendiz.usuario', 'instructor.usuario']);
+        NotificacionUsuario::emitir(
+            $llamado->aprendiz?->usuario?->id_usuario,
+            'Nuevo llamado de atención',
+            "Se te registró un llamado de atención: {$llamado->asunto}",
+            route('aprendiz.llamados.show', $llamado->id_llamado, false)
+        );
+        NotificacionUsuario::emitir(
+            $llamado->instructor?->usuario?->id_usuario,
+            'Llamado registrado a tu nombre',
+            "Coordinación registró el llamado #{$llamado->id_llamado} ({$llamado->asunto}) con tu firma como instructor",
+            route('instructor.llamados.show', $llamado->id_llamado, false)
+        );
 
         return redirect()
             ->route('coordinacion.llamados.index')
@@ -186,8 +202,28 @@ class LlamadoController extends Controller
             ])],
         ]);
 
-        $llamado = LlamadoAtencion::findOrFail($llamado);
+        $llamado = LlamadoAtencion::with(['aprendiz.usuario', 'instructor.usuario'])->findOrFail($llamado);
+        $estadoAnterior = $llamado->estado_llamado;
         $llamado->update(['estado_llamado' => $request->input('estado_llamado')]);
+
+        // Notificaciones del cambio de estado: al instructor que lo reportó y
+        // al aprendiz implicado (solo si realmente cambió).
+        if ($estadoAnterior !== $llamado->estado_llamado) {
+            $etiquetaEstado = str_replace('_', ' ', ucfirst((string) $llamado->estado_llamado));
+
+            NotificacionUsuario::emitir(
+                $llamado->instructor?->usuario?->id_usuario,
+                'Tu llamado cambió de estado',
+                "El llamado #{$llamado->id_llamado} ({$llamado->asunto}) pasó a estado {$etiquetaEstado}",
+                route('instructor.llamados.show', $llamado->id_llamado, false)
+            );
+            NotificacionUsuario::emitir(
+                $llamado->aprendiz?->usuario?->id_usuario,
+                'Tu llamado de atención fue actualizado',
+                "El llamado ({$llamado->asunto}) pasó a estado {$etiquetaEstado}",
+                route('aprendiz.llamados.show', $llamado->id_llamado, false)
+            );
+        }
 
         return redirect()
             ->route('coordinacion.llamados.show', $llamado->id_llamado)

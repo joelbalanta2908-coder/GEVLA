@@ -48,7 +48,9 @@ Route::middleware('auth')->group(function () {
     });
 
     // Endpoint general para marcar notificaciones como recibidas (usable por diferentes roles)
-    Route::post('/notificaciones/marcar-recibidas', [\App\Http\Controllers\NotificacionController::class, 'marcarRecibidas'])->name('notificaciones.marcar_recibidas');
+    // Notificaciones de la campanita (estado de lectura persistente por usuario)
+    Route::post('/notificaciones/marcar-todas', [\App\Http\Controllers\NotificacionController::class, 'marcarTodas'])->name('notificaciones.todas');
+    Route::post('/notificaciones/{notificacion}/leida', [\App\Http\Controllers\NotificacionController::class, 'marcarLeida'])->name('notificaciones.leida');
     // Rutas de Aprendiz
     Route::prefix('aprendiz')->name('aprendiz.')->middleware('rol:Aprendiz')->group(function () {
         Route::get('/dashboard', [AprendizController::class, 'dashboard'])->name('dashboard');
