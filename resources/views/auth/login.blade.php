@@ -154,6 +154,9 @@
                 <p class="mt-1 text-sm text-slate-500">Ingresa tus credenciales para acceder a tu cuenta.</p>
             </div>
 
+            @php $inlineToast = true; @endphp
+            @include('layouts.toast')
+
             @if ($errors->has('login'))
                 <div class="mb-5 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
                     <svg class="mt-0.5 h-5 w-5 shrink-0 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>

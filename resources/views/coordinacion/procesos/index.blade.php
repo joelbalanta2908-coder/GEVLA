@@ -36,15 +36,18 @@
         </div>
     @endisset
 
-    <form method="GET" class="flex flex-wrap gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-        <select name="estado_proceso" class="rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+    <form method="GET" data-live-form class="flex flex-wrap gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+        <input type="text" name="buscar" value="{{ request('buscar') }}" placeholder="Buscar por nombre del aprendiz..."
+               data-live class="min-w-[220px] flex-1 rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+
+        <select name="estado_proceso" data-live class="rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
             <option value="">Estado: todos</option>
             @foreach(['activo','cerrado','anulado'] as $estado)
                 <option value="{{ $estado }}" @selected(request('estado_proceso') == $estado)>{{ ucfirst($estado) }}</option>
             @endforeach
         </select>
 
-        <select name="etapa_actual" class="rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+        <select name="etapa_actual" data-live class="rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
             <option value="">Etapa: todas</option>
             @foreach(['llamado_escrito','acondicionamiento','cancelacion_matricula','finalizado'] as $etapa)
                 <option value="{{ $etapa }}" @selected(request('etapa_actual') == $etapa)>

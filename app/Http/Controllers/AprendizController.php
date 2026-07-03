@@ -71,6 +71,12 @@ class AprendizController extends Controller
         $llamado = LlamadoAtencion::with(['instructor.usuario', 'faltas', 'coordinacion'])
             ->where('id_aprendiz', $aprendiz->id_aprendiz)
             ->findOrFail($id);
+
+        // Marcar como recibidas las notificaciones relacionadas con este llamado
+        \App\Models\Notificacion::where('id_llamado', $llamado->id_llamado)
+            ->where('id_aprendiz', $aprendiz->id_aprendiz)
+            ->where('estado_notificacion', 'enviada')
+            ->update(['estado_notificacion' => 'recibida']);
         return view('aprendiz.llamados.show', compact('llamado'));
     }
 
@@ -117,6 +123,10 @@ class AprendizController extends Controller
     public function notificaciones(): View
     {
         $aprendiz = $this->getAprendiz();
+        // Marcar como recibidas las notificaciones enviadas al revisar la lista
+        \App\Models\Notificacion::where('id_aprendiz', $aprendiz->id_aprendiz)
+            ->where('estado_notificacion', 'enviada')
+            ->update(['estado_notificacion' => 'recibida']);
         $notificaciones = Notificacion::with(['llamado', 'acta'])
             ->where('id_aprendiz', $aprendiz->id_aprendiz)
             ->orderByDesc('fecha_envio')

@@ -267,6 +267,11 @@ class InstructorLlamadoController extends Controller
         ->where('id_instructor', $instructor->id_instructor)
         ->findOrFail($llamado);
 
+        // Marcar como recibidas las notificaciones asociadas a este llamado
+        \App\Models\Notificacion::where('id_llamado', $llamado->id_llamado)
+            ->where('estado_notificacion', 'enviada')
+            ->update(['estado_notificacion' => 'recibida']);
+
         return view('instructor.llamados.show', compact('llamado'));
     }
 

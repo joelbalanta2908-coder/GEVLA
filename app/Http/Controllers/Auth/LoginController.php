@@ -88,7 +88,8 @@ class LoginController extends Controller
 
         return redirect()
             ->intended(route(Roles::dashboardRoute($rolActivo)))
-            ->with('login_success', 'Has iniciado sesión correctamente.');
+            ->with('toast', 'Has iniciado sesión correctamente.')
+            ->with('toast_type', 'login');
     }
 
     /**
@@ -101,7 +102,8 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login')->with('status', 'Has cerrado sesión correctamente.');
+        return redirect('/login')->with('toast', 'Has cerrado sesión correctamente.')
+                                   ->with('toast_type', 'logout');
     }
 
     private function buscarUsuarioPorIdentificador(string $identifier): ?Usuario

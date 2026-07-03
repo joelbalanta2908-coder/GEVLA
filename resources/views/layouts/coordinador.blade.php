@@ -63,7 +63,7 @@
                 $navItems = [
                     ['label' => 'Dashboard', 'route' => 'coordinacion.dashboard', 'icon' => 'home'],
                     ['label' => 'Aprendices', 'route' => 'coordinacion.aprendices.index', 'icon' => 'users'],
-                    ['label' => 'Docentes', 'route' => 'coordinacion.docentes.index', 'icon' => 'chalk'],
+                    ['label' => 'Instructores', 'route' => 'coordinacion.docentes.index', 'icon' => 'chalk'],
                     ['label' => 'Fichas', 'route' => 'coordinacion.fichas.index', 'icon' => 'grid'],
                     ['label' => 'Programas', 'route' => 'coordinacion.programas.index', 'icon' => 'cap'],
                     ['label' => 'Llamados de atención', 'route' => 'coordinacion.llamados.index', 'icon' => 'bell'],

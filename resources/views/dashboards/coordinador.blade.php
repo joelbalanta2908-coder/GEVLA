@@ -94,13 +94,33 @@
             <p class="text-[11px] font-extrabold uppercase tracking-[0.32em] text-[#39A900]"><span data-saludo>Bienvenido</span>, {{ auth()->user()->nombres }} 👋</p>
             <h2 class="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-[2rem] lg:text-[2.25rem]">Panel Administrativo</h2>
             <p class="max-w-full text-sm font-semibold text-slate-500 break-words">{{ \Carbon\Carbon::now('America/Bogota')->locale('es')->translatedFormat('l, d \d\e F Y \a \l\a\s h:i A') }}</p>
-            <a href="{{ route('coordinacion.actas.index') }}" class="rounded-2xl border border-[#d8e2cf] bg-white px-4 py-3 text-sm font-extrabold text-[#39A900] shadow-[0_10px_30px_rgba(0,0,0,0.04)] transition hover:border-[#b9d8a5] hover:shadow-[0_12px_34px_rgba(57,169,0,0.08)]">
-                Reportes
-            </a>
-            <a href="{{ route('coordinacion.actas.create') }}" class="rounded-2xl bg-gradient-to-r from-[#39A900] to-[#2f8b00] px-4 py-3 text-sm font-extrabold text-white shadow-[0_14px_32px_rgba(57,169,0,0.28)] transition hover:shadow-[0_16px_36px_rgba(57,169,0,0.35)]">
-                Crear acta
-            </a>
         </div>
+    </div>
+
+    {{-- Sección de acciones rápidas: Reportes y Crear acta --}}
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
+        <a href="{{ route('coordinacion.actas.index') }}" class="group flex items-center justify-between rounded-[26px] border border-[#d8e2cf] bg-white p-5 shadow-[0_10px_28px_rgba(0,0,0,0.04)] transition hover:border-[#b9d8a5] hover:shadow-[0_14px_34px_rgba(57,169,0,0.08)]">
+            <div>
+                <p class="text-base font-extrabold text-slate-900">Consultar Reportes</p>
+                <p class="mt-1 text-sm font-medium text-slate-500">Revisar actas y documentos expedidos</p>
+            </div>
+            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-[#39A900]/10 text-[#39A900] transition group-hover:bg-[#39A900] group-hover:text-white">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+        </a>
+        <a href="{{ route('coordinacion.actas.create') }}" class="group flex items-center justify-between rounded-[26px] bg-gradient-to-r from-[#39A900] to-[#2f8b00] p-5 shadow-[0_14px_32px_rgba(57,169,0,0.24)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgba(57,169,0,0.35)]">
+            <div>
+                <p class="text-base font-extrabold text-white">Crear Acta</p>
+                <p class="mt-1 text-sm font-medium text-green-100">Registrar una nueva acta de coordinación</p>
+            </div>
+            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition group-hover:scale-110">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+        </a>
     </div>
 
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">

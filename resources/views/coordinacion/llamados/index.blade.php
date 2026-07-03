@@ -36,17 +36,17 @@
         </div>
     @endisset
 
-    <form method="GET" class="flex flex-wrap gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-        <input type="text" name="buscar" value="{{ request('buscar') }}" placeholder="Buscar por aprendiz o asunto"
+    <form method="GET" data-live-form class="flex flex-wrap gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+        <input type="text" name="buscar" value="{{ request('buscar') }}" placeholder="Buscar por aprendiz o asunto" data-live
                class="min-w-[220px] flex-1 rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
 
-        <select name="categoria" class="rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+        <select name="categoria" data-live class="rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
             <option value="">Categoría: todas</option>
             <option value="academico" @selected(request('categoria') == 'academico')>Académico</option>
             <option value="disciplinario" @selected(request('categoria') == 'disciplinario')>Disciplinario</option>
         </select>
 
-        <select name="estado" class="rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+        <select name="estado" data-live class="rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
             <option value="">Estado: todos</option>
             @foreach(['registrado','en_revision','notificado','cerrado','cancelado'] as $estado)
                 <option value="{{ $estado }}" @selected(request('estado') == $estado)>

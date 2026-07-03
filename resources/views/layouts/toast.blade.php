@@ -1,28 +1,45 @@
 {{-- Toast de notificación (login exitoso u otros mensajes flash tipo "toast").
-     Elegante, con icono de éxito, animación suave y cierre automático. --}}
+     Elegante, con iconos específicos, animación suave y cierre automático después de 5 segundos.
+     Se posiciona como fixed en dashboards o inline en el login. --}}
 @if(session('toast'))
     @php
         $toastMensaje = session('toast');
-        $toastTitulo  = 'Listo';
+        $toastType = session('toast_type', 'default');
+        $toastTitulo = match($toastType) {
+            'login' => '¡Bienvenido!',
+            'logout' => '¡Hasta luego!',
+            default => 'Listo',
+        };
+        $isInline = isset($inlineToast) && $inlineToast === true;
     @endphp
     <div
         x-data="{ show: false }"
-        x-init="$nextTick(() => show = true); setTimeout(() => show = false, 4500)"
+        x-init="$nextTick(() => show = true); setTimeout(() => show = false, 5000)"
         x-show="show"
         x-cloak
         x-transition:enter="transform transition ease-out duration-300"
-        x-transition:enter-start="translate-x-6 opacity-0"
-        x-transition:enter-end="translate-x-0 opacity-100"
+        x-transition:enter-start="{{ $isInline ? 'opacity-0 -translate-y-2' : 'translate-x-6 opacity-0' }}"
+        x-transition:enter-end="{{ $isInline ? 'opacity-100 translate-y-0' : 'translate-x-0 opacity-100' }}"
         x-transition:leave="transform transition ease-in duration-300"
-        x-transition:leave-start="translate-x-0 opacity-100"
-        x-transition:leave-end="translate-x-6 opacity-0"
+        x-transition:leave-start="{{ $isInline ? 'opacity-100 translate-y-0' : 'translate-x-0 opacity-100' }}"
+        x-transition:leave-end="{{ $isInline ? 'opacity-0 -translate-y-2' : 'translate-x-6 opacity-0' }}"
         role="status" aria-live="polite"
-        class="fixed right-4 top-20 z-[100] w-[min(92vw,22rem)] overflow-hidden rounded-2xl border border-[#39A900]/20 bg-white shadow-[0_18px_45px_rgba(0,0,0,0.16)] sm:right-6 sm:top-20">
+        class="{{ $isInline ? 'mb-5' : 'fixed right-4 top-20 z-[100] w-[min(92vw,22rem)] sm:right-6 sm:top-20' }} overflow-hidden rounded-2xl border border-[#39A900]/20 bg-white shadow-[0_18px_45px_rgba(0,0,0,0.16)] {{ !$isInline ? 'w-[min(92vw,22rem)]' : '' }}">
         <div class="flex items-start gap-3 p-4">
             <span class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#39A900]/12 text-[#39A900]">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
+                @if($toastType === 'login')
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 7l-5 5m0 0l5 5m-5-5h12" />
+                    </svg>
+                @elseif($toastType === 'logout')
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                @else
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                @endif
             </span>
             <div class="min-w-0 flex-1">
                 <p class="text-sm font-extrabold text-slate-900">{{ $toastTitulo }}</p>
@@ -35,11 +52,11 @@
                 </svg>
             </button>
         </div>
-        {{-- Barra de progreso del cierre automático --}}
+        {{-- Barra de progreso del cierre automático (5 segundos) --}}
         <div class="h-1 w-full bg-[#39A900]/10">
             <div class="h-full bg-[#39A900]"
                  x-init="$nextTick(() => $el.style.width = '0%')"
-                 style="width:100%; transition: width 4500ms linear;"></div>
+                 style="width:100%; transition: width 5000ms linear;"></div>
         </div>
     </div>
 @endif

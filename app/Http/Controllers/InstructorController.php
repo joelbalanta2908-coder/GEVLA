@@ -171,6 +171,11 @@ class InstructorController extends Controller
     {
         $instructor = $this->getInstructor();
 
+        // Marcar como recibidas las notificaciones relacionadas con los llamados de este instructor
+        \App\Models\Notificacion::whereHas('llamado', fn ($q) => $q->where('id_instructor', $instructor->id_instructor))
+            ->where('estado_notificacion', 'enviada')
+            ->update(['estado_notificacion' => 'recibida']);
+
         $notificaciones = Notificacion::with(['aprendiz.usuario', 'llamado'])
             ->whereHas('llamado', fn ($q) => $q->where('id_instructor', $instructor->id_instructor))
             ->orderByDesc('fecha_envio')

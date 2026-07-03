@@ -18,7 +18,7 @@
 
     {{-- Filtros combinables --}}
     <form method="GET" action="{{ route('coordinacion.fichas.index') }}" data-live-form class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <input type="text" name="buscar" value="{{ $buscar }}" data-live placeholder="N.º de ficha o programa..."
+        <input type="text" name="buscar" value="{{ $buscar }}" data-live placeholder="N.º de ficha, programa o instructor..."
                class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm caret-[#39A900] focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30 lg:col-span-2">
         <select name="id_programa" data-live class="rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
             <option value="">Todos los programas</option>

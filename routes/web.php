@@ -46,6 +46,9 @@ Route::middleware('auth')->group(function () {
         Route::put('/actualizar', [\App\Http\Controllers\PerfilController::class, 'update'])->name('update');
         Route::get('/ayuda', [\App\Http\Controllers\PerfilController::class, 'help'])->name('help');
     });
+
+    // Endpoint general para marcar notificaciones como recibidas (usable por diferentes roles)
+    Route::post('/notificaciones/marcar-recibidas', [\App\Http\Controllers\NotificacionController::class, 'marcarRecibidas'])->name('notificaciones.marcar_recibidas');
     // Rutas de Aprendiz
     Route::prefix('aprendiz')->name('aprendiz.')->middleware('rol:Aprendiz')->group(function () {
         Route::get('/dashboard', [AprendizController::class, 'dashboard'])->name('dashboard');

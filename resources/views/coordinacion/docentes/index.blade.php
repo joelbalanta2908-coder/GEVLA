@@ -1,12 +1,12 @@
 @extends('layouts.coordinador')
 
-@section('titulo', 'Docentes')
+@section('titulo', 'Instructores')
 
 @section('contenido')
 <div class="space-y-6">
     <div>
-        <h2 class="text-xl font-bold text-gray-900">Docentes</h2>
-        <p class="mt-1 text-sm text-gray-500">Instructores a cargo: fichas asignadas, liderazgo y tipo de docente.</p>
+        <h2 class="text-xl font-bold text-gray-900">Instructores</h2>
+        <p class="mt-1 text-sm text-gray-500">Instructores a cargo: fichas asignadas, liderazgo y tipo de instructor.</p>
     </div>
 
     <form method="GET" action="{{ route('coordinacion.docentes.index') }}" data-live-form class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -106,7 +106,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="8" class="px-5 py-8 text-center text-gray-400">No se encontraron docentes.</td></tr>
+                    <tr><td colspan="8" class="px-5 py-8 text-center text-gray-400">No se encontraron instructores.</td></tr>
                 @endforelse
             </tbody>
         </table>

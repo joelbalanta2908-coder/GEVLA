@@ -213,11 +213,11 @@
         </aside>
     </div>
 
-    {{-- Edición de perfil en modal --}}
-    <div x-show="editando" x-cloak x-transition.opacity @keydown.escape.window="editando = false"
-         class="fixed inset-0 z-[70] flex items-center justify-center p-4">
+        {{-- Edición de perfil en modal --}}
+        <div x-show="editando" x-cloak x-transition.opacity @keydown.escape.window="editando = false"
+            class="fixed inset-0 z-[70] flex items-start justify-center pt-12 p-4">
         <div class="absolute inset-0 bg-black/50" @click="editando = false"></div>
-        <section x-show="editando" x-transition.scale.origin.center
+        <section x-show="editando" x-transition.scale.origin.top
                  class="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[30px] border border-[#e6eadf] bg-white shadow-[0_30px_80px_rgba(0,0,0,0.25)]">
         <div class="flex items-start justify-between gap-4 border-b border-[#eef1e8] bg-[#fafbf8] px-8 py-6">
             <div>
