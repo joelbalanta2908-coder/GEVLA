@@ -12,6 +12,8 @@ use App\Models\Instructor;
 use App\Models\LlamadoAtencion;
 use App\Models\Matricula;
 use App\Models\ProcesoDisciplinario;
+use App\Models\Rol;
+use App\Models\Usuario;
 use App\Support\Roles;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -114,6 +116,55 @@ class CoordinacionController extends Controller
             'actasPorEstado',
             'procesosPorEstado',
         ));
+    }
+
+    /**
+     * Vista de usuarios del sistema: todas las cuentas con sus roles y estado,
+     * con buscador y filtros combinables (solo consulta).
+     */
+    public function usuarios(Request $request): View
+    {
+        $buscar = trim((string) $request->input('buscar', ''));
+        $rol    = $request->input('rol');
+        $estado = $request->input('estado_usuario');
+
+        $usuarios = Usuario::query()
+            ->with(['roles' => fn ($q) => $q->wherePivot('estado_asignacion', 'activa')])
+            ->when($buscar !== '', function ($q) use ($buscar) {
+                $q->where(function ($sub) use ($buscar) {
+                    $sub->where('nombres', 'like', "%{$buscar}%")
+                        ->orWhere('apellidos', 'like', "%{$buscar}%")
+                        ->orWhere('correo', 'like', "%{$buscar}%")
+                        ->orWhere('numero_documento', 'like', "%{$buscar}%")
+                        ->orWhere('username', 'like', "%{$buscar}%");
+                });
+            })
+            ->when($rol, fn ($q) => $q->whereHas('roles', fn ($r) => $r->where('nombre_rol', $rol)))
+            ->when($estado, fn ($q) => $q->where('estado_usuario', $estado))
+            ->orderBy('nombres')
+            ->paginate(15)
+            ->withQueryString();
+
+        $roles = Rol::orderBy('nombre_rol')->pluck('nombre_rol');
+
+        return view('coordinacion.usuarios.index', compact('usuarios', 'roles', 'buscar', 'rol', 'estado'));
+    }
+
+    /**
+     * Centro de reportes del coordinador: generación y exportación de los
+     * reportes de llamados, actas y procesos, con filtro por ficha.
+     */
+    public function reportes(): View
+    {
+        $fichas = Ficha::orderBy('numero_ficha')->get();
+
+        $resumen = [
+            'llamados' => LlamadoAtencion::count(),
+            'actas'    => ActaCoordinacion::count(),
+            'procesos' => ProcesoDisciplinario::count(),
+        ];
+
+        return view('coordinacion.reportes.index', compact('fichas', 'resumen'));
     }
 
     /**
@@ -286,6 +337,58 @@ class CoordinacionController extends Controller
         $tipos = Instructor::tiposDocente();
 
         return view('coordinacion.docentes.index', compact('docentes', 'tipos', 'buscar', 'tipo', 'estado'));
+    }
+
+    /**
+     * Formulario para dar de alta un instructor desde la sección de Instructores.
+     */
+    public function crearDocenteForm(): View
+    {
+        $tipos = Instructor::tiposDocente();
+
+        return view('coordinacion.docentes.create', compact('tipos'));
+    }
+
+    /**
+     * Crea un instructor (usuario + perfil + rol) desde la sección de
+     * Instructores, dentro de una sola transacción.
+     */
+    public function crearDocente(Request $request): RedirectResponse
+    {
+        $datos = $this->validarPersona($request, [
+            'codigo_instructor' => ['nullable', 'string', 'max:30', 'unique:instructor,codigo_instructor'],
+            'area_formacion'    => ['nullable', 'string', 'max:120'],
+            'tipo_docente'      => ['nullable', Rule::in(array_keys(Instructor::tiposDocente()))],
+        ]);
+
+        DB::transaction(function () use ($datos, $request) {
+            $usuario = $this->crearUsuarioConRol($datos, Roles::INSTRUCTOR);
+
+            Instructor::create([
+                'id_usuario'        => $usuario->id_usuario,
+                'codigo_instructor' => $request->input('codigo_instructor') ?: $this->generarCodigoInstructor(),
+                'area_formacion'    => $request->input('area_formacion'),
+                'tipo_docente'      => $request->input('tipo_docente') ?: null,
+                'estado_instructor' => 'activo',
+            ]);
+        });
+
+        return redirect()
+            ->route('coordinacion.docentes.index')
+            ->with('success', 'Instructor creado correctamente. Si no indicaste contraseña, la inicial es su número de documento.');
+    }
+
+    /**
+     * Genera el siguiente código de instructor consecutivo (INS-001, INS-002…).
+     */
+    private function generarCodigoInstructor(): string
+    {
+        $maximo = Instructor::where('codigo_instructor', 'like', 'INS-%')
+            ->get()
+            ->map(fn (Instructor $i) => (int) preg_replace('/\D/', '', (string) $i->codigo_instructor))
+            ->max();
+
+        return 'INS-' . str_pad((string) (((int) $maximo) + 1), 3, '0', STR_PAD_LEFT);
     }
 
     /**

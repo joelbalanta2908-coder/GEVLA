@@ -1,0 +1,173 @@
+[33mcommit 878d2a3f399fc4ec7ca5d76226f80e00711ea113[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: Minota Mosquera Kevin <kevin.minota.6878@miremington.edu.co>
+Date:   Thu Jul 2 15:00:27 2026 -0500
+
+    Se agrego el sistema de notificaciones dinamicas por rol con campanita en el panel antes de la hora, se creo la vista adicional de aprendices por ficha en Mis Fichas con boton de informacion completa y se elimino el boton de nuevo llamado de la seccion Mis Reportes
+
+[33mcommit 0b6d70f4e71122798cc69a379f4604822ed5f2d7[m
+Author: Minota Mosquera Kevin <kevin.minota.6878@miremington.edu.co>
+Date:   Thu Jul 2 12:01:07 2026 -0500
+
+    Cambios improtantes en donde se corrigieron muchos errores de logica y diseño y se agregaron nuevas funcionalidades clave para la logica del negocio
+
+[33mcommit 11f4036ef82312aa6c0ea61aa85790abd6c47300[m
+Author: Minota Mosquera Kevin <kevin.minota.6878@miremington.edu.co>
+Date:   Wed Jul 1 15:13:12 2026 -0500
+
+    Se implemento el sistema de roles dinamico, la gestion de administrador, programas, docentes y multiples mejoras de interfaz
+    
+    - Autenticacion: se elimino la seleccion manual de rol en el login (rediseñado); el backend calcula los roles y redirige al dashboard. Rol activo persistido en sesion con selector para cambiar de rol sin volver a iniciar sesion. Middleware que valida el rol activo.
+    - Rol Administrador: gestion de cuentas de usuario con activar / desactivar / bloquear (validado en backend, no permite tocar la propia cuenta).
+    - Programas de formacion: CRUD completo (codigo, nombre, nivel, duracion) como base de las fichas.
+    - Aprendices: creacion movida a la vista de Aprendices, con contrasena opcional y matricula opcional en una ficha.
+    - Docentes: nuevo modulo para el coordinador con fichas asignadas, liderazgo y tipo de docente (materia/transversal, nueva columna tipo_docente).
+    - Reportes: exportacion PDF/Excel/Word para coordinador y aprendiz (con iconos por formato).
+    - Interfaz: navegacion sin recarga (Turbo), animaciones y transiciones, busquedas en tiempo real, fondo blanco del contenido, icono de menu centrado al colapsar, mensaje de inicio de sesion bajo el panel, editar perfil en modal, correcciones de iconos y textos, hover en estados de ficha y separacion de botones.
+
+[33mcommit 5cf4575d5f73ee53c1abde7c553b60f46e8b4b08[m
+Author: Minota Mosquera Kevin <kevin.minota.6878@miremington.edu.co>
+Date:   Wed Jul 1 09:05:31 2026 -0500
+
+    En este cambio se soluciono el error en el diseño de la bolita de perfil, se corrigio el login de acuerdo a las recomendaciones del profesor, se agrego el crud de fichas entre otros
+
+[33mcommit 95a96b012c57674a03ba574a569ce38c1236af12[m
+Author: Minota Mosquera Kevin <kevin.minota.6878@miremington.edu.co>
+Date:   Tue Jun 30 23:18:05 2026 -0500
+
+    Se agregaron muchas funcionalidades como la de generacion de reportes, correccion de la enumeracion de los capitulos, tambien se solucionaraon errores al crear un nuevo llamado de atencion entre otros
+
+[33mcommit d2adb3bbc7e42fb14fa0ef7cc06e69bee1afe45f[m
+Author: Minota Mosquera Kevin <kevin.minota.6878@miremington.edu.co>
+Date:   Tue Jun 30 12:21:59 2026 -0500
+
+    Se hicieron cambios importantes respecto a la logica en donde se arreglo el cerrado de sesion, instructores lideres, solucion de errores etc
+
+[33mcommit 7d882a95f216ccf2403078b8703feb0796f92489[m
+Author: Minota Mosquera Kevin <kevin.minota.6878@miremington.edu.co>
+Date:   Tue Jun 30 11:29:01 2026 -0500
+
+    Se mejoro la logica, se subio parte del manual del aprendiz a la base de datos, se agregaron campos necesarios entre otros
+
+[33mcommit 4300ec5e04810e2dc8a2a6ffc5ba13ccbb977c94[m
+Author: Minota Mosquera Kevin <kevin.minota.6878@miremington.edu.co>
+Date:   Tue Jun 30 10:02:35 2026 -0500
+
+    Se soluciono el error al actualizar la imagen de perfil
+
+[33mcommit 00f4c6c9d1823bd8767e9c73d0d6e368df9ddb8c[m
+Author: Minota Mosquera Kevin <kevin.minota.6878@miremington.edu.co>
+Date:   Tue Jun 30 09:40:42 2026 -0500
+
+    Cambios importantes realizados en diseño se solucionaraon muchas cosas respecto al diseño pero aun falta por corregir
+
+[33mcommit 4d26923f464051e4059e134613b73b614f3b16f9[m
+Author: joelbalanta2908-coder <joelbalanta2908@gmail.com>
+Date:   Mon Jun 29 20:33:21 2026 -0500
+
+    Solución a Llamados, Actas y Procesos.
+
+[33mcommit 5d7ac77cd688721decbfcd95c1df85bc0f52897e[m
+Author: joelbalanta2908-coder <joelbalanta2908@gmail.com>
+Date:   Mon Jun 29 19:58:36 2026 -0500
+
+    Fecha, Hora, Perfil, Modificar Perfil y Ayuda añadidos
+
+[33mcommit 5cd76415db88405eb7263e559c613b7879050bcd[m
+Author: Minota Mosquera Kevin <kevin.minota.6878@miremington.edu.co>
+Date:   Mon Jun 29 18:24:06 2026 -0500
+
+    Se hicieron grandes cambios en el diseño mejorando las vistas y haciendolo mas fieles a la imagen corporativa del sena
+
+[33mcommit 270e31e59ebc8fb8271c4b2ed9981b66739b1ca3[m
+Author: Minota Mosquera Kevin <kevin.minota.6878@miremington.edu.co>
+Date:   Sun Jun 28 23:50:55 2026 -0500
+
+    Nuevas funcionales como opciones de perfil CRUDS y demas cambios importantes pero falta para mejorar el diseño y todo eso
+
+[33mcommit 159ef7fd5f4db00ef3e3810af7619967280f607f[m
+Author: Minota Mosquera Kevin <kevin.minota.6878@miremington.edu.co>
+Date:   Sun Jun 28 22:56:13 2026 -0500
+
+    Implementación de CRUDs de Coordinación (Llamados, Actas, Procesos) y diseño institucional SENA
+
+[33mcommit 09e17908411f448cc7cad871029dddcc70c2bd49[m
+Merge: 9845504 a55b1f6
+Author: John <johnfredycordoba2@gmail.com>
+Date:   Sun Jun 28 18:48:27 2026 -0500
+
+    Se aumento el tamano del logo del SENA y correciones de versiones
+
+[33mcommit 9845504c5122545ad21e033a473fb2daf01ca0b7[m
+Author: John <johnfredycordoba2@gmail.com>
+Date:   Sun Jun 28 18:40:55 2026 -0500
+
+    Aumento de tamano del logo del SENA
+
+[33mcommit a55b1f68775201d1f2f005cc553ee1f13484c7a7[m
+Author: joelbalanta2908-coder <joelbalanta2908@gmail.com>
+Date:   Sun Jun 28 18:34:14 2026 -0500
+
+    Conflicto merge
+
+[33mcommit 8fb60895fbd267826b789749e474c99f98bf7d15[m
+Merge: 47aa9f0 e39ef4c
+Author: John <johnfredycordoba2@gmail.com>
+Date:   Sun Jun 28 00:02:51 2026 -0500
+
+    Merge: resuelve conflicto en login.blade.php, mantiene logo con h-12 w-auto y se agregaron iconos a los roles
+
+[33mcommit 47aa9f0a15ce87e4c20c309fab12df5e9b17c58f[m
+Author: John <johnfredycordoba2@gmail.com>
+Date:   Sat Jun 27 23:50:04 2026 -0500
+
+    Se agregaron iconos a los roles y se hizo mas pequeños los recuadros para mejorar la apareciencia
+
+[33mcommit e39ef4c4f16b326e0d9d55468d47086610aa9eb8[m
+Merge: d5c78c1 7de096f
+Author: joelbalanta2908-coder <joelbalanta2908@gmail.com>
+Date:   Sat Jun 27 23:08:22 2026 -0500
+
+    Conflicto
+
+[33mcommit d5c78c1e68254ee9145967f4a8cf6c4491a56898[m
+Author: joelbalanta2908-coder <joelbalanta2908@gmail.com>
+Date:   Sat Jun 27 23:04:59 2026 -0500
+
+    Cambios locales
+
+[33mcommit 7de096f261bd0d7a63e8121250cc878cf478b0d5[m
+Author: John <johnfredycordoba2@gmail.com>
+Date:   Sat Jun 27 22:57:16 2026 -0500
+
+    Ajustes al login con logo mejorado del SENA y mejora de overlay con un tono de verde mas suave  en los bordes
+
+[33mcommit ccefd3bea6b038c66308352d85cd876a2d4ef546[m
+Author: Minota Mosquera Kevin <kevin.minota.6878@miremington.edu.co>
+Date:   Sat Jun 27 21:49:52 2026 -0500
+
+    Se mejoro el diseño del login con un carrusel de fondo
+
+[33mcommit 0b4ca5126729fd0167a32995c219d3b810dc614f[m
+Author: Minota Mosquera Kevin <kevin.minota.6878@miremington.edu.co>
+Date:   Sat Jun 27 20:49:55 2026 -0500
+
+    feat: agregamos el modulo de login aqui funcional
+
+[33mcommit a992bb2a8e58d6f1db53a03a7d923ef6eb90298a[m
+Merge: 8f37ebc b69a11e
+Author: Minota Mosquera Kevin <kevin.minota.6878@miremington.edu.co>
+Date:   Sat Jun 27 18:56:17 2026 -0500
+
+    merge: resolver conflicto README
+
+[33mcommit 8f37ebc00e6b7eebe45a138b19becb4fd2e3d7d5[m
+Author: Minota Mosquera Kevin <kevin.minota.6878@miremington.edu.co>
+Date:   Sat Jun 27 18:54:47 2026 -0500
+
+    Nuestro primer commit
+
+[33mcommit b69a11e5757406bfe1dac35e7ac579ba209551f4[m
+Author: joelbalanta2908-coder <joelbalanta2908@gmail.com>
+Date:   Sat Jun 27 18:32:07 2026 -0500
+
+    Initial commit

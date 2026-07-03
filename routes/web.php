@@ -109,6 +109,12 @@ Route::middleware('auth')->group(function () {
     Route::prefix('coordinacion')->name('coordinacion.')->middleware('rol:Coordinador')->group(function () {
         Route::get('/dashboard', [CoordinacionController::class, 'dashboard'])->name('dashboard');
 
+        // Usuarios del sistema (vista de consulta con roles y estado de cuenta)
+        Route::get('/usuarios', [CoordinacionController::class, 'usuarios'])->name('usuarios.index');
+
+        // Centro de reportes (generación y exportación con filtro por ficha)
+        Route::get('/reportes', [CoordinacionController::class, 'reportes'])->name('reportes.index');
+
         // Aprendices (listado, alta, hoja de vida y activación/inactivación)
         Route::get('/aprendices', [CoordinacionController::class, 'aprendices'])->name('aprendices.index');
         Route::get('/aprendices/crear', [CoordinacionController::class, 'crearAprendizForm'])->name('aprendices.crear');
@@ -116,9 +122,12 @@ Route::middleware('auth')->group(function () {
         Route::patch('/aprendices/{aprendiz}/estado', [CoordinacionController::class, 'actualizarEstadoAprendiz'])->name('aprendices.estado');
         Route::get('/aprendices/{id}', [CoordinacionController::class, 'aprendizShow'])->name('aprendices.show');
 
-        // Docentes (instructores): fichas asignadas, liderazgo, tipo (materia/transversal)
-        // y activación/inactivación
+        // Docentes (instructores): alta, fichas asignadas, liderazgo, tipo
+        // (materia/transversal) y activación/inactivación. La ruta /crear debe
+        // declararse ANTES de /{instructor} para no colisionar.
         Route::get('/docentes', [CoordinacionController::class, 'docentes'])->name('docentes.index');
+        Route::get('/docentes/crear', [CoordinacionController::class, 'crearDocenteForm'])->name('docentes.crear');
+        Route::post('/docentes', [CoordinacionController::class, 'crearDocente'])->name('docentes.store');
         Route::patch('/docentes/{instructor}/tipo', [CoordinacionController::class, 'actualizarTipoDocente'])->name('docentes.tipo');
         Route::patch('/docentes/{instructor}/estado', [CoordinacionController::class, 'actualizarEstadoDocente'])->name('docentes.estado');
         Route::get('/docentes/{instructor}', [CoordinacionController::class, 'docenteShow'])->name('docentes.show');
