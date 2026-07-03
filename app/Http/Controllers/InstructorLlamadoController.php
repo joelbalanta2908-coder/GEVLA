@@ -9,6 +9,7 @@ use App\Models\Aprendiz;
 use App\Models\Ficha;
 use App\Models\ProgramaFormacion;
 use App\Models\ReglamentoArticulo;
+use App\Support\Busqueda;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -91,16 +92,20 @@ class InstructorLlamadoController extends Controller
         $llamados = LlamadoAtencion::query()
             ->with(['aprendiz.usuario', 'aprendiz.matriculas.ficha.programa'])
             ->where('id_instructor', $instructor->id_instructor)
-            // Búsqueda por nombre/apellido/documento del aprendiz o asunto.
+            // Búsqueda con inferencia: cada palabra del término debe coincidir
+            // parcialmente con el asunto o con los datos del aprendiz, sin
+            // exigir el texto exacto ni el orden de las palabras.
             ->when($buscar !== '', function ($q) use ($buscar) {
-                $q->where(function ($sub) use ($buscar) {
-                    $sub->where('asunto', 'like', "%{$buscar}%")
-                        ->orWhereHas('aprendiz.usuario', function ($u) use ($buscar) {
-                            $u->where('nombres', 'like', "%{$buscar}%")
-                                ->orWhere('apellidos', 'like', "%{$buscar}%")
-                                ->orWhere('numero_documento', 'like', "%{$buscar}%");
-                        });
-                });
+                foreach (Busqueda::tokens($buscar) as $token) {
+                    $q->where(function ($sub) use ($token) {
+                        $sub->where('asunto', 'like', "%{$token}%")
+                            ->orWhereHas('aprendiz.usuario', function ($u) use ($token) {
+                                $u->where('nombres', 'like', "%{$token}%")
+                                    ->orWhere('apellidos', 'like', "%{$token}%")
+                                    ->orWhere('numero_documento', 'like', "%{$token}%");
+                            });
+                    });
+                }
             })
             // Filtro por número de ficha del aprendiz.
             ->when($numeroFicha !== '', function ($q) use ($numeroFicha) {

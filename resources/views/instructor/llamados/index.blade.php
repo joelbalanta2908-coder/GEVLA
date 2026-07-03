@@ -76,13 +76,11 @@
             </div>
             <div>
                 <label class="mb-1 block text-xs font-bold uppercase tracking-[0.1em] text-slate-500">Desde</label>
-                <input type="date" name="fecha_desde" value="{{ $fechaDesde }}" data-autosubmit
-                       class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
+                <input type="date" name="fecha_desde" value="{{ $fechaDesde }}"                       class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
             </div>
             <div>
                 <label class="mb-1 block text-xs font-bold uppercase tracking-[0.1em] text-slate-500">Hasta</label>
-                <input type="date" name="fecha_hasta" value="{{ $fechaHasta }}" data-autosubmit
-                       class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
+                <input type="date" name="fecha_hasta" value="{{ $fechaHasta }}"                       class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
             </div>
         </div>
 
@@ -114,12 +112,14 @@
             </div>
         @else
             <div class="overflow-x-auto">
-                <table class="responsive-cards w-full min-w-[640px] text-left text-sm text-slate-600">
+                <table class="responsive-cards w-full min-w-[860px] text-left text-sm text-slate-600">
                     <thead class="border-b border-[#eef1e8] bg-[#fafbf8] text-xs font-bold uppercase tracking-[0.12em] text-slate-500">
                         <tr>
                             <th class="px-6 py-4"><a href="{{ $sortLink('id') }}" class="inline-flex items-center gap-1 hover:text-[#39A900]">ID <span class="text-[10px]">{{ $sortIcon('id') }}</span></a></th>
                             <th class="px-6 py-4"><a href="{{ $sortLink('fecha') }}" class="inline-flex items-center gap-1 hover:text-[#39A900]">Fecha <span class="text-[10px]">{{ $sortIcon('fecha') }}</span></a></th>
                             <th class="px-6 py-4">Aprendiz</th>
+                            <th class="px-6 py-4">Ficha</th>
+                            <th class="px-6 py-4">Programa</th>
                             <th class="px-6 py-4"><a href="{{ $sortLink('asunto') }}" class="inline-flex items-center gap-1 hover:text-[#39A900]">Asunto <span class="text-[10px]">{{ $sortIcon('asunto') }}</span></a></th>
                             <th class="px-6 py-4"><a href="{{ $sortLink('estado') }}" class="inline-flex items-center gap-1 hover:text-[#39A900]">Estado <span class="text-[10px]">{{ $sortIcon('estado') }}</span></a></th>
                             <th class="px-6 py-4 text-right">Acciones</th>
@@ -136,11 +136,17 @@
                                     'cancelado'   => 'bg-red-100 text-red-700',
                                     default       => 'bg-slate-100 text-slate-600',
                                 };
+                                // Ficha y programa del aprendiz (matrícula activa o la más reciente).
+                                $matriculaLl = $llamado->aprendiz?->matriculas->firstWhere('estado_matricula', 'activa')
+                                    ?? $llamado->aprendiz?->matriculas->sortByDesc('fecha_matricula')->first();
+                                $fichaLl = $matriculaLl?->ficha;
                             @endphp
                             <tr>
                                 <td class="px-6 py-4 font-bold text-slate-900" data-label="ID">#{{ $llamado->id_llamado }}</td>
                                 <td class="px-6 py-4" data-label="Fecha">{{ \Carbon\Carbon::parse($llamado->fecha_llamado)->format('d/m/Y') }}</td>
                                 <td class="px-6 py-4 font-medium text-slate-900" data-label="Aprendiz">{{ $llamado->aprendiz->usuario->nombres }} {{ $llamado->aprendiz->usuario->apellidos }}</td>
+                                <td class="px-6 py-4" data-label="Ficha">{{ $fichaLl?->numero_ficha ?? '—' }}</td>
+                                <td class="px-6 py-4" data-label="Programa">{{ $fichaLl?->programa?->nombre_programa ?? '—' }}</td>
                                 <td class="px-6 py-4" data-label="Asunto">{{ $llamado->asunto }}</td>
                                 <td class="px-6 py-4" data-label="Estado">
                                     <span class="inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.08em] {{ $estadoBadge }}">
@@ -149,7 +155,8 @@
                                 </td>
                                 <td class="px-6 py-4 text-right" data-label="Acciones">
                                     <div class="flex justify-end gap-2">
-                                        <a href="{{ route('instructor.llamados.show', $llamado->id_llamado) }}" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition hover:bg-blue-100" title="Ver detalle">
+                                        {{-- Se llevan los filtros actuales en la URL para restaurarlos al volver. --}}
+                                        <a href="{{ route('instructor.llamados.show', array_merge(['llamado' => $llamado->id_llamado], request()->query())) }}" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition hover:bg-blue-100" title="Ver detalle">
                                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                                         </a>
                                         @if($llamado->estado_llamado === 'registrado')
@@ -180,21 +187,7 @@
         @endif
     </div>
 
-    <script>
-        // Búsqueda en tiempo real: envía el formulario de filtros con un pequeño
-        // retardo al escribir y de inmediato al cambiar selects o fechas.
-        (function () {
-            const form = document.getElementById('filtros-reportes');
-            if (!form) return;
-            let timer = null;
-            form.querySelectorAll('[data-autosubmit]').forEach(function (el) {
-                const evento = el.tagName === 'SELECT' || el.type === 'date' ? 'change' : 'input';
-                el.addEventListener(evento, function () {
-                    clearTimeout(timer);
-                    timer = setTimeout(function () { form.submit(); }, evento === 'input' ? 450 : 0);
-                });
-            });
-        })();
-    </script>
+    {{-- La búsqueda de esta sección NO es en tiempo real: se ejecuta únicamente
+         con el botón «Buscar» para no interrumpir mientras se escribe. --}}
 </div>
 @endsection

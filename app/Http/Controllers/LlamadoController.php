@@ -8,6 +8,7 @@ use App\Models\Aprendiz;
 use App\Models\Ficha;
 use App\Models\Instructor;
 use App\Models\LlamadoAtencion;
+use App\Support\Busqueda;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -24,14 +25,19 @@ class LlamadoController extends Controller
     {
         $query = LlamadoAtencion::with(['aprendiz.usuario', 'instructor.usuario']);
 
+        // Búsqueda con inferencia: cada palabra debe coincidir parcialmente con
+        // el asunto o los datos del aprendiz, sin exigir el texto exacto.
         if ($buscar = $request->input('buscar')) {
-            $query->where(function ($q) use ($buscar) {
-                $q->where('asunto', 'like', "%{$buscar}%")
-                  ->orWhereHas('aprendiz.usuario', function ($sub) use ($buscar) {
-                      $sub->where('nombres', 'like', "%{$buscar}%")
-                          ->orWhere('apellidos', 'like', "%{$buscar}%");
-                  });
-            });
+            foreach (Busqueda::tokens($buscar) as $token) {
+                $query->where(function ($q) use ($token) {
+                    $q->where('asunto', 'like', "%{$token}%")
+                      ->orWhereHas('aprendiz.usuario', function ($sub) use ($token) {
+                          $sub->where('nombres', 'like', "%{$token}%")
+                              ->orWhere('apellidos', 'like', "%{$token}%")
+                              ->orWhere('numero_documento', 'like', "%{$token}%");
+                      });
+                });
+            }
         }
 
         if ($categoria = $request->input('categoria')) {

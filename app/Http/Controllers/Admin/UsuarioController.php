@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Usuario;
+use App\Support\Busqueda;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -39,12 +40,17 @@ class UsuarioController extends Controller
 
         $usuarios = Usuario::query()
             ->with('roles')
+            // Búsqueda con inferencia: coincidencia parcial por cada palabra.
             ->when($buscar !== '', function ($q) use ($buscar) {
-                $q->where('nombres', 'like', "%{$buscar}%")
-                    ->orWhere('apellidos', 'like', "%{$buscar}%")
-                    ->orWhere('correo', 'like', "%{$buscar}%")
-                    ->orWhere('numero_documento', 'like', "%{$buscar}%")
-                    ->orWhere('username', 'like', "%{$buscar}%");
+                foreach (Busqueda::tokens($buscar) as $token) {
+                    $q->where(function ($sub) use ($token) {
+                        $sub->where('nombres', 'like', "%{$token}%")
+                            ->orWhere('apellidos', 'like', "%{$token}%")
+                            ->orWhere('correo', 'like', "%{$token}%")
+                            ->orWhere('numero_documento', 'like', "%{$token}%")
+                            ->orWhere('username', 'like', "%{$token}%");
+                    });
+                }
             })
             ->when($estado, fn ($q) => $q->where('estado_usuario', $estado))
             ->orderBy('nombres')

@@ -4,23 +4,24 @@
 
 @section('contenido')
 <div class="space-y-6">
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-            <h2 class="text-xl font-bold text-gray-900">Programas de formación</h2>
-            <p class="mt-1 text-sm text-gray-500">Catálogo de programas usado como base para crear fichas.</p>
-        </div>
+    <div>
+        <h2 class="text-xl font-bold text-gray-900">Programas de formación</h2>
+        <p class="mt-1 text-sm text-gray-500">Catálogo de programas usado como base para crear fichas.</p>
+    </div>
+
+    {{-- Barra de búsqueda y botón «Nuevo programa» a la misma altura --}}
+    <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <form method="GET" action="{{ route('coordinacion.programas.index') }}" data-live-form class="flex flex-col gap-3 sm:flex-row sm:items-center lg:flex-1">
+            <input type="text" name="buscar" value="{{ $buscar }}" data-live placeholder="Buscar por nombre o código..."
+                   class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm caret-[#39A900] focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30 sm:max-w-md">
+            <button class="rounded-lg bg-[#39A900] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2D8200]">Filtrar</button>
+        </form>
         <a href="{{ route('coordinacion.programas.create') }}"
-           class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#39A900] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#2D8200]">
+           class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#39A900] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#2D8200]">
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
             Nuevo programa
         </a>
     </div>
-
-    <form method="GET" action="{{ route('coordinacion.programas.index') }}" data-live-form class="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <input type="text" name="buscar" value="{{ $buscar }}" data-live placeholder="Buscar por nombre o código..."
-               class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm caret-[#39A900] focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30 sm:max-w-md">
-        <button class="rounded-lg bg-[#39A900] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2D8200]">Filtrar</button>
-    </form>
 
     <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
         <table class="responsive-cards w-full min-w-[640px] text-sm">

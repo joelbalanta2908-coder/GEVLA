@@ -15,7 +15,8 @@
 @endphp
 
 <div class="space-y-6">
-    <a href="{{ route('instructor.llamados.index') }}" class="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-900">
+    {{-- Al volver se restauran los filtros de búsqueda que traía la URL. --}}
+    <a href="{{ route('instructor.llamados.index', request()->query()) }}" class="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-900">
         ← Volver a mis reportes
     </a>
 

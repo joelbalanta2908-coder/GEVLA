@@ -5,16 +5,20 @@
 @section('contenido')
 <div class="space-y-6">
 
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-            <h2 class="text-2xl font-bold text-gray-900">Actas de coordinación</h2>
-            <p class="text-gray-500">Acondicionamientos y cancelaciones expedidas por coordinación.</p>
-        </div>
-        <div class="flex flex-wrap items-center gap-4">
+    <div>
+        <h2 class="text-2xl font-bold text-gray-900">Actas de coordinación</h2>
+        <p class="text-gray-500">Acondicionamientos y cancelaciones expedidas por coordinación.</p>
+    </div>
+
+    {{-- Selector de reporte, botones de exportación y «Expedir nueva acta» en la misma fila --}}
+    <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div class="flex flex-wrap items-center gap-3">
             @include('reportes._botones', ['rutaBase' => 'coordinacion.actas.export', 'fichas' => $fichasExport])
-            <span class="hidden h-8 w-px bg-[#e3e7df] sm:block"></span>
+        </div>
+        <div class="flex items-center gap-4">
+            <span class="hidden h-8 w-px bg-[#e3e7df] lg:block"></span>
             <a href="{{ route('coordinacion.actas.create') }}"
-               class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#39A900] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2D8200]">
+               class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#39A900] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2D8200] sm:w-auto">
                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
                 Expedir nueva acta
             </a>

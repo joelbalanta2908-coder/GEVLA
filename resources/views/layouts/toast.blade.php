@@ -74,9 +74,11 @@
                     var evento = (el.tagName === 'SELECT' || el.type === 'date') ? 'change' : 'input';
                     el.addEventListener(evento, function () {
                         clearTimeout(timer);
+                        // Retardo amplio para dar tiempo a terminar de escribir
+                        // antes de actualizar la tabla.
                         timer = setTimeout(function () {
                             (form.requestSubmit ? form.requestSubmit() : form.submit());
-                        }, evento === 'input' ? 450 : 0);
+                        }, evento === 'input' ? 900 : 0);
                     });
                 });
             });

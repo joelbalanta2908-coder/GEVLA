@@ -14,6 +14,7 @@ use App\Models\Matricula;
 use App\Models\ProcesoDisciplinario;
 use App\Models\Rol;
 use App\Models\Usuario;
+use App\Support\Busqueda;
 use App\Support\Roles;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -130,14 +131,17 @@ class CoordinacionController extends Controller
 
         $usuarios = Usuario::query()
             ->with(['roles' => fn ($q) => $q->wherePivot('estado_asignacion', 'activa')])
+            // Búsqueda con inferencia: coincidencia parcial por cada palabra.
             ->when($buscar !== '', function ($q) use ($buscar) {
-                $q->where(function ($sub) use ($buscar) {
-                    $sub->where('nombres', 'like', "%{$buscar}%")
-                        ->orWhere('apellidos', 'like', "%{$buscar}%")
-                        ->orWhere('correo', 'like', "%{$buscar}%")
-                        ->orWhere('numero_documento', 'like', "%{$buscar}%")
-                        ->orWhere('username', 'like', "%{$buscar}%");
-                });
+                foreach (Busqueda::tokens($buscar) as $token) {
+                    $q->where(function ($sub) use ($token) {
+                        $sub->where('nombres', 'like', "%{$token}%")
+                            ->orWhere('apellidos', 'like', "%{$token}%")
+                            ->orWhere('correo', 'like', "%{$token}%")
+                            ->orWhere('numero_documento', 'like', "%{$token}%")
+                            ->orWhere('username', 'like', "%{$token}%");
+                    });
+                }
             })
             ->when($rol, fn ($q) => $q->whereHas('roles', fn ($r) => $r->where('nombre_rol', $rol)))
             ->when($estado, fn ($q) => $q->where('estado_usuario', $estado))
@@ -178,12 +182,16 @@ class CoordinacionController extends Controller
         $aprendices = Aprendiz::query()
             ->with('usuario')
             ->withCount(['llamadosAtencion', 'procesosDisciplinarios', 'actasCoordinacion'])
+            // Búsqueda con inferencia: coincidencia parcial por cada palabra.
             ->when($buscar !== '', function ($q) use ($buscar) {
-                $q->whereHas('usuario', function ($sub) use ($buscar) {
-                    $sub->where('nombres', 'like', "%{$buscar}%")
-                        ->orWhere('apellidos', 'like', "%{$buscar}%")
-                        ->orWhere('correo', 'like', "%{$buscar}%");
-                });
+                foreach (Busqueda::tokens($buscar) as $token) {
+                    $q->whereHas('usuario', function ($sub) use ($token) {
+                        $sub->where('nombres', 'like', "%{$token}%")
+                            ->orWhere('apellidos', 'like', "%{$token}%")
+                            ->orWhere('correo', 'like', "%{$token}%")
+                            ->orWhere('numero_documento', 'like', "%{$token}%");
+                    });
+                }
             })
             ->when($estado, fn ($q) => $q->where('estado_academico', $estado))
             ->orderBy('id_aprendiz')
@@ -320,13 +328,18 @@ class CoordinacionController extends Controller
         $docentes = Instructor::query()
             ->with('usuario')
             ->withCount(['fichas', 'fichasLideradas'])
+            // Búsqueda con inferencia: coincidencia parcial por cada palabra.
             ->when($buscar !== '', function ($q) use ($buscar) {
-                $q->where('codigo_instructor', 'like', "%{$buscar}%")
-                    ->orWhere('area_formacion', 'like', "%{$buscar}%")
-                    ->orWhereHas('usuario', fn ($u) => $u
-                        ->where('nombres', 'like', "%{$buscar}%")
-                        ->orWhere('apellidos', 'like', "%{$buscar}%")
-                        ->orWhere('numero_documento', 'like', "%{$buscar}%"));
+                foreach (Busqueda::tokens($buscar) as $token) {
+                    $q->where(function ($sub) use ($token) {
+                        $sub->where('codigo_instructor', 'like', "%{$token}%")
+                            ->orWhere('area_formacion', 'like', "%{$token}%")
+                            ->orWhereHas('usuario', fn ($u) => $u
+                                ->where('nombres', 'like', "%{$token}%")
+                                ->orWhere('apellidos', 'like', "%{$token}%")
+                                ->orWhere('numero_documento', 'like', "%{$token}%"));
+                    });
+                }
             })
             ->when($tipo, fn ($q) => $q->where('tipo_docente', $tipo))
             ->when($estado, fn ($q) => $q->where('estado_instructor', $estado))

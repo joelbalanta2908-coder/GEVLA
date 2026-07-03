@@ -11,6 +11,7 @@ use App\Models\HistorialInstructorLider;
 use App\Models\Instructor;
 use App\Models\Matricula;
 use App\Models\ProgramaFormacion;
+use App\Support\Busqueda;
 use App\Support\Roles;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -58,12 +59,15 @@ class FichaController extends Controller
                 'matriculas',
                 'instructores',
             ])
+            // Búsqueda con inferencia: coincidencia parcial por cada palabra.
             ->when($buscar !== '', function ($q) use ($buscar) {
-                $q->where(function ($sub) use ($buscar) {
-                    $sub->where('numero_ficha', 'like', "%{$buscar}%")
-                        ->orWhereHas('programa', fn ($p) => $p->where('nombre_programa', 'like', "%{$buscar}%")
-                            ->orWhere('codigo_programa', 'like', "%{$buscar}%"));
-                });
+                foreach (Busqueda::tokens($buscar) as $token) {
+                    $q->where(function ($sub) use ($token) {
+                        $sub->where('numero_ficha', 'like', "%{$token}%")
+                            ->orWhereHas('programa', fn ($p) => $p->where('nombre_programa', 'like', "%{$token}%")
+                                ->orWhere('codigo_programa', 'like', "%{$token}%"));
+                    });
+                }
             })
             ->when($estado, fn ($q) => $q->where('estado_ficha', $estado))
             ->when($modalidad, fn ($q) => $q->where('modalidad', $modalidad))
