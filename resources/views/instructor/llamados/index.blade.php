@@ -39,17 +39,17 @@
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div class="lg:col-span-2">
                 <label class="mb-1 block text-xs font-bold uppercase tracking-[0.1em] text-slate-500">Aprendiz / Documento / Asunto</label>
-                <input type="text" name="buscar" value="{{ $buscar }}" data-autosubmit placeholder="Nombre, documento o asunto..."
+                <input type="text" name="buscar" value="{{ $buscar }}" placeholder="Nombre, documento o asunto..."
                        class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm caret-[#39A900] focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
             </div>
             <div>
                 <label class="mb-1 block text-xs font-bold uppercase tracking-[0.1em] text-slate-500">N.º de ficha</label>
-                <input type="text" name="numero_ficha" value="{{ $numeroFicha }}" data-autosubmit placeholder="Ej. 2758934"
+                <input type="text" name="numero_ficha" value="{{ $numeroFicha }}" placeholder="Ej. 2758934"
                        class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm caret-[#39A900] focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
             </div>
             <div>
                 <label class="mb-1 block text-xs font-bold uppercase tracking-[0.1em] text-slate-500">Programa</label>
-                <select name="id_programa" data-autosubmit class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
+                <select name="id_programa" class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
                     <option value="">Todos</option>
                     @foreach($programas as $p)
                         <option value="{{ $p->id_programa }}" @selected((string) $idPrograma === (string) $p->id_programa)>{{ $p->nombre_programa }}</option>
@@ -58,7 +58,7 @@
             </div>
             <div>
                 <label class="mb-1 block text-xs font-bold uppercase tracking-[0.1em] text-slate-500">Estado</label>
-                <select name="estado" data-autosubmit class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
+                <select name="estado" class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
                     <option value="">Todos</option>
                     @foreach($estados as $valor => $etiqueta)
                         <option value="{{ $valor }}" @selected($estado === $valor)>{{ $etiqueta }}</option>
@@ -67,7 +67,7 @@
             </div>
             <div>
                 <label class="mb-1 block text-xs font-bold uppercase tracking-[0.1em] text-slate-500">Tipo de reporte</label>
-                <select name="tipo_llamado" data-autosubmit class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
+                <select name="tipo_llamado" class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
                     <option value="">Todos</option>
                     @foreach($tipos as $valor => $etiqueta)
                         <option value="{{ $valor }}" @selected($tipo === $valor)>{{ $etiqueta }}</option>

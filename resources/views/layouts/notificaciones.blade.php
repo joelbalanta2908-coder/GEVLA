@@ -40,7 +40,7 @@
         // Marca una notificación puntual como vista y lo persiste en la base de datos.
         async marcarUna(id, elemento) {
             try {
-                const r = await fetch('/notificaciones/' + id + '/leida', {
+                const r = await fetch('{{ url('/notificaciones') }}/' + id + '/leida', {
                     method: 'POST',
                     headers: { 'X-CSRF-TOKEN': this.csrf, 'Accept': 'application/json' },
                     keepalive: true,
