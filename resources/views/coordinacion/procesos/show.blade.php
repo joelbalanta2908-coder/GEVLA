@@ -116,16 +116,16 @@
             @csrf
             <h4 class="text-sm font-semibold text-gray-900">Registrar nuevo avance</h4>
             <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <select name="etapa" required class="rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+                <select name="etapa" required class="rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
                     @foreach($etapas as $key => $label)
                         <option value="{{ $key }}" @selected($proceso->etapa_actual == $key)>{{ $label }}</option>
                     @endforeach
                 </select>
                 <input type="text" name="resultado" placeholder="Resultado (opcional)"
-                       class="rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+                       class="rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
             </div>
             <textarea name="descripcion" rows="3" required placeholder="Describe lo ocurrido en esta etapa..."
-                      class="w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]"></textarea>
+                      class="w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2"></textarea>
             <div class="flex justify-end">
                 <button class="rounded-lg bg-[#39A900] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2D8200]">
                     Guardar avance

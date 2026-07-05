@@ -18,7 +18,7 @@
             <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <div>
                     <label class="block text-sm font-bold text-gray-700">Aprendiz</label>
-                    <select name="id_aprendiz" required class="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+                    <select name="id_aprendiz" required class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
                         <option value="">Selecciona un aprendiz</option>
                         @foreach($aprendices as $aprendiz)
                             <option value="{{ $aprendiz->id_aprendiz }}" @selected(old('id_aprendiz') == $aprendiz->id_aprendiz)>
@@ -30,7 +30,7 @@
 
                 <div>
                     <label class="block text-sm font-bold text-gray-700">Llamado asociado (Opcional)</label>
-                    <select name="id_llamado" class="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+                    <select name="id_llamado" class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
                         <option value="">Sin llamado previo</option>
                         @foreach($llamados as $llamado)
                             <option value="{{ $llamado->id_llamado }}" @selected(old('id_llamado') == $llamado->id_llamado)>
@@ -43,12 +43,12 @@
                 <div>
                     <label class="block text-sm font-bold text-gray-700">Fecha de inicio</label>
                     <input type="date" name="fecha_inicio" required value="{{ old('fecha_inicio', now()->toDateString()) }}"
-                           class="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+                           class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
                 </div>
 
                 <div>
                     <label class="block text-sm font-bold text-gray-700">Etapa inicial</label>
-                    <select name="etapa_actual" required class="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+                    <select name="etapa_actual" required class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
                         <option value="llamado_escrito" @selected(old('etapa_actual') == 'llamado_escrito')>Llamado escrito</option>
                         <option value="acondicionamiento" @selected(old('etapa_actual') == 'acondicionamiento')>Acondicionamiento</option>
                         <option value="cancelacion_matricula" @selected(old('etapa_actual') == 'cancelacion_matricula')>Cancelación de matrícula</option>
@@ -57,7 +57,7 @@
 
                 <div>
                     <label class="block text-sm font-bold text-gray-700">Estado del proceso</label>
-                    <select name="estado_proceso" required class="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+                    <select name="estado_proceso" required class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
                         <option value="activo" @selected(old('estado_proceso') == 'activo')>Activo</option>
                         <option value="suspendido" @selected(old('estado_proceso') == 'suspendido')>Suspendido</option>
                         <option value="finalizado" @selected(old('estado_proceso') == 'finalizado')>Finalizado</option>
@@ -69,7 +69,7 @@
             <div>
                 <label class="block text-sm font-bold text-gray-700">Observaciones iniciales (Opcional)</label>
                 <textarea name="observaciones" rows="3"
-                          class="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]"
+                          class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2"
                           placeholder="Anotaciones para la apertura del proceso...">{{ old('observaciones') }}</textarea>
             </div>
 

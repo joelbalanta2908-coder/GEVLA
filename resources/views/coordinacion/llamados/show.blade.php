@@ -133,7 +133,7 @@
                     @csrf
                     @method('PATCH')
                     <label class="text-xs font-medium uppercase text-gray-400">Actualizar estado</label>
-                    <select name="estado_llamado" class="w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+                    <select name="estado_llamado" class="w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
                         @foreach(['registrado','en_revision','notificado','cerrado','cancelado'] as $estado)
                             <option value="{{ $estado }}" @selected($llamado->estado_llamado == $estado)>
                                 {{ str($estado)->replace('_',' ')->ucfirst() }}

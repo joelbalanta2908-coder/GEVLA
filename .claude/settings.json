@@ -12,7 +12,9 @@
       "Bash(php artisan *)",
       "Bash(echo \"---exit:$?---\")",
       "PowerShell(php artisan tinker --execute='$f = App\\\\Models\\\\Ficha::first\\(\\); echo \"Ficha: \" . $f->numero_ficha . PHP_EOL; echo \\(new App\\\\Http\\\\Controllers\\\\ActaController\\(\\)\\)->aprendicesPorFicha\\($f\\)->getContent\\(\\);')",
-      "PowerShell(php artisan tinker --execute='$f = App\\\\Models\\\\Ficha::first\\(\\); echo $f->numero_ficha . PHP_EOL; echo \\(new App\\\\Http\\\\Controllers\\\\ActaController\\(\\)\\)->aprendicesPorFicha\\($f\\)->getContent\\(\\);')"
+      "PowerShell(php artisan tinker --execute='$f = App\\\\Models\\\\Ficha::first\\(\\); echo $f->numero_ficha . PHP_EOL; echo \\(new App\\\\Http\\\\Controllers\\\\ActaController\\(\\)\\)->aprendicesPorFicha\\($f\\)->getContent\\(\\);')",
+      "PowerShell(php \"C:\\\\Users\\\\ROMOM\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-ROMOM-Downloads-GEVLA2-GEVLA\\\\00f54656-8ff9-406e-a28a-f6de25fd1c1f\\\\scratchpad\\\\arreglar_bordes.php\")",
+      "PowerShell(php \"C:\\\\Users\\\\ROMOM\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-ROMOM-Downloads-GEVLA2-GEVLA\\\\00f54656-8ff9-406e-a28a-f6de25fd1c1f\\\\scratchpad\\\\arreglar_bordes.php\" --aplicar)"
     ]
   }
 }

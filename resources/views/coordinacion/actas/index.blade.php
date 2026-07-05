@@ -49,7 +49,7 @@
     @endisset
 
     <form method="GET" class="flex flex-wrap gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-        <select name="tipo_acta" class="rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+        <select name="tipo_acta" class="rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
             <option value="">Tipo: todas</option>
             @foreach(['acondicionamiento_academico','cancelacion_academica','acondicionamiento_disciplinario','cancelacion_disciplinaria'] as $tipo)
                 <option value="{{ $tipo }}" @selected(request('tipo_acta') == $tipo)>
@@ -58,7 +58,7 @@
             @endforeach
         </select>
 
-        <select name="estado_acta" class="rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+        <select name="estado_acta" class="rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
             <option value="">Estado: todos</option>
             @foreach(['expedido','notificado','firme'] as $estado)
                 <option value="{{ $estado }}" @selected(request('estado_acta') == $estado)>{{ ucfirst($estado) }}</option>

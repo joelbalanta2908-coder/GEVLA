@@ -52,7 +52,7 @@
                                 {{-- Filtrado con debounce de 500 ms: espera a que se deje de escribir --}}
                                 <input type="text" x-ref="buscadorFicha" x-model.debounce.500ms="fichaFiltro"
                                        placeholder="Buscar por número o programa..."
-                                       class="w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+                                       class="w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
                             </div>
                             <ul class="max-h-52 overflow-y-auto py-1">
                                 <template x-for="f in fichasFiltradas()" :key="f.id">
@@ -93,7 +93,7 @@
                                 {{-- Filtrado con debounce de 500 ms sobre nombre, apellido y documento --}}
                                 <input type="text" x-ref="buscadorAprendiz" x-model.debounce.500ms="aprendizFiltro"
                                        placeholder="Buscar por nombre, apellido o documento..."
-                                       class="w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+                                       class="w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
                             </div>
                             <ul class="max-h-52 overflow-y-auto py-1">
                                 <template x-for="a in aprendicesFiltrados()" :key="a.id">
@@ -120,7 +120,7 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Falta relacionada</label>
-                    <select name="id_falta" required class="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+                    <select name="id_falta" required class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
                         <option value="">Selecciona una falta</option>
                         @foreach($faltas as $falta)
                             <option value="{{ $falta->id_falta }}">
@@ -132,7 +132,7 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Tipo de acta</label>
-                    <select name="tipo_acta" required class="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+                    <select name="tipo_acta" required class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
                         <option value="acondicionamiento_academico">Acondicionamiento académico</option>
                         <option value="cancelacion_academica">Cancelación académica</option>
                         <option value="acondicionamiento_disciplinario">Acondicionamiento disciplinario</option>
@@ -143,26 +143,26 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Número de acta</label>
                     <input type="text" name="numero_acta" required placeholder="AC-2026-004"
-                           class="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+                           class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Fecha de expedición</label>
                     <input type="date" name="fecha_expedicion" required value="{{ old('fecha_expedicion', now()->toDateString()) }}"
-                           class="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+                           class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Meses de inhabilitación</label>
                     <input type="number" name="meses_inhabilitacion" min="0" placeholder="Solo aplica a cancelaciones"
-                           class="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+                           class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
                 </div>
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700">Descripción de la sanción</label>
                 <textarea name="sancion_descripcion" rows="4" required
-                          class="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]"
+                          class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2"
                           placeholder="Describe la medida adoptada y su justificación..."></textarea>
             </div>
 

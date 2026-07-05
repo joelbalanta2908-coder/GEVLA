@@ -18,7 +18,7 @@
             <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <div>
                     <label class="block text-sm font-bold text-gray-700">Aprendiz</label>
-                    <select name="id_aprendiz" required class="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+                    <select name="id_aprendiz" required class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
                         <option value="">Selecciona un aprendiz</option>
                         @foreach($aprendices as $aprendiz)
                             <option value="{{ $aprendiz->id_aprendiz }}" @selected(old('id_aprendiz') == $aprendiz->id_aprendiz)>
@@ -30,7 +30,7 @@
 
                 <div>
                     <label class="block text-sm font-bold text-gray-700">Instructor reporta</label>
-                    <select name="id_instructor" required class="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+                    <select name="id_instructor" required class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
                         <option value="">Selecciona un instructor</option>
                         @foreach($instructores as $instructor)
                             <option value="{{ $instructor->id_instructor }}" @selected(old('id_instructor') == $instructor->id_instructor)>
@@ -43,12 +43,12 @@
                 <div>
                     <label class="block text-sm font-bold text-gray-700">Fecha del llamado</label>
                     <input type="date" name="fecha_llamado" required value="{{ old('fecha_llamado', now()->toDateString()) }}"
-                           class="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+                           class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
                 </div>
 
                 <div>
                     <label class="block text-sm font-bold text-gray-700">Tipo de llamado</label>
-                    <select name="tipo_llamado" required class="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+                    <select name="tipo_llamado" required class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
                         <option value="llamado_escrito" @selected(old('tipo_llamado') == 'llamado_escrito')>Llamado escrito</option>
                         <option value="acondicionamiento" @selected(old('tipo_llamado') == 'acondicionamiento')>Acondicionamiento</option>
                         <option value="cancelacion_matricula" @selected(old('tipo_llamado') == 'cancelacion_matricula')>Cancelación de matrícula</option>
@@ -57,7 +57,7 @@
 
                 <div>
                     <label class="block text-sm font-bold text-gray-700">Categoría</label>
-                    <select name="categoria" required class="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+                    <select name="categoria" required class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
                         <option value="academico" @selected(old('categoria') == 'academico')>Académico</option>
                         <option value="disciplinario" @selected(old('categoria') == 'disciplinario')>Disciplinario</option>
                     </select>
@@ -65,7 +65,7 @@
                 
                 <div>
                     <label class="block text-sm font-bold text-gray-700">Estado inicial</label>
-                    <select name="estado_llamado" required class="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+                    <select name="estado_llamado" required class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
                         <option value="registrado" @selected(old('estado_llamado') == 'registrado')>Registrado</option>
                         <option value="en_revision" @selected(old('estado_llamado') == 'en_revision')>En revisión</option>
                         <option value="notificado" @selected(old('estado_llamado') == 'notificado')>Notificado</option>
@@ -78,27 +78,27 @@
             <div>
                 <label class="block text-sm font-bold text-gray-700">Asunto</label>
                 <input type="text" name="asunto" required value="{{ old('asunto') }}" placeholder="Resumen del llamado..."
-                       class="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]">
+                       class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
             </div>
 
             <div>
                 <label class="block text-sm font-bold text-gray-700">Descripción de los hechos</label>
                 <textarea name="descripcion_hechos" rows="4" required
-                          class="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]"
+                          class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2"
                           placeholder="Describe de manera detallada y objetiva lo ocurrido...">{{ old('descripcion_hechos') }}</textarea>
             </div>
             
             <div>
                 <label class="block text-sm font-bold text-gray-700">Pruebas aportadas (Opcional)</label>
                 <textarea name="pruebas_aportadas" rows="2"
-                          class="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]"
+                          class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2"
                           placeholder="Enlaces a documentos, actas firmadas, fotos...">{{ old('pruebas_aportadas') }}</textarea>
             </div>
             
             <div>
                 <label class="block text-sm font-bold text-gray-700">Observaciones (Opcional)</label>
                 <textarea name="observaciones" rows="2"
-                          class="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900]"
+                          class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2"
                           placeholder="Anotaciones internas del coordinador...">{{ old('observaciones') }}</textarea>
             </div>
 
