@@ -5,7 +5,7 @@
 @php
     // Defensivo: si aún no se ha importado el módulo SQL de notificaciones,
     // la campanita se muestra vacía en lugar de romper la página.
-    $notifTablaExiste = \Illuminate\Support\Facades\Schema::hasTable('notificacion_usuario');
+    $notifTablaExiste = \App\Models\NotificacionUsuario::moduloInstalado();
 
     $itemsNotif = $notifTablaExiste
         ? \App\Models\NotificacionUsuario::where('id_usuario', auth()->id())

@@ -32,6 +32,10 @@ class NotificacionController extends Controller
      */
     public function marcarTodas(): JsonResponse
     {
+        if (! NotificacionUsuario::moduloInstalado()) {
+            return response()->json(['ok' => true, 'actualizadas' => 0]);
+        }
+
         $actualizadas = NotificacionUsuario::where('id_usuario', auth()->id())
             ->where('leida', false)
             ->update(['leida' => true]);

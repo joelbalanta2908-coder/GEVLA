@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Support\Roles;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Notificación interna dirigida a un usuario del sistema (cualquier rol).
@@ -54,6 +55,14 @@ class NotificacionUsuario extends Model
      */
     public static function emitir(int|array $usuarios, string $titulo, ?string $mensaje = null, ?string $url = null): void
     {
+        // Si el módulo aún no está instalado (falta importar
+        // database/sql/modulo_notificaciones.sql), la notificación de campanita
+        // se omite sin romper la operación principal (llamado, acta, proceso...).
+        // La tabla oficial `notificacion` del aprendiz no depende de esto.
+        if (! self::moduloInstalado()) {
+            return;
+        }
+
         $ids = collect(is_array($usuarios) ? $usuarios : [$usuarios])
             ->filter()
             ->map(fn ($id) => (int) $id)
@@ -77,6 +86,10 @@ class NotificacionUsuario extends Model
      */
     public static function emitirARol(string $rol, string $titulo, ?string $mensaje = null, ?string $url = null): void
     {
+        if (! self::moduloInstalado()) {
+            return;
+        }
+
         $ids = Usuario::where('estado_usuario', 'activo')
             ->whereHas('roles', fn ($q) => $q->where('nombre_rol', $rol))
             ->pluck('id_usuario')
@@ -92,5 +105,16 @@ class NotificacionUsuario extends Model
         }
 
         self::emitir($ids, $titulo, $mensaje, $url);
+    }
+
+    /**
+     * Indica si la tabla del módulo ya existe en la base de datos. Se consulta
+     * una sola vez por petición.
+     */
+    public static function moduloInstalado(): bool
+    {
+        static $instalado = null;
+
+        return $instalado ??= Schema::hasTable('notificacion_usuario');
     }
 }
