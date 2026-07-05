@@ -113,7 +113,8 @@
         @else
             <div class="overflow-x-auto">
                 <table class="responsive-cards w-full min-w-[860px] text-left text-sm text-slate-600">
-                    <thead class="border-b border-[#eef1e8] bg-[#fafbf8] text-xs font-bold uppercase tracking-[0.12em] text-slate-500">
+                    {{-- whitespace-nowrap: los títulos de columna nunca se parten en dos líneas --}}
+                    <thead class="whitespace-nowrap border-b border-[#eef1e8] bg-[#fafbf8] text-xs font-bold uppercase tracking-[0.12em] text-slate-500">
                         <tr>
                             <th class="px-6 py-4"><a href="{{ $sortLink('id') }}" class="inline-flex items-center gap-1 hover:text-[#39A900]">ID <span class="text-[10px]">{{ $sortIcon('id') }}</span></a></th>
                             <th class="px-6 py-4"><a href="{{ $sortLink('fecha') }}" class="inline-flex items-center gap-1 hover:text-[#39A900]">Fecha <span class="text-[10px]">{{ $sortIcon('fecha') }}</span></a></th>

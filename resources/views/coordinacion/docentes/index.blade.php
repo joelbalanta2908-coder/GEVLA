@@ -34,7 +34,7 @@
 
     <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
         <table class="responsive-cards w-full min-w-[820px] text-sm">
-            <thead class="bg-gray-50 text-left text-xs font-medium uppercase text-gray-500">
+            <thead class="whitespace-nowrap bg-gray-50 text-left text-xs font-medium uppercase text-gray-500">
                 <tr>
                     <th class="px-5 py-3">Docente</th>
                     <th class="px-5 py-3">Documento</th>
