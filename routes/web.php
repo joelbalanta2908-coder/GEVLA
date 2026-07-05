@@ -161,7 +161,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('llamados', LlamadoController::class)->parameters(['llamados' => 'llamado']);
         Route::patch('llamados/{llamado}/estado', [LlamadoController::class, 'actualizarEstado'])->name('llamados.actualizarEstado');
 
-        // Actas de coordinación
+        // Actas de coordinación. La ruta AJAX de aprendices por ficha se declara
+        // ANTES del resource para no colisionar con /actas/{acta}.
+        Route::get('actas/aprendices-por-ficha/{ficha}', [ActaController::class, 'aprendicesPorFicha'])->name('actas.aprendicesPorFicha');
         Route::resource('actas', ActaController::class)->parameters(['actas' => 'acta']);
 
         // Procesos disciplinarios

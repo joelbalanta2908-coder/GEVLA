@@ -9,10 +9,13 @@ use App\Models\Aprendiz;
 use App\Models\Falta;
 use App\Models\Ficha;
 use App\Models\LlamadoAtencion;
+use App\Models\Matricula;
 use App\Models\NotificacionUsuario;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -73,8 +76,8 @@ class ActaController extends Controller
      */
     public function create(Request $request): View
     {
-        $aprendices = Aprendiz::with('usuario')->get();
         $faltas = Falta::all();
+        $fichas = Ficha::with('programa')->orderBy('numero_ficha')->get();
 
         // Si viene desde el detalle de un llamado, precargamos el llamado seleccionado.
         $llamadoSeleccionado = null;
@@ -82,11 +85,56 @@ class ActaController extends Controller
             $llamadoSeleccionado = LlamadoAtencion::find($idLlamado);
         }
 
+        // Ficha preseleccionada: la enviada en el intento anterior (old) o la de
+        // la matrícula más reciente del aprendiz del llamado de origen. Con ella
+        // se precarga la lista de aprendices para que el formulario no arranque
+        // vacío al volver de un error de validación o al venir desde un llamado.
+        $fichaSeleccionada = (int) old('id_ficha', 0);
+        if (! $fichaSeleccionada && $llamadoSeleccionado) {
+            $matricula = Matricula::where('id_aprendiz', $llamadoSeleccionado->id_aprendiz)
+                ->orderByRaw("estado_matricula = 'activa' DESC")
+                ->orderByDesc('fecha_matricula')
+                ->first();
+            $fichaSeleccionada = (int) ($matricula->id_ficha ?? 0);
+        }
+
+        $aprendicesFicha = $fichaSeleccionada
+            ? $this->aprendicesDeFicha($fichaSeleccionada)
+            : collect();
+
         return view('coordinacion.actas.create', compact(
-            'aprendices',
             'faltas',
+            'fichas',
             'llamadoSeleccionado',
+            'fichaSeleccionada',
+            'aprendicesFicha',
         ));
+    }
+
+    /**
+     * Devuelve en JSON los aprendices matriculados en una ficha (para el
+     * selector dependiente del formulario de actas).
+     */
+    public function aprendicesPorFicha(Ficha $ficha): JsonResponse
+    {
+        return response()->json($this->aprendicesDeFicha((int) $ficha->id_ficha));
+    }
+
+    /**
+     * Aprendices matriculados en la ficha, con los datos mínimos del selector.
+     */
+    private function aprendicesDeFicha(int $idFicha): Collection
+    {
+        return Aprendiz::with('usuario')
+            ->whereHas('matriculas', fn ($q) => $q->where('id_ficha', $idFicha))
+            ->get()
+            ->map(fn (Aprendiz $aprendiz) => [
+                'id'        => $aprendiz->id_aprendiz,
+                'nombre'    => trim(($aprendiz->usuario->nombres ?? '') . ' ' . ($aprendiz->usuario->apellidos ?? '')),
+                'documento' => (string) ($aprendiz->usuario->numero_documento ?? ''),
+            ])
+            ->sortBy('nombre', SORT_NATURAL | SORT_FLAG_CASE)
+            ->values();
     }
 
     /**

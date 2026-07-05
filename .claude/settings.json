@@ -10,7 +10,9 @@
       "Bash(php -l app/Http/Controllers/CoordinacionController.php)",
       "Bash(php -l app/Http/Controllers/AprendizController.php)",
       "Bash(php artisan *)",
-      "Bash(echo \"---exit:$?---\")"
+      "Bash(echo \"---exit:$?---\")",
+      "PowerShell(php artisan tinker --execute='$f = App\\\\Models\\\\Ficha::first\\(\\); echo \"Ficha: \" . $f->numero_ficha . PHP_EOL; echo \\(new App\\\\Http\\\\Controllers\\\\ActaController\\(\\)\\)->aprendicesPorFicha\\($f\\)->getContent\\(\\);')",
+      "PowerShell(php artisan tinker --execute='$f = App\\\\Models\\\\Ficha::first\\(\\); echo $f->numero_ficha . PHP_EOL; echo \\(new App\\\\Http\\\\Controllers\\\\ActaController\\(\\)\\)->aprendicesPorFicha\\($f\\)->getContent\\(\\);')"
     ]
   }
 }
