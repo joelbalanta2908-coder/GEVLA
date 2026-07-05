@@ -144,13 +144,13 @@
                             @endphp
                             <tr>
                                 <td class="px-6 py-4 font-bold text-slate-900" data-label="ID">#{{ $llamado->id_llamado }}</td>
-                                <td class="px-6 py-4" data-label="Fecha">{{ \Carbon\Carbon::parse($llamado->fecha_llamado)->format('d/m/Y') }}</td>
+                                <td class="whitespace-nowrap px-6 py-4" data-label="Fecha">{{ \Carbon\Carbon::parse($llamado->fecha_llamado)->format('d/m/Y') }}</td>
                                 <td class="px-6 py-4 font-medium text-slate-900" data-label="Aprendiz">{{ $llamado->aprendiz->usuario->nombres }} {{ $llamado->aprendiz->usuario->apellidos }}</td>
-                                <td class="px-6 py-4" data-label="Ficha">{{ $fichaLl?->numero_ficha ?? '—' }}</td>
+                                <td class="whitespace-nowrap px-6 py-4" data-label="Ficha">{{ $fichaLl?->numero_ficha ?? '—' }}</td>
                                 <td class="px-6 py-4" data-label="Programa">{{ $fichaLl?->programa?->nombre_programa ?? '—' }}</td>
                                 <td class="px-6 py-4" data-label="Asunto">{{ $llamado->asunto }}</td>
                                 <td class="px-6 py-4" data-label="Estado">
-                                    <span class="inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.08em] {{ $estadoBadge }}">
+                                    <span class="inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.08em] {{ $estadoBadge }}">
                                         {{ str($llamado->estado_llamado)->replace('_',' ')->ucfirst() }}
                                     </span>
                                 </td>
