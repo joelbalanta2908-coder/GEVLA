@@ -31,6 +31,18 @@ Route::post('/logout', [LoginController::class, 'logout'])
     ->name('logout')
     ->middleware('auth');
 
+// Recuperación de contraseña en 3 pasos: correo → código → nueva contraseña.
+// Los POST llevan throttle para frenar abusos (envíos y adivinanza de códigos).
+Route::middleware('guest')->group(function () {
+    Route::get('/recuperar', [\App\Http\Controllers\Auth\RecuperacionController::class, 'mostrarSolicitud'])->name('recuperar.solicitud');
+    Route::post('/recuperar', [\App\Http\Controllers\Auth\RecuperacionController::class, 'enviarCodigo'])->middleware('throttle:6,1')->name('recuperar.enviar');
+    Route::get('/recuperar/codigo', [\App\Http\Controllers\Auth\RecuperacionController::class, 'mostrarCodigo'])->name('recuperar.codigo');
+    Route::post('/recuperar/codigo', [\App\Http\Controllers\Auth\RecuperacionController::class, 'verificarCodigo'])->middleware('throttle:10,1')->name('recuperar.verificar');
+    Route::post('/recuperar/reenviar', [\App\Http\Controllers\Auth\RecuperacionController::class, 'reenviarCodigo'])->middleware('throttle:3,1')->name('recuperar.reenviar');
+    Route::get('/recuperar/nueva', [\App\Http\Controllers\Auth\RecuperacionController::class, 'mostrarNueva'])->name('recuperar.nueva');
+    Route::post('/recuperar/nueva', [\App\Http\Controllers\Auth\RecuperacionController::class, 'guardarNueva'])->name('recuperar.guardar');
+});
+
 Route::middleware('auth')->group(function () {
 
     // Cambio dinámico de rol activo (para usuarios con varios roles asignados).

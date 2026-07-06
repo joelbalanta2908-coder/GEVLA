@@ -232,7 +232,7 @@
                         <input type="checkbox" name="remember" class="h-4 w-4 rounded border-slate-300" style="accent-color: #39A900;">
                         Recordarme
                     </label>
-                    <span class="text-xs font-medium text-slate-400">¿Problemas para ingresar? Contacta a coordinación.</span>
+                    <a href="{{ route('recuperar.solicitud') }}" class="text-xs font-bold text-[#39A900] transition hover:text-[#247200]">¿Olvidaste tu contraseña?</a>
                 </div>
 
                 <button type="submit" id="login-submit" class="btn-primary group flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold text-white transition focus:outline-none">

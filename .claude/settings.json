@@ -16,7 +16,25 @@
       "PowerShell(php \"C:\\\\Users\\\\ROMOM\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-ROMOM-Downloads-GEVLA2-GEVLA\\\\00f54656-8ff9-406e-a28a-f6de25fd1c1f\\\\scratchpad\\\\arreglar_bordes.php\")",
       "PowerShell(php \"C:\\\\Users\\\\ROMOM\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-ROMOM-Downloads-GEVLA2-GEVLA\\\\00f54656-8ff9-406e-a28a-f6de25fd1c1f\\\\scratchpad\\\\arreglar_bordes.php\" --aplicar)",
       "PowerShell(php -l app\\\\Models\\\\NotificacionUsuario.php)",
-      "PowerShell(php -l app\\\\Http\\\\Controllers\\\\NotificacionController.php)"
+      "PowerShell(php -l app\\\\Http\\\\Controllers\\\\NotificacionController.php)",
+      "Bash(php -r ' *)",
+      "Bash(composer require *)",
+      "Read(//c/Program Files/Git/mingw64/etc/ssl/certs/**)",
+      "Read(//c/xampp/php/extras/ssl/**)",
+      "Read(//c/xampp/apache/bin/**)",
+      "Bash(php -r \"echo ini_get\\('openssl.cafile'\\) ?: 'sin openssl.cafile';\")",
+      "Bash(COMPOSER_CAFILE=\"/c/Program Files/Git/mingw64/etc/ssl/certs/ca-bundle.crt\" composer require phpmailer/phpmailer --no-interaction)",
+      "Bash(COMPOSER_CAFILE=\"C:\\\\\\\\Program Files\\\\\\\\Git\\\\\\\\mingw64\\\\\\\\etc\\\\\\\\ssl\\\\\\\\certs\\\\\\\\ca-bundle.crt\" composer require phpmailer/phpmailer --no-interaction)",
+      "Bash(curl -sI https://repo.packagist.org/p2/phpmailer/phpmailer.json)",
+      "Bash(php -r '$c = curl_init\\(\"https://repo.packagist.org/p2/phpmailer/phpmailer.json\"\\); curl_setopt\\($c, CURLOPT_RETURNTRANSFER, 1\\); curl_setopt\\($c, CURLOPT_CAINFO, \"C:\\\\\\\\Program Files\\\\\\\\Git\\\\\\\\mingw64\\\\\\\\etc\\\\\\\\ssl\\\\\\\\certs\\\\\\\\ca-bundle.crt\"\\); curl_setopt\\($c, CURLOPT_NOBODY, 1\\); curl_exec\\($c\\); echo \"PHP+bundleGit: \" . \\(curl_errno\\($c\\) ? curl_error\\($c\\) : \"HTTP \" . curl_getinfo\\($c, CURLINFO_HTTP_CODE\\)\\) . \"\\\\n\";')",
+      "Bash(curl -I --max-time 15 https://repo.packagist.org/p2/phpmailer/phpmailer.json)",
+      "Bash(php -r '$c = curl_init\\(\"https://repo.packagist.org/p2/phpmailer/phpmailer.json\"\\); curl_setopt\\($c, CURLOPT_RETURNTRANSFER, 1\\); curl_setopt\\($c, CURLOPT_CAINFO, \"C:/Program Files/Git/mingw64/etc/ssl/certs/ca-bundle.crt\"\\); curl_setopt\\($c, CURLOPT_NOBODY, 1\\); curl_exec\\($c\\); echo \"PHP+bundleGit: \" . \\(curl_errno\\($c\\) ? curl_error\\($c\\) : \"HTTP \" . curl_getinfo\\($c, CURLINFO_HTTP_CODE\\)\\) . \"\\\\n\";')",
+      "Bash(curl --ssl-no-revoke -sL --max-time 120 -o phpmailer.zip https://github.com/PHPMailer/PHPMailer/archive/refs/tags/v6.9.3.zip)",
+      "Bash(powershell -NoProfile -Command \"Expand-Archive -Force phpmailer.zip .\")",
+      "Bash(composer dump-autoload *)",
+      "Bash(php -r 'require \"vendor/autoload.php\"; echo class_exists\\(\"PHPMailer\\\\\\\\PHPMailer\\\\\\\\PHPMailer\"\\) ? \"PHPMailer cargado OK, version \" . PHPMailer\\\\PHPMailer\\\\PHPMailer::VERSION : \"FALLO\";')",
+      "Bash(php -l app/Support/CorreoRecuperacion.php)",
+      "Bash(php -l app/Http/Controllers/Auth/RecuperacionController.php)"
     ]
   }
 }
