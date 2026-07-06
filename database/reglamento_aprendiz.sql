@@ -1,22 +1,26 @@
 -- =====================================================================
---  REGLAMENTO DEL APRENDIZ SENA (Acuerdo 09 de 2024)
+--  REGLAMENTO DEL APRENDIZ SENA (Acuerdo 009 de 2024) - VERSION COMPLETA
 --  Script listo para copiar y pegar en phpMyAdmin / consola MySQL.
 --  Base de datos: sena_disciplinario
 --
---  Incluye:
---   1) Columnas necesarias (calificacion en reglamento_articulo,
---      calificacion_falta e id_articulo en llamado_atencion).
---   2) Carga del reglamento: capitulos y articulos.
---   3) Las faltas (articulos) quedan clasificadas por calificacion
---      (leve / grave / muy_grave = gravisima) para el formulario de
---      llamados de atencion del instructor.
+--  Contiene el reglamento COMPLETO:
+--   - 5 capitulos.
+--   - Los 53 articulos (Art. 1 a Art. 53) con su contenido.
+--   - Todos los paragrafos del reglamento.
+--   - Los articulos "falta" clasificados por calificacion
+--     (leve / grave / muy_grave) que alimentan el selector de faltas
+--     del formulario de llamados de atencion del instructor. Estos
+--     conservan sus ids (8..29) para no romper los llamados existentes
+--     que los referencian mediante llamado_atencion.id_articulo.
 --
---  NOTA: si ya ejecutaste "php artisan migrate", las columnas ya existen;
---  los ALTER de abajo usan "IF NOT EXISTS" y no causaran error.
+--  Convencion: texto sin tildes ni enie para garantizar una importacion
+--  limpia en cualquier configuracion de phpMyAdmin.
+--
+--  Es seguro reejecutarlo: borra el reglamento y lo vuelve a cargar.
 -- =====================================================================
 
 -- ---------------------------------------------------------------------
--- 1) Columnas requeridas
+-- 1) Columnas requeridas (si ya se migro, no causan error)
 -- ---------------------------------------------------------------------
 ALTER TABLE `reglamento_articulo`
   ADD COLUMN IF NOT EXISTS `calificacion` ENUM('leve','grave','muy_grave') NULL AFTER `titulo`;
@@ -28,7 +32,7 @@ ALTER TABLE `llamado_atencion`
   ADD COLUMN IF NOT EXISTS `id_articulo` INT(11) NULL AFTER `calificacion_falta`;
 
 -- ---------------------------------------------------------------------
--- 2) Limpieza previa del reglamento (evita duplicados al reejecutar)
+-- 2) Limpieza previa (evita duplicados al reejecutar)
 -- ---------------------------------------------------------------------
 SET FOREIGN_KEY_CHECKS = 0;
 DELETE FROM `reglamento_paragrafo`;
@@ -41,33 +45,106 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- 3) Reglamento
 -- ---------------------------------------------------------------------
 INSERT INTO `reglamento_aprendiz` (`id_reglamento`, `nombre_reglamento`, `version`, `fecha_vigencia`, `descripcion`) VALUES
-(1, 'Reglamento del Aprendiz SENA', 'Acuerdo 09 de 2024', '2024-11-05', 'Reglamento del Aprendiz del Servicio Nacional de Aprendizaje SENA. Deroga los Acuerdos 07 de 2012, 02 de 2014, 06 de 2023 y 02 de 2024.');
+(1, 'Reglamento del Aprendiz SENA', 'Acuerdo 009 de 2024', '2024-11-05', 'Reglamento del Aprendiz del Servicio Nacional de Aprendizaje SENA, adoptado por el Consejo Directivo Nacional. Deroga los Acuerdos 07 de 2012, 02 de 2014, 06 de 2023 y 02 de 2024.');
 
 -- ---------------------------------------------------------------------
 -- 4) Capitulos
 -- ---------------------------------------------------------------------
 INSERT INTO `reglamento_capitulo` (`id_capitulo`, `id_reglamento`, `numero_capitulo`, `titulo`, `descripcion`) VALUES
-(1, 1, 'I',   'Definiciones', 'Definiciones, alcance y principios orientadores.'),
-(2, 1, 'II',  'Derechos del Aprendiz SENA', 'Derechos, reconocimientos formativos y representatividad.'),
-(3, 1, 'III', 'Deberes del Aprendiz SENA', 'Deberes y prohibiciones del aprendiz.'),
-(4, 1, 'IV',  'Ingreso, Permanencia y Certificacion', 'Reglas de ingreso, formacion, evaluacion y certificacion.'),
-(5, 1, 'V',   'Regimen de Faltas, Medidas Formativas, Disciplinarias y Sancionatorias', 'Clasificacion de faltas y procedimiento sancionatorio.');
+(1, 1, 'I',   'Definiciones', 'Definiciones, alcance del reglamento, principios orientadores y centro de convivencia.'),
+(2, 1, 'II',  'Derechos del Aprendiz SENA', 'Derechos, reconocimientos formativos y representatividad de los aprendices.'),
+(3, 1, 'III', 'Deberes del Aprendiz SENA', 'Deberes, obligaciones y prohibiciones del aprendiz.'),
+(4, 1, 'IV',  'Ingreso, Permanencia y Certificacion', 'Ingreso, novedades, formacion, evaluacion, certificacion, desercion y reingreso.'),
+(5, 1, 'V',   'Regimen de Faltas, Medidas Formativas, Disciplinarias y Sancionatorias', 'Faltas, calificacion, medidas formativas, sancionatorias y procedimiento sancionatorio.');
 
 -- ---------------------------------------------------------------------
--- 5) Articulos generales (sin calificacion)
+-- 5) CAPITULO I - Definiciones (Art. 1 a Art. 4)
 -- ---------------------------------------------------------------------
 INSERT INTO `reglamento_articulo` (`id_articulo`, `id_capitulo`, `numero_articulo`, `titulo`, `calificacion`, `contenido`) VALUES
-(1, 1, 'Art. 1',  'Definiciones', NULL, 'Definiciones aplicables al reglamento: formacion profesional integral, comunidad educativa, aspirante, aprendiz y grupo.'),
-(2, 2, 'Art. 5',  'Derechos del aprendiz SENA', NULL, 'Conjunto de derechos del aprendiz durante su proceso formativo.'),
-(3, 3, 'Art. 8',  'Deberes del aprendiz SENA', NULL, 'Deberes academicos, disciplinarios y administrativos del aprendiz.'),
-(4, 3, 'Art. 9',  'Prohibiciones', NULL, 'Conductas prohibidas para los aprendices del SENA.'),
-(5, 5, 'Art. 42', 'Calificacion de las faltas', NULL, 'Las faltas se califican como leves, graves o gravisimas, previo cumplimiento del debido proceso.'),
-(6, 5, 'Art. 46', 'Tipos de medidas formativas', NULL, 'Medidas formativas academicas y disciplinarias: llamados de atencion y planes de mejoramiento.'),
-(7, 5, 'Art. 47', 'Medidas sancionatorias', NULL, 'Condicionamiento de matricula y cancelacion de matricula.');
+(101, 1, 'Art. 1', 'Definiciones', NULL, 'Para los efectos del reglamento se tienen en cuenta las siguientes definiciones: 1) Formacion profesional integral: proceso educativo teorico-practico de caracter integral, orientado al desarrollo de conocimientos tecnicos, tecnologicos, humanistas y de actitudes, valores y habilidades socioemocionales para el crecimiento personal y la convivencia social. 2) Comunidad educativa SENA: la conforman los aprendices, los instructores, el personal administrativo y de apoyo, los directivos, la familia o acudientes, los egresados, los empresarios, las instituciones educativas, los representantes de los trabajadores y de los sectores de las economias popular, campesina, LGTBIQ+, negritudes, raizales, palenqueros, afrodescendientes, indigenas, victimas y personas con discapacidad. 3) Aspirante: toda persona que se encuentra participando del proceso de ingreso para matricularse. 4) Aprendiz: persona matriculada en los programas de formacion profesional del SENA en sus diferentes modalidades. 5) Grupo: conjunto de aprendices matriculados en un determinado centro de formacion, programa y jornada, con una fecha de inicio y fin definida e identificada con un numero.'),
+(102, 1, 'Art. 2', 'Alcance del reglamento', NULL, 'Este reglamento aplica para el aspirante en lo referente al proceso de ingreso y para el aprendiz del SENA durante todo su proceso formativo y de certificacion, en todas las sedes, jornadas, niveles, modalidades y tipos de formacion. Se extiende a los lugares y actividades en los que el aprendiz desarrolla su formacion profesional dentro o fuera de la entidad.'),
+(103, 1, 'Art. 3', 'Principios orientadores', NULL, 'Los principios que orientan el reglamento se fundamentan en la Constitucion Politica de Colombia y son: 1) Autonomia: los aprendices son agentes corresponsables de su proceso formativo. 2) Dignidad: todas las personas tienen derecho a una vida digna y segura. 3) Inclusion: los aprendices deben ser reconocidos en su diversidad bajo un enfoque diferencial, sin distingos de credo, etnia, edad, genero, orientacion e identidad sexual u origen territorial. 4) Enfoque diferencial: reconocimiento de caracteristicas particulares por edad, genero, pertenencia etnica, orientacion sexual o situacion de discapacidad. 5) Enfoque territorial: vision sistemica y holistica del territorio. 6) Participacion: intervencion individual y colectiva de los aprendices. 7) Desarrollo sostenible: fomento de la sostenibilidad ambiental, economica, cultural y social. 8) Solidaridad: atencion especial a personas y comunidades en situacion de vulnerabilidad.'),
+(104, 1, 'Art. 4', 'Centro de Convivencia', NULL, 'Es una atencion complementaria del proceso formativo a traves de la cual se brinda alojamiento y alimentacion para aprendices seleccionados.');
 
 -- ---------------------------------------------------------------------
--- 6) FALTAS LEVES  (calificacion = 'leve')
+-- 6) CAPITULO II - Derechos del Aprendiz SENA (Art. 5 a Art. 7)
 -- ---------------------------------------------------------------------
+INSERT INTO `reglamento_articulo` (`id_articulo`, `id_capitulo`, `numero_articulo`, `titulo`, `calificacion`, `contenido`) VALUES
+(105, 2, 'Art. 5', 'Derechos del aprendiz SENA', NULL, 'Son derechos del aprendiz, entre otros: recibir induccion sobre el reglamento y la organizacion de la entidad; recibir formacion profesional integral de calidad; ser acreditado como aprendiz del SENA; tener a su disposicion la infraestructura y recursos del centro de formacion; recibir los elementos de proteccion personal; disfrutar del plan nacional integral de bienestar; recibir orientacion humanista, ocupacional y actitudinal; ser reconocido como persona con discapacidad o como parte de grupos de especial proteccion cuando lo sea; tener el debido proceso en las etapas de la formacion y en los procesos administrativos y disciplinarios, con derecho de defensa y contradiccion; ser notificado de las novedades academicas, administrativas o disciplinarias y de las sanciones; ser escuchado y atendido en sus peticiones; recibir asesoria para activar rutas de atencion; participar en el mejoramiento continuo; ser evaluado objetiva e integralmente y conocer los resultados dentro de los ocho (8) dias habiles siguientes; solicitar la revision de las evaluaciones; recibir informacion sobre la etapa productiva; recibir trato digno, respetuoso e igualitario; expresar con libertad su pensamiento; postularse en estrategias de fortalecimiento del ser integral; participar en la eleccion de representantes y voceros; desarrollar las evaluaciones realizadas en su ausencia con justificacion; recibir acompanamiento para la seleccion de la modalidad de la etapa productiva; y obtener la certificacion o titulo cuando apruebe todos los resultados de aprendizaje.'),
+(106, 2, 'Art. 6', 'Reconocimientos formativos', NULL, 'Los reconocimientos formativos son beneficios que se otorgan a los aprendices para promover su permanencia o como valoracion de actuaciones meritorias o logros sobresalientes, otorgados por el Subdirector del Centro de Formacion. Son: 1) Mencion de honor por desempeno sobresaliente. 2) Representar al SENA en eventos, concursos y competencias. 3) Ser seleccionado para una practica formativa o participar en eventos nacionales o internacionales. 4) Ser seleccionado como monitor de un tema especifico.'),
+(107, 2, 'Art. 7', 'Representatividad de los aprendices', NULL, 'Es una estrategia institucional y ejercicio democratico que permite la participacion libre de los aprendices. Se materializa mediante tres rutas: 1) eleccion de representantes de aprendices de los centros de formacion por jornada y modalidad; 2) eleccion de voceros de grupos de formacion; y 3) eleccion de voceros de las poblaciones identificadas con enfoque diferencial en cada centro de formacion. La eleccion de representantes se realiza en el mes de septiembre.');
+
+-- ---------------------------------------------------------------------
+-- 7) CAPITULO III - Deberes del Aprendiz SENA (Art. 8 y Art. 9)
+-- ---------------------------------------------------------------------
+INSERT INTO `reglamento_articulo` (`id_articulo`, `id_capitulo`, `numero_articulo`, `titulo`, `calificacion`, `contenido`) VALUES
+(108, 3, 'Art. 8', 'Deberes del aprendiz SENA', NULL, 'Son deberes del aprendiz, entre otros: suscribir el acta de compromiso al asentar la matricula; conocer y cumplir el reglamento y las normas del SENA; actuar con base en los principios y valores institucionales; registrar y mantener actualizados sus datos en los sistemas de la entidad; asistir con puntualidad a todas las actividades de formacion; cumplir con las actividades y presentar evidencias segun la planeacion pedagogica y el cronograma; justificar debidamente las inasistencias o incumplimientos; reportar oportunamente al instructor y al coordinador academico las situaciones que afecten la formacion; cumplir la reglamentacion para su participacion en actividades; gestionar las novedades por los canales establecidos; hacer uso apropiado de los ambientes de formacion y sus componentes; respetar los derechos de autor y la propiedad intelectual; realizar personalmente las evaluaciones y practicas sin presentar como propios trabajos ajenos; respetar y conservar los bienes y recursos; usar y promover el uso de los elementos de proteccion personal; cumplir los protocolos de bioseguridad; acatar las normativas de la etapa productiva; atender las indicaciones de identificacion de usuarios; portar las prendas y elementos de trabajo y proteccion; ingresar debidamente identificado a las plataformas virtuales con usuario personal e intransferible; informar afectaciones a la salud; y entregar oportunamente la documentacion veraz requerida en los procesos de ingreso, matricula, formacion, certificacion y postulacion a beneficios.'),
+(109, 3, 'Art. 9', 'Prohibiciones', NULL, 'Se consideran prohibiciones para los aprendices: 1) aportar documentos o registrar informacion que difiera de la real para obtener un beneficio; 2) suplantar identidad en cualquier tramite academico o administrativo; 3) alterar, falsificar o sustraer documentos publicos o privados; 4) plagiar materiales, trabajos y documentos o cometer fraude en actividades evaluativas, concursos o competencias; 5) utilizar el internet y las TIC del SENA para acceder, generar, transmitir o publicar informacion confidencial, inadecuada, violenta, ilegal, pornografica, insultos o agresiones; 6) ingerir, ingresar, comercializar, promocionar o suministrar bebidas alcoholicas o sustancias psicoactivas, o ingresar bajo su efecto; 7) ingresar o portar armas, objetos cortopunzantes, explosivos u otros artefactos que representen riesgo; 8) utilizar el nombre, instalaciones, internet y TIC del SENA para actividades particulares ajenas a la formacion; 9) cometer, ser complice o participe de delitos contra la comunidad educativa o la institucion; 10) destruir, sustraer o danar total o parcialmente instalaciones, equipos, materiales o bienes; 11) realizar acciones proselitistas de caracter politico o religioso; 12) ingresar o salir por sitios diferentes a la porteria saltando muros, cercas o violentando puertas; 13) dibujar o escribir sobre objetos o muebles, o pegar avisos no autorizados o mensajes de hostigamiento, acoso (bullying, mobbing); y 14) discriminar a cualquier miembro de la comunidad SENA.');
+
+-- ---------------------------------------------------------------------
+-- 8) CAPITULO IV - Ingreso, Permanencia y Certificacion (Art. 10 a Art. 38)
+-- ---------------------------------------------------------------------
+INSERT INTO `reglamento_articulo` (`id_articulo`, `id_capitulo`, `numero_articulo`, `titulo`, `calificacion`, `contenido`) VALUES
+(110, 4, 'Art. 10', 'Reglas generales de ingreso', NULL, 'Para el ingreso a los programas de formacion el aspirante debe surtir las etapas de registro, inscripcion, seleccion (cuando aplique) y matricula. La edad minima de los aspirantes es de catorce (14) anos. Para los niveles tecnico, operario y auxiliar no se exigen titulos academicos; los programas tecnologicos exigen titulo de bachiller y certificacion de la prueba ICFES (Saber 11). Los aspirantes menores de edad requieren consentimiento informado de uno de los padres, acudiente o apoderado.'),
+(111, 4, 'Art. 11', 'Etapa de registro', NULL, 'El registro es el procedimiento mediante el cual el usuario ingresa sus datos personales y de contacto en el sistema de gestion academica administrativa bajo su responsabilidad y acepta las politicas de seguridad, confidencialidad y tratamiento de datos personales. El registro es unico, personal e intransferible.'),
+(112, 4, 'Art. 12', 'Etapa de inscripcion', NULL, 'La inscripcion es el acto mediante el cual una persona previamente registrada diligencia el formato de inscripcion y elige el programa de formacion de su preferencia. El aspirante puede participar en charlas informativas, debe contar con usuario y contrasena, consultar periodicamente el estado de la inscripcion, diligenciar el formulario y cumplir los requisitos minimos de ingreso de cada programa.'),
+(113, 4, 'Art. 13', 'Restricciones para la inscripcion', NULL, 'El aspirante no podra inscribirse en programas de formacion laboral o tecnologica si: 1) tiene otra inscripcion vigente en un programa laboral o tecnologico; 2) ha sido citado para presentar las pruebas de seleccion; 3) presento pruebas de seleccion y fue seleccionado; 4) se encuentra seleccionado y fue convocado a asentar matricula; o 5) por las que establezcan normas de caracter superior.'),
+(114, 4, 'Art. 14', 'Etapa de seleccion', NULL, 'La seleccion es la actividad del ingreso mediante la cual se verifican conocimientos, aptitudes, actitudes y demas requisitos a los aspirantes de acuerdo con el perfil de ingreso esperado. Se realiza mediante dos pruebas: prueba de competencias por la web (fase I) y prueba controlada o taller (fase II), esta ultima discrecional del centro de formacion. Las pruebas de seleccion son de uso exclusivo y dominio institucional.'),
+(115, 4, 'Art. 15', 'Etapa de matricula', NULL, 'La matricula es la formalizacion del ingreso del aspirante admitido mediante su asentamiento y legalizacion en el sistema, previo cumplimiento de los requisitos de ingreso y la firma del compromiso del aprendiz. Con la matricula el aspirante adquiere o renueva su calidad de aprendiz y acepta el reglamento. El SENA no guarda ni reserva cupos.'),
+(116, 4, 'Art. 16', 'Tramites academicos y administrativos durante la formacion', NULL, 'Son las gestiones que el aprendiz realiza durante la matricula, la gestion de novedades y la certificacion, con el proposito de realizar solicitudes de traslado, aplazamiento, reintegro, retiro voluntario, certificacion y reingreso.'),
+(117, 4, 'Art. 17', 'Tramite de novedades academicas y administrativas', NULL, 'Las novedades tienen el siguiente paso a paso: 1) registrar la solicitud en el sistema; 2) radicar la solicitud por los canales institucionales dirigida a la Subdireccion del Centro; 3) el Centro analiza la solicitud a traves del Comite de Evaluacion y Seguimiento; 4) el Comite sesiona y elabora el acta y el Subdirector aprueba; 5) el Coordinador Academico notifica al aprendiz; 6) se registran las novedades dentro de los 8 dias calendario siguientes a la firmeza; y 7) el aprendiz puede interponer el recurso correspondiente.'),
+(118, 4, 'Art. 18', 'Novedades durante la formacion', NULL, 'Son novedades durante el proceso de formacion: el traslado, el aplazamiento, el reintegro y el retiro voluntario. El traslado es la solicitud para continuar la formacion en otro grupo, centro, jornada o modalidad. El aplazamiento es la suspension temporal por causas justificadas que impiden asistir por veinte (20) o mas dias continuos. El reintegro es la solicitud para retomar la formacion luego de un aplazamiento. El retiro voluntario es la solicitud del retiro definitivo del programa.'),
+(119, 4, 'Art. 19', 'Certificacion', NULL, 'La certificacion es el procedimiento mediante el cual la entidad hace el reconocimiento formal de los resultados aprobados por el aprendiz durante su proceso formativo. El aprendiz debe verificar sus datos, encontrarse en estado por certificar, presentar las pruebas exigidas y estar registrado en la Agencia Publica de Empleo. El Centro cuenta con maximo treinta (30) dias calendario para la expedicion del certificado.'),
+(120, 4, 'Art. 20', 'Expedicion de documentos academicos', NULL, 'Los documentos academicos son expedidos por el Centro de Formacion sin costo para el aprendiz. Los titulos, actas de grado, constancias y certificados obtenidos a partir del ano 2010 se pueden descargar en formato digital desde el portal web de certificacion. La consulta de los certificados digitales del SENA es de caracter publico.'),
+(121, 4, 'Art. 21', 'Validacion de documentos academicos SENA', NULL, 'La validacion de documentos academicos, para tramites de apostilla o legalizacion, consiste en la solicitud que hace el aprendiz ante el Centro de Formacion donde le fueron expedidos sus certificados. Los documentos expedidos a partir del 15 de septiembre de 2020 no requieren validacion por el acuerdo interinstitucional entre el SENA y la Cancilleria de Colombia.'),
+(122, 4, 'Art. 22', 'Tramite reingreso', NULL, 'El reingreso inicia con la solicitud formal que hace una persona que estuvo matriculada en un programa laboral o tecnologico y se desvinculo por retiro voluntario o cancelacion de matricula academica, con el proposito de continuar su formacion. Este tramite solo podra solicitarse por una unica vez.'),
+(123, 4, 'Art. 23', 'Condiciones para el reingreso', NULL, 'Para acogerse al reingreso se debe: a) haber cursado un programa laboral o tecnologico sin certificarse; b) estar reportado por cancelacion de matricula o retiro voluntario; c) solicitar por escrito el tramite; y d) responder sobre la aceptacion de las condiciones reglamentarias vigentes del programa.'),
+(124, 4, 'Art. 24', 'Procedimiento para el reingreso', NULL, 'La persona realiza la solicitud por escrito al Centro. El equipo tecnico (Coordinacion Academica, un instructor tecnico y un instructor transversal) analiza y evalua la solicitud y elabora el acta para firma del Subdirector, quien da respuesta en un plazo no mayor a quince (15) dias habiles. Si es positiva, emite el acto administrativo que autoriza el reingreso; el solicitante legaliza en un termino no mayor a treinta (30) dias calendario y se le asigna ruta de formacion.'),
+(125, 4, 'Art. 25', 'Seguimiento a la implementacion del tramite de reingreso', NULL, 'Las Subdirecciones de los Centros de Formacion deberan suministrar a la Direccion Regional y a la Direccion de Formacion Profesional el reporte de los aprendices que se acogen a este tramite y realizar el seguimiento, informando semestralmente los resultados de su aplicacion.'),
+(126, 4, 'Art. 26', 'El proceso de formacion', NULL, 'El aprendiz es el gestor principal de su proceso de formacion. La ruta de aprendizaje esta conformada por la etapa lectiva y la etapa productiva en los casos que aplique. a) Etapa lectiva: se desarrolla segun la estrategia pedagogica teorico-practica en ambientes reales, simulados y virtuales. b) Etapa productiva: momento en el que el aprendiz aplica, complementa y consolida sus competencias mediante alternativas como contrato de aprendizaje, vinculo formativo, proyecto productivo, vinculo laboral, monitoria o practicas. La edad minima para la etapa productiva es de quince (15) anos.'),
+(127, 4, 'Art. 27', 'Cumplimiento satisfactorio del proceso formativo', NULL, 'Se configura cuando el aprendiz presenta evidencias de aprendizaje idoneas y pertinentes en las fechas establecidas, asiste y participa activamente en las actividades de su ruta de aprendizaje. La falta de ejecucion se cataloga como incumplimiento justificado o no justificado y se constituye en falta academica o disciplinaria segun el caso.'),
+(128, 4, 'Art. 28', 'Incumplimiento justificado', NULL, 'Se configura por inasistencias programadas (citas o incapacidades medicas, citaciones a diligencias electorales o judiciales, requerimientos laborales, autorizacion para representar al SENA, actividades de credo religioso, licencia de maternidad o paternidad) y por inasistencias no programadas o de fuerza mayor (muerte de un familiar hasta segundo grado, calamidad domestica, problemas de seguridad, problemas de salud propia o de familiar dependiente, urgencias de embarazo).'),
+(129, 4, 'Art. 29', 'Incumplimiento injustificado', NULL, 'Se configura cuando el aprendiz no reporta ni justifica los incumplimientos ante el instructor, previamente o dentro de los cinco (5) dias habiles siguientes con las evidencias respectivas; o cuando reporta su inasistencia en la oportunidad pero las causas y soportes no corresponden a las establecidas para incumplimientos justificados.'),
+(130, 4, 'Art. 30', 'Desercion', NULL, 'Se presenta por el abandono de la formacion por parte del aprendiz. Se configura por: 1) inasistencias al proceso de formacion (tres dias continuos o cinco no continuos de inasistencia injustificada en presencial; segun modalidad en virtual y a distancia); 2) incumplimiento de la etapa productiva; y 3) falta de gestion oportuna de novedades cuando no se solicita el reintegro al menos tres dias habiles antes de la fecha fin del aplazamiento.'),
+(131, 4, 'Art. 31', 'Procedimiento en caso de desercion', NULL, 'Segun el tipo de desercion, el instructor o el equipo ejecutor reportan la situacion al Comite de Evaluacion y Seguimiento. El Comite revisa el caso para confirmar el abandono y establecer la causa, pudiendo solicitar informacion adicional; de confirmar la desercion, califica la falta como grave y recomienda a la Subdireccion la cancelacion de la formacion por desercion.'),
+(132, 4, 'Art. 32', 'Evaluacion del proceso de aprendizaje', NULL, 'Se establece a partir de la comparacion continua y conjunta que realizan el aprendiz y el instructor segun los resultados de aprendizaje, los criterios de evaluacion y los avances logrados, con el objeto de realizar los ajustes necesarios. La evaluacion se dirige a evaluar la aplicacion que hace el aprendiz del conocimiento en practicas con resultados concretos y se realiza de forma cualitativa.'),
+(133, 4, 'Art. 33', 'Las evidencias de aprendizaje', NULL, 'Son los referentes a partir de los cuales se identifican los avances alcanzados por los aprendices. Pueden ser de conocimiento, de desempeno y de producto, y estan en relacion directa con los resultados de aprendizaje estipulados en el programa de formacion. Se obtienen a traves de la aplicacion de tecnicas e instrumentos de evaluacion.'),
+(134, 4, 'Art. 34', 'Principios del proceso de evaluacion', NULL, 'Los principios que rigen la evaluacion del aprendizaje son: 1) Participacion: interrelacion entre los actores responsables de la formacion. 2) Validez: la evaluacion se soporta en evidencias comprobables relacionadas con los resultados de aprendizaje. 3) Transparencia: los parametros y criterios son claros para todos. 4) Confiabilidad: el enfoque, la ejecucion y las politicas de la evaluacion son coherentes y conforman un sistema con instancias de control.'),
+(135, 4, 'Art. 35', 'Acompanamiento en el proceso evaluativo', NULL, 'El instructor o responsable analiza el avance del proceso de formacion con base en los criterios de evaluacion y la ruta de aprendizaje, identificando con el aprendiz sus logros y dificultades, retroalimentando de manera permanente y ajustando las estrategias en los casos que se requiera.'),
+(136, 4, 'Art. 36', 'Juicios de la Evaluacion', NULL, 'En el SENA se utilizan dos tipos de juicios de evaluacion para expresar los resultados de aprendizaje: 1) APROBADO, cuando el aprendiz alcanza los resultados de aprendizaje y competencias establecidas; y 2) NO APROBADO, cuando el aprendiz no alcanza los resultados de aprendizaje o competencias establecidas. Estos juicios se aplican a toda la formacion SENA.'),
+(137, 4, 'Art. 37', 'Seguimiento de los resultados', NULL, 'En caso de que el aprendiz no logre los resultados de aprendizaje propuestos, el instructor o equipo ejecutor del grupo aplicaran las medidas formativas academicas establecidas.'),
+(138, 4, 'Art. 38', 'Inconformidad con la evaluacion y revision', NULL, 'El aprendiz que este en desacuerdo con la evaluacion podra solicitar la revision: 1) solicita por escrito al instructor dentro de los dos (2) dias habiles siguientes; 2) el instructor responde dentro de los dos (2) dias habiles siguientes; 3) si persiste el desacuerdo, el aprendiz solicita un segundo evaluador ante la coordinacion academica; y 4) la coordinacion designa un segundo evaluador que emite una evaluacion definitiva dentro de los cinco (5) dias habiles siguientes.');
+
+-- ---------------------------------------------------------------------
+-- 9) CAPITULO V - Regimen de Faltas y Sanciones (Art. 39 a Art. 53)
+-- ---------------------------------------------------------------------
+INSERT INTO `reglamento_articulo` (`id_articulo`, `id_capitulo`, `numero_articulo`, `titulo`, `calificacion`, `contenido`) VALUES
+(139, 5, 'Art. 39', 'Principios orientadores del regimen de faltas', NULL, 'Los principios que orientan el regimen de faltas se fundamentan en la Constitucion y el Codigo General del Proceso: 1) Confidencialidad: custodia y reserva de la informacion y actuaciones. 2) Debido proceso: las medidas deben estar conforme a faltas y procesos definidos en normas preexistentes. 3) Culpabilidad: las faltas son sancionables a titulo de dolo o de culpa. 4) Inexistencia de doble sancion: ningun aprendiz puede ser sancionado dos veces por el mismo hecho.'),
+(140, 5, 'Art. 40', 'Las medidas disciplinarias, formativas, academicas y/o sancionatorias', NULL, 'Las medidas se aplican de acuerdo con la tipificacion de la falta cometida por el aprendiz. El regimen sancionatorio comprende la tipificacion y clasificacion de las faltas, el procedimiento sancionatorio y los demas aspectos necesarios para la adecuada aplicacion de las medidas, en todos los centros de formacion, sedes, ambientes y espacios externos donde participen los aprendices.'),
+(141, 5, 'Art. 41', 'Faltas', NULL, 'Se consideran faltas las acciones u omisiones del aprendiz que alteran el normal desarrollo de la formacion, la convivencia, el desempeno academico propio o de sus companeros, que configuren incumplimientos a sus deberes o prohibiciones. 1) Faltas academicas: relacionadas con el cumplimiento de los deberes de indole academico. 2) Faltas disciplinarias: relacionadas con factores comportamentales del aprendiz.'),
+(142, 5, 'Art. 42', 'Definicion de la calificacion de las faltas', NULL, 'Las faltas academicas y disciplinarias pueden calificarse, previo debido proceso, como: 1) Leves: hechos contrarios a los reglamentos que no ponen en riesgo significativo el orden, los intereses o derechos de la institucion o de terceros. 2) Graves: comportamientos que comprometen las normas basicas de convivencia y afectan de manera significativa a la institucion o a un miembro de la comunidad, o que ponen en peligro la integridad. 3) Gravisimas: faltas que por dolo atentan directamente contra los derechos humanos, la integridad fisica, psicologica o moral de las personas o los principios del SENA; dan lugar a la cancelacion de matricula.'),
+(143, 5, 'Art. 43', 'Calificacion de la falta', NULL, 'La calificacion de las faltas corresponde a las circunstancias previstas para su realizacion. Se consideran aspectos como: reincidir en la comision de faltas; que la falta recaiga sobre bienes de utilidad comun; ejecutar la falta por recompensa; conducta inspirada en moviles de intolerancia y discriminacion; emplear un medio de peligro comun; aprovechar circunstancias que dificulten la defensa; y ejecutar la falta con la intencion de hacer dano.'),
+(144, 5, 'Art. 44', 'Criterios para calificar la falta', NULL, 'Para la calificacion definitiva de la falta se tendran en cuenta: 1) los danos causados y sus efectos; 2) el grado de participacion del aprendiz; 3) los antecedentes academicos y disciplinarios; 4) haber procurado por iniciativa propia resarcir el dano; 5) haber devuelto, restituido o reparado el bien afectado; y 6) los parametros de calificacion senalados en el reglamento.'),
+(145, 5, 'Art. 45', 'Medidas formativas', NULL, 'Las medidas formativas son aquellas acciones que se aplican al aprendiz de los programas de formacion laboral y tecnologica cuando sea responsable de hechos que contrarien en menor grado el orden academico o disciplinario, sin afectar los derechos; o que se adoptan con el fin de prevenir su ocurrencia o generar cambios en el desempeno academico y comportamiento disciplinario.'),
+(146, 5, 'Art. 46', 'Tipos de medidas formativas', NULL, 'Se aplican segun el tipo de falta: 1) Medidas formativas academicas, de caracter pedagogico: a) Llamado de atencion academico, por escrito, hasta dos (2) por fase del proyecto formativo; b) Plan de mejoramiento academico, agotados los dos llamados, mediante documento firmado por el aprendiz, el instructor y el coordinador academico. 2) Medidas formativas disciplinarias, de caracter comportamental: a) Llamado de atencion disciplinario, hasta dos (2) escritos; b) Plan de mejoramiento disciplinario, concertado mediante acta con el aprendiz.'),
+(147, 5, 'Art. 47', 'Medidas sancionatorias', NULL, 'Son las medidas adoptadas ante una falta academica o disciplinaria, con cobertura nacional. 1) Condicionamiento de matricula: medida academica sancionatoria que se impone al aprendiz que incurra en una falta, previa aplicacion de las medidas formativas; una vez en firme, el aprendiz pierde los estimulos e incentivos. 2) Cancelacion de matricula: acto administrativo que se origina cuando persisten las causales del condicionamiento o por faltas graves o gravisimas, o situaciones consideradas desercion; implica el retiro del programa.');
+
+-- Articulos que ya alimentan el formulario de llamados: se conservan con
+-- sus mismos ids (48..57 no aplican; se enriquecen los procedimentales).
+INSERT INTO `reglamento_articulo` (`id_articulo`, `id_capitulo`, `numero_articulo`, `titulo`, `calificacion`, `contenido`) VALUES
+(148, 5, 'Art. 48', 'Equipos encargados de la valoracion de las medidas y sanciones', NULL, 'Para garantizar el debido proceso se tienen dos equipos encargados de revisar, analizar y documentar la falta y sugerir las sanciones: 1) Equipo ejecutor del grupo programa de formacion, conformado por los instructores de las competencias del programa y el aprendiz vocero del grupo; y 2) Comite de evaluacion y seguimiento del centro de formacion, que recomienda las medidas sancionatorias. Sus recomendaciones se entregan por escrito a la Subdireccion del Centro para su decision.'),
+(149, 5, 'Art. 49', 'Instancias decisorias de las medidas sancionatorias', NULL, 'Para la aplicacion de las medidas sancionatorias se tienen dos instancias: 1) primera instancia, la Subdireccion del Centro de Formacion Profesional Integral; y 2) segunda instancia, la Direccion Regional. Cuando el Subdirector ejerce funciones de Director Regional, la segunda instancia sera la Direccion Regional mas cercana geograficamente.'),
+(150, 5, 'Art. 50', 'Criterios para aplicacion de sanciones', NULL, 'En la aplicacion de sanciones se tendran en cuenta: 1) Publicidad: todo procedimiento se informa al aprendiz desde su inicio. 2) Contradiccion: el aprendiz puede ejercer su derecho de defensa y presentar descargos. 3) Presuncion de inocencia: la duda se resuelve a favor del aprendiz. 4) Valoracion integral de pruebas y descargos. 5) Motivacion de la decision. 6) Proporcionalidad de la medida. 7) Impugnacion de la decision. 8) Oportunidad en la atencion de los casos.'),
+(151, 5, 'Art. 51', 'Procedimiento para la aplicacion de sanciones', NULL, 'El procedimiento se cumple en las siguientes fases: 1) Recepcion y tramite del informe o queja, con apertura del expediente. 2) Citacion al aprendiz al Comite de evaluacion y seguimiento. 3) Sesion del Comite, donde el aprendiz presenta descargos y se reciben las pruebas. 4) Acto administrativo sancionatorio motivado expedido por la Subdireccion del Centro. 5) Notificacion al aprendiz con copia integra y los recursos que proceden. 6) Recurso de reposicion y en subsidio apelacion. 7) Firmeza del acto administrativo y registro de la sancion en el sistema.'),
+(152, 5, 'Art. 52', 'Certificacion de conducta y sanciones academicas y disciplinarias', NULL, 'El SENA podra expedir certificados de conducta y sanciones academicas y disciplinarias unicamente por solicitud del aprendiz o con su autorizacion. El SENA dejara constancia solo de las sanciones academicas o disciplinarias que esten vigentes o que se hayan impuesto en los ultimos 5 anos.'),
+(153, 5, 'Art. 53', 'Sujecion a la Constitucion y la ley', NULL, 'El presente Reglamento se aplicara con total sujecion a los principios y normas constitucionales y legales vigentes. Lo no expresamente previsto se resolvera segun las normas y principios legales generales aplicables a la formacion profesional integral conforme a las reglas de interpretacion de las normas.');
+
+-- ---------------------------------------------------------------------
+-- 10) FALTAS clasificadas por calificacion (alimentan el selector de
+--     faltas del formulario de llamados). Se conservan sus ids 8..29
+--     para no romper los llamados existentes que los referencian.
+-- ---------------------------------------------------------------------
+-- 10.1) FALTAS LEVES
 INSERT INTO `reglamento_articulo` (`id_articulo`, `id_capitulo`, `numero_articulo`, `titulo`, `calificacion`, `contenido`) VALUES
 (8,  5, 'Art. 8 #5',  'Impuntualidad o inasistencia esporadica a las actividades de formacion', 'leve', 'Hechos contrarios al reglamento que no ponen en riesgo significativo el orden o los derechos de terceros.'),
 (9,  5, 'Art. 8 #15', 'No usar los elementos de proteccion personal requeridos', 'leve', 'Incumplimiento de buenas practicas de seguridad y salud en el trabajo sin generar dano.'),
@@ -76,9 +153,7 @@ INSERT INTO `reglamento_articulo` (`id_articulo`, `id_capitulo`, `numero_articul
 (12, 5, 'Art. 8 #7',  'No justificar oportunamente las inasistencias o incumplimientos', 'leve', 'Incumplimiento del deber de justificar dentro de los terminos del reglamento.'),
 (13, 5, 'Art. 8 #4',  'No mantener actualizados los datos en los sistemas del SENA', 'leve', 'Incumplimiento del deber de registrar y actualizar la informacion personal.');
 
--- ---------------------------------------------------------------------
--- 7) FALTAS GRAVES  (calificacion = 'grave')
--- ---------------------------------------------------------------------
+-- 10.2) FALTAS GRAVES
 INSERT INTO `reglamento_articulo` (`id_articulo`, `id_capitulo`, `numero_articulo`, `titulo`, `calificacion`, `contenido`) VALUES
 (14, 5, 'Art. 9 #4',  'Plagiar trabajos o documentos, o cometer fraude en actividades evaluativas', 'grave', 'Comportamientos que cuestionan los principios y valores y perturban el proceso formativo.'),
 (15, 5, 'Art. 9 #2',  'Suplantar identidad en cualquier tramite academico o administrativo', 'grave', 'Afecta de manera significativa a la institucion o a un miembro de la comunidad.'),
@@ -89,9 +164,7 @@ INSERT INTO `reglamento_articulo` (`id_articulo`, `id_capitulo`, `numero_articul
 (20, 5, 'Art. 9 #12', 'Ingresar o salir por sitios no autorizados saltando muros o cerramientos', 'grave', 'Pone en riesgo la seguridad y el orden institucional.'),
 (21, 5, 'Art. 42 #1', 'Reincidencia en la comision de faltas leves', 'grave', 'La acumulacion o reincidencia de faltas leves puede derivar en falta grave.');
 
--- ---------------------------------------------------------------------
--- 8) FALTAS GRAVISIMAS  (calificacion = 'muy_grave')
--- ---------------------------------------------------------------------
+-- 10.3) FALTAS GRAVISIMAS
 INSERT INTO `reglamento_articulo` (`id_articulo`, `id_capitulo`, `numero_articulo`, `titulo`, `calificacion`, `contenido`) VALUES
 (22, 5, 'Art. 9 #6',  'Ingresar, consumir o comercializar bebidas alcoholicas o sustancias psicoactivas', 'muy_grave', 'Conductas que ponen en riesgo la vida y la integridad de las personas.'),
 (23, 5, 'Art. 9 #7',  'Ingresar o portar armas u objetos que pongan en riesgo la integridad', 'muy_grave', 'Atenta contra la integridad fisica de la comunidad educativa.'),
@@ -103,49 +176,93 @@ INSERT INTO `reglamento_articulo` (`id_articulo`, `id_capitulo`, `numero_articul
 (29, 5, 'Art. 42 #2', 'Conductas que atenten contra los derechos humanos o la integridad de las personas', 'muy_grave', 'Faltas gravisimas que dan lugar a la cancelacion de matricula.');
 
 -- ---------------------------------------------------------------------
--- 9) Articulos adicionales del reglamento (sin calificacion)
--- ---------------------------------------------------------------------
-INSERT INTO `reglamento_articulo` (`id_articulo`, `id_capitulo`, `numero_articulo`, `titulo`, `calificacion`, `contenido`) VALUES
-(30, 1, 'Art. 2',  'Alcance del reglamento', NULL, 'Aplica al aspirante en el proceso de ingreso y al aprendiz durante todo su proceso formativo y certificacion, en todas las sedes, jornadas, niveles y modalidades.'),
-(31, 1, 'Art. 3',  'Principios orientadores', NULL, 'Autonomia, dignidad, inclusion, enfoque diferencial, enfoque territorial, participacion, desarrollo sostenible y solidaridad.'),
-(32, 1, 'Art. 4',  'Centro de Convivencia', NULL, 'Atencion complementaria que brinda alojamiento y alimentacion para aprendices seleccionados.'),
-(33, 2, 'Art. 6',  'Reconocimientos formativos', NULL, 'Beneficios que se otorgan para promover la permanencia o valorar actuaciones meritorias: mencion de honor, representar al SENA, practicas y monitorias.'),
-(34, 2, 'Art. 7',  'Representatividad de los aprendices', NULL, 'Eleccion de representantes por jornada y modalidad, voceros de grupo y voceros de poblaciones con enfoque diferencial.'),
-(35, 4, 'Art. 10', 'Reglas generales de ingreso', NULL, 'Etapas de ingreso: registro, inscripcion, seleccion (cuando aplique) y matricula. Edad minima 14 anos.'),
-(36, 4, 'Art. 11', 'Etapa de registro', NULL, 'Procedimiento por el cual el usuario ingresa sus datos personales y de contacto y acepta las politicas de tratamiento de datos.'),
-(37, 4, 'Art. 12', 'Etapa de inscripcion', NULL, 'Acto por el cual una persona registrada diligencia el formato de inscripcion y elige el programa de formacion.'),
-(38, 4, 'Art. 14', 'Etapa de seleccion', NULL, 'Verificacion de conocimientos, aptitudes y requisitos mediante pruebas para establecer las competencias minimas de ingreso.'),
-(39, 4, 'Art. 15', 'Etapa de matricula', NULL, 'Formalizacion del ingreso del aspirante admitido mediante su asentamiento y legalizacion en el sistema.'),
-(40, 4, 'Art. 18', 'Novedades durante la formacion', NULL, 'Traslado, aplazamiento, reintegro y retiro voluntario.'),
-(41, 4, 'Art. 19', 'Certificacion', NULL, 'Reconocimiento formal de los resultados aprobados por el aprendiz durante su proceso formativo.'),
-(42, 4, 'Art. 26', 'El proceso de formacion', NULL, 'Ruta de aprendizaje conformada por la etapa lectiva y la etapa productiva en los casos que aplique.'),
-(43, 4, 'Art. 30', 'Desercion', NULL, 'Abandono de la formacion por inasistencias, incumplimiento de la etapa productiva o falta de gestion oportuna de novedades.'),
-(44, 4, 'Art. 32', 'Evaluacion del proceso de aprendizaje', NULL, 'Comparacion continua entre aprendiz e instructor segun resultados de aprendizaje; se realiza de forma cualitativa.'),
-(45, 4, 'Art. 36', 'Juicios de la Evaluacion', NULL, 'Resultados de aprendizaje expresados como APROBADO o NO APROBADO.'),
-(46, 5, 'Art. 39', 'Principios del regimen de faltas', NULL, 'Confidencialidad, debido proceso, culpabilidad e inexistencia de doble sancion.'),
-(47, 5, 'Art. 40', 'Medidas disciplinarias, formativas, academicas y/o sancionatorias', NULL, 'Se aplican de acuerdo con la tipificacion de la falta cometida por el aprendiz.'),
-(48, 5, 'Art. 41', 'Faltas', NULL, 'Acciones u omisiones que alteran el normal desarrollo de la formacion. Se dividen en academicas y disciplinarias.'),
-(49, 5, 'Art. 43', 'Calificacion de la falta', NULL, 'Corresponde a las circunstancias previstas para su realizacion segun los deberes y el marco juridico.'),
-(50, 5, 'Art. 44', 'Criterios para calificar la falta', NULL, 'Dano causado, grado de participacion, antecedentes y reparacion del dano.'),
-(51, 5, 'Art. 45', 'Medidas formativas', NULL, 'Acciones que se aplican cuando el aprendiz contraria en menor grado el orden academico o disciplinario.'),
-(52, 5, 'Art. 48', 'Equipos encargados de la valoracion de las medidas y sanciones', NULL, 'Equipo ejecutor del grupo y Comite de evaluacion y seguimiento del centro de formacion.'),
-(53, 5, 'Art. 49', 'Instancias decisorias de las medidas sancionatorias', NULL, 'Primera instancia: Subdireccion del Centro; segunda instancia: Direccion Regional.'),
-(54, 5, 'Art. 50', 'Criterios para aplicacion de sanciones', NULL, 'Publicidad, contradiccion, presuncion de inocencia, valoracion de pruebas, motivacion, proporcionalidad e impugnacion.'),
-(55, 5, 'Art. 51', 'Procedimiento para la aplicacion de sanciones', NULL, 'Recepcion del informe, citacion al aprendiz, sesion del comite, acto administrativo, notificacion, recurso y firmeza.'),
-(56, 5, 'Art. 52', 'Certificacion de conducta y sanciones academicas y disciplinarias', NULL, 'El SENA expide certificados de conducta unicamente por solicitud o autorizacion del aprendiz.'),
-(57, 5, 'Art. 53', 'Sujecion a la Constitucion y la ley', NULL, 'El reglamento se aplica con total sujecion a los principios y normas constitucionales y legales vigentes.');
-
--- ---------------------------------------------------------------------
--- 10) Paragrafos del reglamento
+-- 11) Paragrafos del reglamento (todos los articulos que los tienen)
 -- ---------------------------------------------------------------------
 INSERT INTO `reglamento_paragrafo` (`id_paragrafo`, `id_articulo`, `numero_paragrafo`, `contenido`) VALUES
-(1, 33, 'Paragrafo 1', 'Para la asignacion de los reconocimientos el aprendiz debera cumplir con los requisitos y procedimientos que establezca la entidad al momento de hacer la convocatoria.'),
-(2, 33, 'Paragrafo 2', 'El aprendiz podra participar en las diferentes convocatorias de reconocimiento; su obtencion no es excluyente entre si.'),
-(3, 5,  'Paragrafo 1', 'Para la calificacion de las faltas se tendran en cuenta las causales de atenuacion y las causales de agravacion.'),
-(4, 5,  'Paragrafo 2', 'Las conductas que presuntamente constituyan delito tipificado en el Codigo Penal deben denunciarse ante la autoridad competente.'),
-(5, 6,  'Paragrafo 1', 'El numero maximo de planes de mejoramiento academico es de dos (2) por fase del proyecto o modulo de la etapa lectiva y dos (2) por etapa productiva.'),
-(6, 7,  'Paragrafo 1', 'Un aprendiz puede tener hasta dos (2) condicionamientos de matricula superados; si supera ese numero da lugar a la cancelacion de matricula.'),
-(7, 7,  'Paragrafo 2', 'La cancelacion de matricula implica el retiro del programa y para presentarse a un nuevo programa debera esperar seis (6) meses.'),
-(8, 36, 'Paragrafo 1', 'El usuario, aspirante o aprendiz debe tener un unico registro en el sistema de gestion academica administrativa, debidamente actualizado.'),
-(9, 51, 'Paragrafo 1', 'El numero maximo de planes de mejoramiento disciplinario es de uno (1) por etapa lectiva o modulo y uno (1) por etapa productiva.'),
-(10, 55, 'Paragrafo 1', 'Se dara tramite a las quejas o informes anonimos cuando aporten datos que permitan ser verificados o pruebas que demuestren la veracidad de los hechos.');
+-- Art. 4 - Centro de Convivencia
+(1, 104, 'Paragrafo', 'El Centro de Formacion Profesional que tenga asociado centro de convivencia dispondra de un manual de convivencia que oriente el comportamiento de los aprendices al interior del mismo.'),
+-- Art. 6 - Reconocimientos formativos
+(2, 106, 'Paragrafo 1', 'Para la asignacion de los reconocimientos el aprendiz debera cumplir con los requisitos y procedimientos que establezca la entidad al momento de hacer la convocatoria.'),
+(3, 106, 'Paragrafo 2', 'El aprendiz podra participar en las diferentes convocatorias de reconocimiento; la obtencion de los reconocimientos no es excluyente entre si.'),
+-- Art. 11 - Etapa de registro
+(4, 111, 'Paragrafo 1', 'El usuario, aspirante o aprendiz debe tener un unico registro en el sistema de gestion academica administrativa, debidamente actualizado.'),
+(5, 111, 'Paragrafo 2', 'El registro del usuario con un numero diferente al de su documento de identificacion vigente sera invalidado por uno de los administradores del sistema, por tratarse de datos inconsistentes.'),
+(6, 111, 'Paragrafo 3', 'Es responsabilidad del aprendiz gestionar con el Centro de Formacion la actualizacion de su registro y aportar los documentos legales vigentes.'),
+(7, 111, 'Paragrafo 4', 'Cuando el aprendiz este registrado con tipo de documento tarjeta de identidad y obtenga su cedula de ciudadania, debera gestionar la actualizacion del registro por tipo cedula de ciudadania.'),
+(8, 111, 'Paragrafo 5', 'Con el registro de datos basicos y la aceptacion de la politica de seguridad, el usuario autoriza el tratamiento de datos personales para el desarrollo de las funciones propias del SENA.'),
+(9, 111, 'Paragrafo 6', 'Al realizar el registro, el usuario con discapacidad podra voluntariamente informar su autorreconocimiento y el tipo de discapacidad para prever el alistamiento de los recursos necesarios.'),
+-- Art. 15 - Etapa de matricula
+(10, 115, 'Paragrafo', 'Registro academico. Se considera registro academico el procedimiento que protocoliza las acciones academicas y disciplinarias del aprendiz SENA y actualiza su gestion academica durante el proceso de formacion.'),
+-- Art. 17 - Tramite de novedades
+(11, 117, 'Paragrafo 1', 'Para los aprendices de los programas de articulacion con la educacion media, la solicitud debe radicarse ante la institucion educativa donde desarrollen su formacion, para que ella realice la debida gestion.'),
+(12, 117, 'Paragrafo 2', 'Cuando por sus condiciones fisicas o mentales el aprendiz este impedido para gestionar las novedades, podra hacerlo uno de sus padres, su acudiente o apoderado, presentando los soportes respectivos.'),
+(13, 117, 'Paragrafo 3', 'Los aprendices que ingresen mediante formacion modular adelantaran los tramites de novedades en similares condiciones a las establecidas en el reglamento.'),
+-- Art. 18 - Novedades durante la formacion
+(14, 118, 'Paragrafo 1 (Traslado)', 'El aprendiz puede solicitar solo un traslado durante su proceso de formacion.'),
+(15, 118, 'Paragrafo 2 (Traslado)', 'La respuesta de la Subdireccion de Centro con destino al aprendiz debe ir con copia a los instructores asignados en el grupo origen.'),
+(16, 118, 'Paragrafo 3 (Traslado)', 'Para los aprendices en programas de articulacion con la educacion media procede el traslado de grupo cuando se trate de cambio de institucion educativa o de jornada entre grupos de la misma caracterizacion.'),
+(17, 118, 'Paragrafo 4 (Traslado)', 'Los aprendices en programas de formacion complementaria, eventos de divulgacion tecnologica y programas de formacion dual no podran realizar traslados.'),
+(18, 118, 'Paragrafo 1 (Aplazamiento)', 'Cuando se registra la novedad de aplazamiento la condicion de aprendiz se conserva; si cuenta con apoyos socioeconomicos, estos se suspenden por el mismo periodo o maximo hasta el 30 de noviembre del ano en curso.'),
+(19, 118, 'Paragrafo 2 (Aplazamiento)', 'La respuesta de la Subdireccion de Centro debe ir con copia a los instructores del grupo origen, especialmente en formacion virtual, a distancia y convenios.'),
+(20, 118, 'Paragrafo 3 (Aplazamiento)', 'Los aprendices en programas de formacion dual y articulacion con la educacion media no podran realizar aplazamiento durante el proceso de formacion.'),
+(21, 118, 'Paragrafo (Retiro voluntario)', 'La solicitud de retiro voluntario que no cuente con causas justificables se constituira en una falta grave; por lo tanto, la novedad que se registre sera la de cancelacion de la matricula.'),
+-- Art. 19 - Certificacion
+(22, 119, 'Paragrafo', 'Los aprendices de articulacion con la educacion media deben culminar la ejecucion de las etapas lectiva y productiva en el ultimo ano escolar; el instructor evaluara los resultados y el Centro emitira el certificado.'),
+-- Art. 20 - Expedicion de documentos academicos
+(23, 120, 'Paragrafo 1', 'Los titulos, actas de grado, constancias y certificados obtenidos antes del ano 2010 deben ser solicitados directamente en el centro de formacion donde el aprendiz adelanto su proceso, aplicando la tarifa de reexpedicion.'),
+(24, 120, 'Paragrafo 2', 'Los documentos academicos de los niveles Tecnico Laboral o Tecnologico se expiden digitalmente a partir del ano 2000 y se publican en el portal web de certificados SENA.'),
+(25, 120, 'Paragrafo 3', 'El SENA no reexpide documentos academicos de formacion complementaria y eventos de divulgacion tecnologica de los anos 2009 y anteriores; en su defecto se expedira una constancia.'),
+(26, 120, 'Paragrafo 4', 'Para toda constancia o certificado en fisico que expida el Centro con firma manuscrita o mecanica del Subdirector, aplicara el cobro de reexpedicion segun la resolucion vigente.'),
+-- Art. 22 - Tramite reingreso
+(27, 122, 'Paragrafo 1', 'El reingreso puede darse al mismo Centro, mismo programa y cualquier modalidad; o a otro Centro, mismo programa y cualquier modalidad.'),
+(28, 122, 'Paragrafo 2', 'El reingreso de personas desvinculadas de programas cursados bajo convenios de articulacion, ampliacion de cobertura u oferta especial se adelantara solo a programas que se esten ejecutando en oferta abierta.'),
+-- Art. 23 - Condiciones para el reingreso
+(29, 123, 'Paragrafo 1', 'Las personas que se desvincularon por cancelacion de matricula motivada por faltas disciplinarias podran solicitar el reingreso una vez cumplan la sancion impuesta.'),
+(30, 123, 'Paragrafo 2', 'El reingreso no aplica para los programas de formacion complementaria.'),
+-- Art. 27 - Cumplimiento satisfactorio
+(31, 127, 'Paragrafo', 'En la formacion mediante el programa de articulacion con la media, asi como la formacion dual, cualquier incumplimiento sera tratado conforme a los procedimientos establecidos por el SENA.'),
+-- Art. 28 - Incumplimiento justificado
+(32, 128, 'Paragrafo 1', 'Cualquiera de las causas de incumplimiento justificado debe ser informada por el aprendiz al instructor con los debidos soportes que la demuestren.'),
+(33, 128, 'Paragrafo 2', 'Las inasistencias programadas deben ser informadas por el aprendiz al instructor con al menos un (1) dia de anterioridad a su ocurrencia.'),
+(34, 128, 'Paragrafo 3', 'Las inasistencias no programadas deberan ser informadas a mas tardar dentro de los cinco (5) dias habiles siguientes a su ocurrencia con los debidos soportes.'),
+(35, 128, 'Paragrafo 4', 'Los casos no contemplados que tengan soportes justificables seran valorados por los instructores del equipo ejecutor del grupo, quien determinara si es incumplimiento justificado o no.'),
+(36, 128, 'Paragrafo 5', 'En los incumplimientos justificados, los instructores del equipo ejecutor revisaran el caso para establecer el cronograma de las evaluaciones y actividades realizadas en ausencia del aprendiz.'),
+(37, 128, 'Paragrafo 6', 'El incumplimiento justificado no aplica para la formacion complementaria virtual.'),
+-- Art. 31 - Procedimiento en caso de desercion
+(38, 131, 'Paragrafo 1', 'El comite de evaluacion y seguimiento realizara una revision al caso para confirmar el abandono y establecer la causa de la desercion; de confirmarla, califica la falta como grave y recomienda la cancelacion.'),
+(39, 131, 'Paragrafo 2', 'Se garantizara el debido proceso dando cumplimiento a lo establecido en el capitulo de las medidas disciplinarias y sancionatorias.'),
+(40, 131, 'Paragrafo 3', 'Se gestionara la actualizacion del estado del aprendiz y el registro de la causa de desercion en el aplicativo de gestion academica; es responsabilidad del Centro iniciar el proceso dentro de un plazo razonable.'),
+-- Art. 34 - Principios del proceso de evaluacion
+(41, 134, 'Paragrafo', 'Estos principios se aplicaran sin perjuicio de considerar los demas que orientan el presente reglamento.'),
+-- Art. 35 - Acompanamiento en el proceso evaluativo
+(42, 135, 'Paragrafo 1', 'En los procesos de articulacion con la media la evaluacion se ejecuta con la participacion del docente de la institucion, el instructor SENA y el aprendiz, pero el registro del juicio evaluativo es responsabilidad del instructor SENA.'),
+(43, 135, 'Paragrafo 2', 'En los programas de formacion dual la evaluacion se ejecuta con la participacion del instructor SENA, el tutor empresarial, el aprendiz y un delegado de la empresa; el registro del juicio evaluativo es responsabilidad del instructor SENA.'),
+-- Art. 36 - Juicios de la Evaluacion
+(44, 136, 'Paragrafo', 'La certificacion para la movilidad educativa se emitira con una valoracion cuantitativa de acuerdo con la equivalencia establecida por la Direccion de Formacion Profesional.'),
+-- Art. 42 - Definicion de la calificacion de las faltas
+(45, 142, 'Paragrafo 1', 'Para la calificacion de las faltas academicas y disciplinarias se tendran en cuenta las causales de atenuacion (buena conducta anterior, resarcir el dano, haber sido inducido, confesar la falta, evitar la injusta vinculacion de terceros, suministrar informacion util) y las causales de agravacion (complicidad o coautoria, ocultar pruebas, presionar al comite, causar danos a la institucion, reiteracion de la falta, afectar a terceros).'),
+(46, 142, 'Paragrafo 2', 'Aquellas conductas que presuntamente constituyan delito tipificado en el Codigo Penal Colombiano deben ser denunciadas por el servidor publico que tenga conocimiento de ellas ante la autoridad competente.'),
+-- Art. 46 - Tipos de medidas formativas
+(47, 146, 'Paragrafo 1 (Academicas)', 'El numero maximo de planes de mejoramiento academico es de dos (2) por fase del proyecto formativo o modulo de la etapa lectiva y dos (2) por etapa productiva.'),
+(48, 146, 'Paragrafo 2 (Academicas)', 'Es responsabilidad del instructor o equipo ejecutor hacer acompanamiento al aprendiz durante el desarrollo de las actividades del plan de mejoramiento academico.'),
+(49, 146, 'Paragrafo 3 (Academicas)', 'Toda medida formativa academica con sus evidencias debe consignarse en el formato establecido y ser archivada en una carpeta digital en custodia de la coordinacion academica.'),
+(50, 146, 'Paragrafo 4 (Academicas)', 'Cuando el aprendiz no cumple con el plan de mejoramiento, se lleva a comite de evaluacion y seguimiento quienes definiran las medidas sancionatorias a aplicar.'),
+(51, 146, 'Paragrafo 5 (Academicas)', 'Los aprendices de formacion dual recibiran medidas formativas si su falta es cometida en ambientes de formacion del SENA; si es en la empresa, se aplicara el presente reglamento.'),
+(52, 146, 'Paragrafo 1 (Disciplinarias)', 'El numero maximo de planes de mejoramiento disciplinarios es de uno (1) por etapa lectiva o modulo y uno (1) por etapa productiva.'),
+(53, 146, 'Paragrafo 2 (Disciplinarias)', 'Los compromisos adquiridos por el aprendiz seran objeto de seguimiento por parte del coordinador academico; en caso de incumplimiento se seguira el debido proceso informando al comite de evaluacion.'),
+-- Art. 47 - Medidas sancionatorias
+(54, 147, 'Paragrafo 1 (Condicionamiento)', 'Un aprendiz puede tener hasta dos (2) condicionamientos de matricula superados durante su proceso formativo; si supera este numero dara lugar a la cancelacion de matricula.'),
+(55, 147, 'Paragrafo 2 (Condicionamiento)', 'Una vez el acto administrativo sancionatorio de condicionamiento de matricula ha surtido el debido proceso, se procedera a la firmeza del acto administrativo conforme al reglamento.'),
+(56, 147, 'Paragrafo 1 (Cancelacion)', 'Los aprendices que no se hayan certificado luego de transcurrido un ano de la fecha fin programada pasaran a estado cancelado por via administrativa.'),
+(57, 147, 'Paragrafo 2 (Cancelacion)', 'La cancelacion de la matricula implica que el aprendiz es retirado del programa y para presentarse a un nuevo programa laboral o tecnologico debera esperar seis (6) meses contados a partir de la firmeza del acto.'),
+-- Art. 48 - Equipos encargados de la valoracion
+(58, 148, 'Paragrafo 1', 'En el comite de evaluacion y seguimiento de los programas de articulacion con la educacion media, el integrante sera el coordinador asignado por la institucion educativa.'),
+(59, 148, 'Paragrafo 2', 'Segun el caso, se podra invitar a las sesiones del comite a personas que ayuden a tomar una decision mas objetiva; los invitados tendran voz pero no voto.'),
+(60, 148, 'Paragrafo 3', 'El Comite de evaluacion y seguimiento se reunira por lo menos una vez al mes y cuando sea necesario para la aplicacion del procedimiento establecido en el reglamento.'),
+-- Art. 49 - Instancias decisorias
+(61, 149, 'Paragrafo 1', 'En los casos donde el Subdirector de Centro ejerce funciones de Director Regional, la segunda instancia sera la Direccion Regional que por cercania geografica este mas relacionada al Centro del aprendiz.'),
+(62, 149, 'Paragrafo 2', 'Para los casos que no esten regulados, el Director de Formacion Profesional sera quien designe a otro Director Regional para que ejerza como segunda instancia.'),
+-- Art. 51 - Procedimiento para la aplicacion de sanciones
+(63, 151, 'Paragrafo 1', 'Se dara tramite a las quejas o informes anonimos cuando aporten datos que permitan ser verificados o pruebas que puedan demostrar la veracidad de los hechos.'),
+(64, 151, 'Paragrafo 2', 'Cuando se trate de hechos relacionados con una falta disciplinaria, la Coordinacion Academica procedera a realizar una indagacion preliminar para confirmar o desvirtuar los hechos y decidir si cita o no al Comite.'),
+(65, 151, 'Paragrafo 3', 'Cuando se trate de una falta de los aprendices de formacion dual ocurrida en la empresa co-formadora, el procedimiento para la aplicacion de sanciones sera el establecido por la empresa.');
