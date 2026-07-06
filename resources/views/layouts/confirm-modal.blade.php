@@ -1,9 +1,15 @@
 {{-- Modal de confirmación del sistema. Reemplaza los confirm() nativos del navegador.
      Uso: en cualquier <form> añadir data-confirm="mensaje" y, opcionalmente,
      data-confirm-title="Título" y data-confirm-btn="Texto del botón". --}}
-<div id="gevla-confirm" class="fixed inset-0 z-[120] hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="gevla-confirm-titulo">
-    <div class="absolute inset-0 bg-black/50" data-confirm-cancelar></div>
-    <div class="relative w-full max-w-md overflow-hidden rounded-[28px] border border-[#e6eadf] bg-white shadow-[0_30px_80px_rgba(0,0,0,0.25)]">
+{{-- Estilos críticos inline: el modal se centra y cubre la pantalla aunque el
+     CSS compilado no tenga alguna utilidad, y su z-index le gana a la barra
+     lateral. El JS lo teletransporta al <body> para escapar de contenedores
+     con transform/backdrop-filter que rompen position:fixed. --}}
+<div id="gevla-confirm" role="dialog" aria-modal="true" aria-labelledby="gevla-confirm-titulo"
+     style="display:none; position:fixed; top:0; right:0; bottom:0; left:0; z-index:2147483000; align-items:center; justify-content:center; padding:16px;">
+    <div data-confirm-cancelar style="position:absolute; top:0; right:0; bottom:0; left:0; background:rgba(0,0,0,0.5);"></div>
+    <div class="relative overflow-hidden rounded-[28px] border border-[#e6eadf] bg-white shadow-[0_30px_80px_rgba(0,0,0,0.25)]"
+         style="position:relative; width:100%; max-width:28rem; background:#ffffff; border-radius:28px; overflow:hidden;">
         <div class="flex items-start gap-4 px-6 pt-6">
             <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-red-50 text-red-600">
                 <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -35,6 +41,15 @@
         if (!modal || modal.__wired) return;
         modal.__wired = true;
 
+        // Teletransporte al <body>: si el modal queda dentro de un contenedor
+        // con transform o backdrop-filter, el position:fixed se calcula contra
+        // ese contenedor (no contra la ventana) y el modal aparece descuadrado
+        // y por debajo de la barra lateral. Colgado del body con un z-index
+        // máximo, siempre cubre toda la pantalla.
+        if (modal.parentElement !== document.body) {
+            document.body.appendChild(modal);
+        }
+
         var titulo = modal.querySelector('[data-confirm-titulo]');
         var mensaje = modal.querySelector('[data-confirm-mensaje]');
         var btnAceptar = modal.querySelector('[data-confirm-aceptar]');
@@ -45,15 +60,13 @@
             titulo.textContent = form.getAttribute('data-confirm-title') || 'Confirmar acción';
             mensaje.textContent = form.getAttribute('data-confirm') || '¿Deseas continuar?';
             btnAceptar.textContent = form.getAttribute('data-confirm-btn') || 'Sí, continuar';
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
+            modal.style.display = 'flex';
             btnAceptar.focus();
         }
 
         function cerrar() {
             formPendiente = null;
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
+            modal.style.display = 'none';
         }
 
         document.addEventListener('submit', function (e) {
@@ -76,7 +89,7 @@
         });
 
         document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape' && !modal.classList.contains('hidden')) cerrar();
+            if (e.key === 'Escape' && modal.style.display === 'flex') cerrar();
         });
     })();
 </script>
