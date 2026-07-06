@@ -13,14 +13,19 @@ use Illuminate\View\View;
 class ReglamentoController extends Controller
 {
     /**
-     * Determina el layout base según el rol del usuario autenticado.
+     * Determina el layout base según el ROL ACTIVO de la sesión (el mismo que
+     * usa todo el sistema), no según un recalculo propio: así la vista del
+     * reglamento conserva el panel desde el que se abrió, incluso para
+     * usuarios con varios roles.
      */
     private function getLayoutName($usuario): string
     {
-        return match (true) {
-            $usuario->tieneRol('Coordinador') => 'layouts.coordinador',
-            $usuario->tieneRol('Instructor')  => 'layouts.instructor',
-            default => 'layouts.aprendiz',
+        $rol = session('rol_activo') ?? \App\Support\Roles::porDefecto($usuario);
+
+        return match ($rol) {
+            \App\Support\Roles::COORDINADOR => 'layouts.coordinador',
+            \App\Support\Roles::INSTRUCTOR  => 'layouts.instructor',
+            default                          => 'layouts.aprendiz',
         };
     }
 

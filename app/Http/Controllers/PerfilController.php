@@ -13,14 +13,18 @@ use Illuminate\Http\RedirectResponse;
 class PerfilController extends Controller
 {
     /**
-     * Determina el layout base según el rol.
+     * Determina el layout base según el ROL ACTIVO de la sesión (la misma
+     * fuente de verdad de todo el sistema), para que el perfil conserve el
+     * panel desde el que se abrió aunque el usuario tenga varios roles.
      */
     private function getLayoutName($usuario): string
     {
-        return match (true) {
-            $usuario->tieneRol('Coordinador') => 'layouts.coordinador',
-            $usuario->tieneRol('Instructor')  => 'layouts.instructor',
-            default => 'layouts.aprendiz',
+        $rol = session('rol_activo') ?? \App\Support\Roles::porDefecto($usuario);
+
+        return match ($rol) {
+            \App\Support\Roles::COORDINADOR => 'layouts.coordinador',
+            \App\Support\Roles::INSTRUCTOR  => 'layouts.instructor',
+            default                          => 'layouts.aprendiz',
         };
     }
 
