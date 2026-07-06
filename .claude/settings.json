@@ -36,7 +36,8 @@
       "Bash(php -l app/Support/CorreoRecuperacion.php)",
       "Bash(php -l app/Http/Controllers/Auth/RecuperacionController.php)",
       "PowerShell($conn = Get-NetTCPConnection -LocalPort 8011 -State Listen -ErrorAction SilentlyContinue; if \\($conn\\) { Stop-Process -Id $conn.OwningProcess -Force -Confirm:$false; \"Servidor de prueba detenido\" } else { \"Ya no habia servidor en 8011\" })",
-      "Bash(php -l app/Http/Controllers/Concerns/CreaUsuarios.php)"
+      "Bash(php -l app/Http/Controllers/Concerns/CreaUsuarios.php)",
+      "PowerShell($conn = Get-NetTCPConnection -LocalPort 8012 -State Listen -ErrorAction SilentlyContinue; if \\($conn\\) { Stop-Process -Id $conn.OwningProcess -Force -Confirm:$false; \"Servidor de prueba detenido\" } else { \"Sin servidor en 8012\" })"
     ]
   }
 }
