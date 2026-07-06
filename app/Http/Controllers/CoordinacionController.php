@@ -803,6 +803,27 @@ class CoordinacionController extends Controller
 
         $nuevo = $instructor->estado_instructor === 'activo' ? 'inactivo' : 'activo';
 
+        // Validación de integridad: no se puede inactivar un instructor que
+        // esté vinculado a fichas en ejecución (como líder o como asignado).
+        // Primero hay que retirarlo o reemplazarlo desde la sección de Fichas.
+        if ($nuevo === 'inactivo') {
+            $motivos = [];
+
+            if ($instructor->fichasLideradas()->where('estado_ficha', Ficha::ESTADO_EN_EJECUCION)->exists()) {
+                $motivos[] = 'es instructor líder de fichas en ejecución (asigna otro líder primero)';
+            }
+
+            if ($instructor->fichas()->where('estado_ficha', Ficha::ESTADO_EN_EJECUCION)->exists()) {
+                $motivos[] = 'está asignado a fichas en ejecución (retíralo desde la sección de Fichas)';
+            }
+
+            if ($motivos !== []) {
+                return back()->withErrors([
+                    'error' => 'No se puede inactivar el instructor porque ' . implode(' y ', $motivos) . '.',
+                ]);
+            }
+        }
+
         DB::transaction(function () use ($instructor, $usuario, $nuevo) {
             $instructor->update(['estado_instructor' => $nuevo]);
             $usuario?->update(['estado_usuario' => $nuevo]);

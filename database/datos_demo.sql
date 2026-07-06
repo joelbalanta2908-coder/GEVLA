@@ -300,3 +300,30 @@ INSERT IGNORE INTO `aprendiz` (`id_aprendiz`, `id_usuario`, `correo_instituciona
 
 INSERT IGNORE INTO `matricula` (`id_matricula`, `id_aprendiz`, `id_ficha`, `fecha_matricula`, `estado_matricula`, `es_vocero`, `tipo_vocero`) VALUES
 (40, 40, 1, '2026-07-06', 'activa', 0, 'no_es_vocero');
+
+-- ============================================================================
+-- RETIRO DEL ROL ADMINISTRADOR: el sistema opera solo con Coordinador,
+-- Instructor y Aprendiz. Se eliminan las asignaciones y el rol.
+-- ============================================================================
+DELETE FROM `usuario_rol` WHERE `id_rol` IN (SELECT `id_rol` FROM `rol` WHERE `nombre_rol` = 'Administrador');
+DELETE FROM `rol` WHERE `nombre_rol` = 'Administrador';
+
+-- ============================================================================
+-- USUARIO CON DOBLE ROL (Instructor + Aprendiz): Laura Cardenas.
+-- Inicia sesion con correo laura.cardenas@sena.edu.co y contrasena Gevla2026.
+-- ============================================================================
+INSERT IGNORE INTO `usuario` (`id_usuario`, `numero_documento`, `tipo_documento`, `nombres`, `apellidos`, `correo`, `telefono`, `username`, `password_hash`, `estado_usuario`) VALUES
+(41, '555444333', 'CC', 'Laura', 'Cardenas', 'laura.cardenas@sena.edu.co', '3168889900', '555444333', '$2y$12$/0J4IDs1bKYZzq83HxNTjueeYIwsdKtLETSxDoocxvUXOFoYVSfnW', 'activo');
+
+INSERT IGNORE INTO `usuario_rol` (`id_usuario_rol`, `id_usuario`, `id_rol`, `fecha_asignacion`, `estado_asignacion`) VALUES
+(42, 41, (SELECT `id_rol` FROM `rol` WHERE `nombre_rol` = 'Instructor'), '2026-07-06 08:00:00', 'activa'),
+(43, 41, (SELECT `id_rol` FROM `rol` WHERE `nombre_rol` = 'Aprendiz'),   '2026-07-06 08:00:00', 'activa');
+
+INSERT IGNORE INTO `instructor` (`id_instructor`, `id_usuario`, `codigo_instructor`, `area_formacion`, `tipo_docente`, `estado_instructor`) VALUES
+(41, 41, 'INS-041', 'Gestion Empresarial', 'materia', 'activo');
+
+INSERT IGNORE INTO `aprendiz` (`id_aprendiz`, `id_usuario`, `correo_institucional`, `correo_personal`, `estado_academico`, `tiene_apoyo_sostenimiento`) VALUES
+(41, 41, 'laura.cardenas@soy.sena.edu.co', 'laura.cardenas@gmail.com', 'en_formacion', 0);
+
+INSERT IGNORE INTO `matricula` (`id_matricula`, `id_aprendiz`, `id_ficha`, `fecha_matricula`, `estado_matricula`, `es_vocero`, `tipo_vocero`) VALUES
+(41, 41, 1, '2026-07-06', 'activa', 0, 'no_es_vocero');

@@ -17,7 +17,6 @@ use App\Models\Usuario;
  */
 final class Roles
 {
-    public const ADMINISTRADOR = 'Administrador';
     public const COORDINADOR   = 'Coordinador';
     public const INSTRUCTOR     = 'Instructor';
     public const APRENDIZ       = 'Aprendiz';
@@ -28,7 +27,7 @@ final class Roles
      *
      * @var array<int, string>
      */
-    public const PRIORIDAD = [self::ADMINISTRADOR, self::COORDINADOR, self::INSTRUCTOR, self::APRENDIZ];
+    public const PRIORIDAD = [self::COORDINADOR, self::INSTRUCTOR, self::APRENDIZ];
 
     /**
      * Roles que el usuario tiene realmente asignados, en orden de prioridad.
@@ -39,9 +38,6 @@ final class Roles
     {
         $roles = [];
 
-        if ($usuario->tieneRol(self::ADMINISTRADOR)) {
-            $roles[] = self::ADMINISTRADOR;
-        }
         if (self::tieneCoordinador($usuario)) {
             $roles[] = self::COORDINADOR;
         }
@@ -77,11 +73,10 @@ final class Roles
     public static function dashboardRoute(?string $rol): string
     {
         return match ($rol) {
-            self::ADMINISTRADOR => 'admin.usuarios.index',
-            self::COORDINADOR   => 'coordinacion.dashboard',
-            self::INSTRUCTOR    => 'instructor.dashboard',
-            self::APRENDIZ      => 'aprendiz.dashboard',
-            default             => 'login',
+            self::COORDINADOR => 'coordinacion.dashboard',
+            self::INSTRUCTOR  => 'instructor.dashboard',
+            self::APRENDIZ    => 'aprendiz.dashboard',
+            default           => 'login',
         };
     }
 

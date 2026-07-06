@@ -113,12 +113,6 @@ Route::middleware('auth')->group(function () {
         Route::resource('llamados', \App\Http\Controllers\InstructorLlamadoController::class)->parameters(['llamados' => 'llamado']);
     });
 
-    // Rutas de Administrador (gestión de cuentas de usuario)
-    Route::prefix('admin')->name('admin.')->middleware('rol:Administrador')->group(function () {
-        Route::get('/usuarios', [\App\Http\Controllers\Admin\UsuarioController::class, 'index'])->name('usuarios.index');
-        Route::patch('/usuarios/{usuario}/estado', [\App\Http\Controllers\Admin\UsuarioController::class, 'actualizarEstado'])->name('usuarios.estado');
-    });
-
     // Rutas de Coordinación
     Route::prefix('coordinacion')->name('coordinacion.')->middleware('rol:Coordinador')->group(function () {
         Route::get('/dashboard', [CoordinacionController::class, 'dashboard'])->name('dashboard');
