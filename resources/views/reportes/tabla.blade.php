@@ -4,16 +4,14 @@
     <meta charset="UTF-8">
     <title>{{ $titulo }} - GEVLA SENA</title>
     <link rel="icon" type="image/png" href="https://oficinavirtualderadicacion.sena.edu.co/oficinavirtual/Resources/logoSenaNaranja.png">
+    {{-- La tabla y sus celdas usan SOLO estilos inline: Word no interpreta bien
+         los selectores CSS (th, td, nth-child) y deformaba el documento. --}}
     <style>
         body { font-family: 'Segoe UI', Calibri, Arial, sans-serif; color: #1e293b; margin: 28px; }
         .encabezado { border-bottom: 3px solid #39A900; padding-bottom: 12px; margin-bottom: 18px; }
-        .marca { color: #39A900; font-size: 22px; font-weight: 800; letter-spacing: 1px; }
+        .marca { color: #39A900; font-size: 26px; font-weight: 800; letter-spacing: 2px; }
         h1 { font-size: 18px; margin: 8px 0 4px; color: #0f172a; }
         .meta { font-size: 12px; color: #64748b; line-height: 1.6; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 12px; }
-        th { background: #39A900; color: #ffffff; text-align: left; padding: 9px 10px; border: 1px solid #2f8b00; }
-        td { border: 1px solid #d7dfd2; padding: 8px 10px; vertical-align: top; }
-        tr:nth-child(even) td { background: #f6faf3; }
         .pie { margin-top: 22px; font-size: 11px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 10px; }
         .barra { margin-bottom: 18px; }
         .btn { background: #39A900; color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px; }
@@ -28,21 +26,23 @@
     @endif
 
     @php
-        // Logo institucional incrustado en base64: se ve igual en la vista
-        // imprimible (PDF) y al abrir el archivo Word/Excel sin servidor.
+        // El logo solo se incrusta en la vista de navegador (imprimir/PDF):
+        // Word y Excel no muestran imágenes en base64 y saldría un icono roto.
         $rutaLogo = public_path('img/logo-sena-verde.png');
-        $logoBase64 = is_file($rutaLogo) ? 'data:image/png;base64,' . base64_encode((string) file_get_contents($rutaLogo)) : null;
+        $logoBase64 = ($imprimir ?? false) && is_file($rutaLogo)
+            ? 'data:image/png;base64,' . base64_encode((string) file_get_contents($rutaLogo))
+            : null;
     @endphp
     <div class="encabezado">
-        <table style="width:100%; border-collapse:collapse; margin:0;">
+        <table border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse; margin:0;">
             <tr>
-                <td style="border:none; padding:0; width:70px; vertical-align:middle;">
-                    @if($logoBase64)
+                @if($logoBase64)
+                    <td style="border:none; padding:0 10px 0 0; vertical-align:middle;">
                         <img src="{{ $logoBase64 }}" alt="SENA" width="58" style="display:block;">
-                    @endif
-                </td>
-                <td style="border:none; padding:0 0 0 6px; vertical-align:middle;">
-                    <div class="marca" style="font-size:26px; letter-spacing:2px;">GEVLA</div>
+                    </td>
+                @endif
+                <td style="border:none; padding:0; vertical-align:middle;">
+                    <div class="marca">GEVLA</div>
                     <div style="font-size:11px; color:#64748b; letter-spacing:3px; font-weight:700;">SENA &middot; GESTI&Oacute;N DISCIPLINARIA Y FORMATIVA</div>
                 </td>
             </tr>
@@ -55,11 +55,11 @@
         </div>
     </div>
 
-    <table>
+    <table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse; width:100%; font-size:12px; border:1px solid #d7dfd2;">
         <thead>
             <tr>
                 @foreach($encabezados as $h)
-                    <th>{{ $h }}</th>
+                    <th style="background:#39A900; color:#ffffff; text-align:left; padding:8px 9px; border:1px solid #2f8b00; font-size:12px;">{{ $h }}</th>
                 @endforeach
             </tr>
         </thead>
@@ -67,11 +67,11 @@
             @forelse($filas as $fila)
                 <tr>
                     @foreach($fila as $celda)
-                        <td>{{ $celda }}</td>
+                        <td style="border:1px solid #d7dfd2; padding:7px 9px; vertical-align:top; font-size:12px;{{ $loop->parent->iteration % 2 === 0 ? ' background:#f6faf3;' : '' }}">{{ $celda }}</td>
                     @endforeach
                 </tr>
             @empty
-                <tr><td colspan="{{ count($encabezados) }}" style="text-align:center; color:#94a3b8;">Sin registros.</td></tr>
+                <tr><td colspan="{{ count($encabezados) }}" style="border:1px solid #d7dfd2; padding:10px; text-align:center; color:#94a3b8;">Sin registros.</td></tr>
             @endforelse
         </tbody>
     </table>

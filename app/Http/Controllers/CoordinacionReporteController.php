@@ -193,15 +193,23 @@ class CoordinacionReporteController extends Controller
             return response()->view('reportes.tabla', $data + ['imprimir' => true]);
         }
 
+        // Excel: hoja de cálculo XML nativa (SpreadsheetML). Excel la abre sin
+        // la advertencia de "formato y extensión no coinciden" del viejo truco
+        // de servir HTML con extensión .xls.
+        if ($formato === 'excel') {
+            $xml = view('reportes.excel', $data)->render();
+
+            return response($xml, 200, [
+                'Content-Type'        => 'application/vnd.ms-excel; charset=UTF-8',
+                'Content-Disposition' => "attachment; filename=\"{$slug}_{$fecha}.xml\"",
+            ]);
+        }
+
         $html = view('reportes.tabla', $data + ['imprimir' => false])->render();
 
-        [$mime, $ext] = $formato === 'excel'
-            ? ['application/vnd.ms-excel', 'xls']
-            : ['application/msword', 'doc'];
-
         return response($html, 200, [
-            'Content-Type'        => $mime . '; charset=UTF-8',
-            'Content-Disposition' => "attachment; filename=\"{$slug}_{$fecha}.{$ext}\"",
+            'Content-Type'        => 'application/msword; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$slug}_{$fecha}.doc\"",
         ]);
     }
 }
