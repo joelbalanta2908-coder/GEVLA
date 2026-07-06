@@ -305,8 +305,68 @@ class CoordinacionController extends Controller
 
         $volver = route('coordinacion.aprendices.index');
         $layout = 'layouts.coordinador';
+        // El coordinador puede editar los datos del aprendiz desde su hoja de vida.
+        $editarUrl = route('coordinacion.aprendices.editar', $aprendiz->id_aprendiz);
 
-        return view('aprendices.show', compact('aprendiz', 'volver', 'layout'));
+        return view('aprendices.show', compact('aprendiz', 'volver', 'layout', 'editarUrl'));
+    }
+
+    /**
+     * Formulario para editar los datos personales de un aprendiz ya creado.
+     */
+    public function editarAprendizForm(Aprendiz $aprendiz): View|RedirectResponse
+    {
+        $usuario = $aprendiz->usuario;
+
+        if (! $usuario) {
+            return back()->withErrors(['error' => 'El aprendiz no tiene una cuenta de usuario asociada.']);
+        }
+
+        if ($usuario->estado_usuario === 'bloqueado') {
+            return back()->withErrors(['error' => 'La cuenta está bloqueada por el administrador; no puede editarse desde coordinación.']);
+        }
+
+        $estadosAcademicos = ['en_formacion', 'aplazado', 'cancelado', 'certificado'];
+
+        return view('coordinacion.aprendices.edit', compact('aprendiz', 'usuario', 'estadosAcademicos'));
+    }
+
+    /**
+     * Actualiza los datos personales y académicos de un aprendiz (usuario +
+     * perfil) dentro de una sola transacción.
+     */
+    public function actualizarAprendiz(Request $request, Aprendiz $aprendiz): RedirectResponse
+    {
+        $usuario = $aprendiz->usuario;
+
+        if (! $usuario) {
+            return back()->withErrors(['error' => 'El aprendiz no tiene una cuenta de usuario asociada.']);
+        }
+
+        if ($usuario->estado_usuario === 'bloqueado') {
+            return back()->withErrors(['error' => 'La cuenta está bloqueada por el administrador; no puede editarse desde coordinación.']);
+        }
+
+        $datos = $this->validarPersonaEdicion($request, $usuario, [
+            'correo_institucional' => ['nullable', 'email', 'max:120'],
+            'estado_academico'     => ['required', Rule::in(['en_formacion', 'aplazado', 'cancelado', 'certificado'])],
+        ]);
+
+        DB::transaction(function () use ($datos, $usuario, $aprendiz) {
+            $this->actualizarDatosUsuario($usuario, $datos);
+
+            $aprendiz->update([
+                // El correo personal sigue al correo principal de la cuenta,
+                // como en el alta.
+                'correo_personal'      => $datos['correo'],
+                'correo_institucional' => $datos['correo_institucional'] ?: $datos['correo'],
+                'estado_academico'     => $datos['estado_academico'],
+            ]);
+        });
+
+        return redirect()
+            ->route('coordinacion.aprendices.show', $aprendiz->id_aprendiz)
+            ->with('success', 'Datos del aprendiz actualizados correctamente.');
     }
 
     /*
@@ -419,6 +479,64 @@ class CoordinacionController extends Controller
         $tipos = Instructor::tiposDocente();
 
         return view('coordinacion.docentes.show', compact('instructor', 'tipos'));
+    }
+
+    /**
+     * Formulario para editar los datos de un instructor ya creado.
+     */
+    public function editarDocenteForm(Instructor $instructor): View|RedirectResponse
+    {
+        $usuario = $instructor->usuario;
+
+        if (! $usuario) {
+            return back()->withErrors(['error' => 'El instructor no tiene una cuenta de usuario asociada.']);
+        }
+
+        if ($usuario->estado_usuario === 'bloqueado') {
+            return back()->withErrors(['error' => 'La cuenta está bloqueada por el administrador; no puede editarse desde coordinación.']);
+        }
+
+        $tipos = Instructor::tiposDocente();
+
+        return view('coordinacion.docentes.edit', compact('instructor', 'usuario', 'tipos'));
+    }
+
+    /**
+     * Actualiza los datos personales y de perfil de un instructor (usuario +
+     * instructor) dentro de una sola transacción.
+     */
+    public function actualizarDocente(Request $request, Instructor $instructor): RedirectResponse
+    {
+        $usuario = $instructor->usuario;
+
+        if (! $usuario) {
+            return back()->withErrors(['error' => 'El instructor no tiene una cuenta de usuario asociada.']);
+        }
+
+        if ($usuario->estado_usuario === 'bloqueado') {
+            return back()->withErrors(['error' => 'La cuenta está bloqueada por el administrador; no puede editarse desde coordinación.']);
+        }
+
+        $datos = $this->validarPersonaEdicion($request, $usuario, [
+            'codigo_instructor' => ['nullable', 'string', 'max:30', Rule::unique('instructor', 'codigo_instructor')->ignore($instructor->id_instructor, 'id_instructor')],
+            'area_formacion'    => ['nullable', 'string', 'max:120'],
+            'tipo_docente'      => ['nullable', Rule::in(array_keys(Instructor::tiposDocente()))],
+        ]);
+
+        DB::transaction(function () use ($datos, $usuario, $instructor) {
+            $this->actualizarDatosUsuario($usuario, $datos);
+
+            $instructor->update([
+                // Si el código se deja vacío, se conserva el actual.
+                'codigo_instructor' => $datos['codigo_instructor'] ?: $instructor->codigo_instructor,
+                'area_formacion'    => $datos['area_formacion'] ?? null,
+                'tipo_docente'      => $datos['tipo_docente'] ?: null,
+            ]);
+        });
+
+        return redirect()
+            ->route('coordinacion.docentes.show', $instructor->id_instructor)
+            ->with('success', 'Datos del instructor actualizados correctamente.');
     }
 
     /**

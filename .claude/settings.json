@@ -34,7 +34,9 @@
       "Bash(composer dump-autoload *)",
       "Bash(php -r 'require \"vendor/autoload.php\"; echo class_exists\\(\"PHPMailer\\\\\\\\PHPMailer\\\\\\\\PHPMailer\"\\) ? \"PHPMailer cargado OK, version \" . PHPMailer\\\\PHPMailer\\\\PHPMailer::VERSION : \"FALLO\";')",
       "Bash(php -l app/Support/CorreoRecuperacion.php)",
-      "Bash(php -l app/Http/Controllers/Auth/RecuperacionController.php)"
+      "Bash(php -l app/Http/Controllers/Auth/RecuperacionController.php)",
+      "PowerShell($conn = Get-NetTCPConnection -LocalPort 8011 -State Listen -ErrorAction SilentlyContinue; if \\($conn\\) { Stop-Process -Id $conn.OwningProcess -Force -Confirm:$false; \"Servidor de prueba detenido\" } else { \"Ya no habia servidor en 8011\" })",
+      "Bash(php -l app/Http/Controllers/Concerns/CreaUsuarios.php)"
     ]
   }
 }

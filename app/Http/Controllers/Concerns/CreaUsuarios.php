@@ -73,4 +73,58 @@ trait CreaUsuarios
             'correo.unique'           => 'Ya existe un usuario con ese correo.',
         ]);
     }
+
+    /**
+     * Reglas de validación para EDITAR una persona ya creada: documento y
+     * correo siguen siendo únicos, pero ignorando al propio usuario.
+     *
+     * @param  array<string, mixed>  $extra
+     * @return array<string, mixed>
+     */
+    protected function validarPersonaEdicion(Request $request, Usuario $usuario, array $extra = []): array
+    {
+        return $request->validate(array_merge([
+            'nombres'          => ['required', 'string', 'max:100'],
+            'apellidos'        => ['required', 'string', 'max:100'],
+            'tipo_documento'   => ['required', Rule::in(['CC', 'TI', 'CE', 'PEP'])],
+            'numero_documento' => ['required', 'string', 'max:20', Rule::unique('usuario', 'numero_documento')->ignore($usuario->id_usuario, 'id_usuario')],
+            'correo'           => ['required', 'email', 'max:120', Rule::unique('usuario', 'correo')->ignore($usuario->id_usuario, 'id_usuario')],
+            'telefono'         => ['nullable', 'string', 'max:20'],
+            'password'         => ['nullable', 'string', 'min:6', 'max:255', 'confirmed'],
+        ], $extra), [
+            'password.confirmed'      => 'La confirmación de la contraseña no coincide.',
+            'numero_documento.unique' => 'Ya existe otro usuario con ese número de documento.',
+            'correo.unique'           => 'Ya existe otro usuario con ese correo.',
+        ]);
+    }
+
+    /**
+     * Aplica a un usuario existente los datos personales editados. La
+     * contraseña solo cambia si se indicó una nueva, y el username se mantiene
+     * sincronizado con el documento cuando seguía la convención de alta.
+     *
+     * @param  array<string, mixed>  $datos
+     */
+    protected function actualizarDatosUsuario(Usuario $usuario, array $datos): void
+    {
+        $cambios = [
+            'nombres'          => $datos['nombres'],
+            'apellidos'        => $datos['apellidos'],
+            'tipo_documento'   => $datos['tipo_documento'],
+            'numero_documento' => $datos['numero_documento'],
+            'correo'           => $datos['correo'],
+            'telefono'         => $datos['telefono'] ?? null,
+        ];
+
+        // El alta usa el documento como username: si aún coinciden, se sincroniza.
+        if ((string) $usuario->username === (string) $usuario->numero_documento) {
+            $cambios['username'] = $datos['numero_documento'];
+        }
+
+        if (! empty($datos['password'])) {
+            $cambios['password_hash'] = Hash::make($datos['password']);
+        }
+
+        $usuario->update($cambios);
+    }
 }

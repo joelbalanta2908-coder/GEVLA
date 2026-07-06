@@ -90,6 +90,7 @@
                         <td class="px-5 py-3 text-right" data-label="Acción">
                             <div class="flex items-center justify-end gap-3">
                                 <a href="{{ route('coordinacion.docentes.show', $docente->id_instructor) }}" class="font-medium text-[#39A900] hover:underline">Ver</a>
+                                <a href="{{ route('coordinacion.docentes.editar', $docente->id_instructor) }}" class="font-medium text-amber-600 hover:underline">Editar</a>
                                 @php
                                     $docenteActivo = $docente->estado_instructor === 'activo';
                                     $nombreDocente = $du ? trim($du->nombres.' '.$du->apellidos) : $docente->codigo_instructor;

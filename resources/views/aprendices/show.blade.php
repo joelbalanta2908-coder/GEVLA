@@ -10,6 +10,14 @@
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
             Volver
         </a>
+        {{-- Solo el coordinador recibe la URL de edición; los demás roles ven la hoja de vida en solo lectura. --}}
+        @isset($editarUrl)
+            <a href="{{ $editarUrl }}" title="Editar datos del aprendiz"
+               class="inline-flex items-center gap-1.5 self-start rounded-xl bg-amber-50 px-3.5 py-2 text-sm font-semibold text-amber-700 ring-1 ring-amber-200 transition hover:bg-amber-100 sm:self-auto">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                Editar datos
+            </a>
+        @endisset
     </div>
 
     {{-- Cabecera del aprendiz --}}

@@ -80,6 +80,7 @@
                         <td class="px-5 py-3 text-right" data-label="Acción">
                             <div class="flex items-center justify-end gap-3">
                                 <a href="{{ route('coordinacion.aprendices.show', $ap->id_aprendiz) }}" class="font-medium text-[#39A900] hover:underline">Ver información</a>
+                                <a href="{{ route('coordinacion.aprendices.editar', $ap->id_aprendiz) }}" class="font-medium text-amber-600 hover:underline">Editar</a>
                                 @if($ap->usuario && $estadoCuenta !== 'bloqueado')
                                     <form method="POST" action="{{ route('coordinacion.aprendices.estado', $ap->id_aprendiz) }}"
                                           data-confirm="{{ $cuentaActiva

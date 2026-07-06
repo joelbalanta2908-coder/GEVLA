@@ -134,6 +134,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/aprendices/crear', [CoordinacionController::class, 'crearAprendizForm'])->name('aprendices.crear');
         Route::post('/aprendices', [CoordinacionController::class, 'crearAprendiz'])->name('aprendices.store');
         Route::patch('/aprendices/{aprendiz}/estado', [CoordinacionController::class, 'actualizarEstadoAprendiz'])->name('aprendices.estado');
+        Route::get('/aprendices/{aprendiz}/editar', [CoordinacionController::class, 'editarAprendizForm'])->name('aprendices.editar');
+        Route::put('/aprendices/{aprendiz}', [CoordinacionController::class, 'actualizarAprendiz'])->name('aprendices.update');
         Route::get('/aprendices/{id}', [CoordinacionController::class, 'aprendizShow'])->name('aprendices.show');
 
         // Docentes (instructores): alta, fichas asignadas, liderazgo, tipo
@@ -144,6 +146,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/docentes', [CoordinacionController::class, 'crearDocente'])->name('docentes.store');
         Route::patch('/docentes/{instructor}/tipo', [CoordinacionController::class, 'actualizarTipoDocente'])->name('docentes.tipo');
         Route::patch('/docentes/{instructor}/estado', [CoordinacionController::class, 'actualizarEstadoDocente'])->name('docentes.estado');
+        Route::get('/docentes/{instructor}/editar', [CoordinacionController::class, 'editarDocenteForm'])->name('docentes.editar');
+        Route::put('/docentes/{instructor}', [CoordinacionController::class, 'actualizarDocente'])->name('docentes.update');
         Route::get('/docentes/{instructor}', [CoordinacionController::class, 'docenteShow'])->name('docentes.show');
 
         // Gestión de Fichas (CRUD + asociaciones + instructor líder).
