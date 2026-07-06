@@ -24,7 +24,7 @@
                         Editar
                     </a>
                     @if($esLider)
-                        <span class="estado-badge inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700">★ Instructor líder</span>
+                        <span class="estado-badge inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700">★ Instructor líder</span>
                     @endif
                     <span class="estado-badge inline-flex rounded-full px-2.5 py-1 text-xs font-medium {{ $instructor->estado_instructor === 'activo' ? 'bg-[#39A900]/10 text-[#247200]' : 'bg-red-100 text-red-700' }}">{{ ucfirst($instructor->estado_instructor) }}</span>
                 </div>

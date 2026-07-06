@@ -77,7 +77,7 @@
                         </td>
                         <td class="px-5 py-3" data-label="Líder">
                             @if($esLider)
-                                <span class="estado-badge inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700">★ Líder</span>
+                                <span class="estado-badge inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700">★ Líder</span>
                             @else
                                 <span class="text-xs text-gray-400">No</span>
                             @endif
