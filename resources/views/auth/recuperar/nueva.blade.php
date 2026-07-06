@@ -66,6 +66,10 @@
         </button>
     </form>
 
+    <p class="mt-5 text-center text-sm font-medium text-slate-500">
+        <a href="{{ route('login') }}" class="font-bold text-[#39A900] transition hover:text-[#247200]">← Volver a iniciar sesión</a>
+    </p>
+
     <script>
         // Mostrar / ocultar cada campo de contraseña.
         document.querySelectorAll('[data-alternar]').forEach(function (boton) {

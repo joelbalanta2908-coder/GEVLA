@@ -56,6 +56,19 @@ class CorreoRecuperacion
         $mail->CharSet    = PHPMailer::CHARSET_UTF8;
         $mail->SMTPDebug  = SMTP::DEBUG_OFF;
 
+        // Redes con inspección TLS (antivirus/proxy) reemplazan el certificado
+        // del servidor y OpenSSL no puede validarlo. Con MAIL_VERIFICAR_TLS=false
+        // en el .env se relaja la verificación (solo para desarrollo).
+        if (! filter_var($smtp['verificar_tls'] ?? true, FILTER_VALIDATE_BOOL)) {
+            $mail->SMTPOptions = [
+                'ssl' => [
+                    'verify_peer'       => false,
+                    'verify_peer_name'  => false,
+                    'allow_self_signed' => true,
+                ],
+            ];
+        }
+
         $mail->setFrom((string) config('mail.from.address'), (string) config('mail.from.name'));
         $mail->addAddress($destino, $nombre);
 

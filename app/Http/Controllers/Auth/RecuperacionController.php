@@ -239,9 +239,17 @@ class RecuperacionController extends Controller
             'ultimo_envio' => now()->getTimestamp(),
         ]);
 
+        // En modo de prueba (MAIL_MAILER=log) el correo no sale por internet,
+        // asi que el codigo se muestra directamente en pantalla para poder
+        // usar el flujo completo sin configurar un servidor de correo. Al
+        // pasar a MAIL_MAILER=smtp, el codigo solo llega por correo real.
+        $mensaje = config('mail.default') === 'log'
+            ? "MODO DE PRUEBA (sin correo real configurado): tu código es {$codigo}."
+            : 'Enviamos un código de 6 dígitos a tu correo. Revisa también la carpeta de spam.';
+
         return redirect()
             ->route('recuperar.codigo')
-            ->with('status', 'Enviamos un código de 6 dígitos a tu correo. Revisa también la carpeta de spam.');
+            ->with('status', $mensaje);
     }
 
     /**

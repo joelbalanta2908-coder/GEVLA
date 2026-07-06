@@ -47,6 +47,10 @@
         <a href="{{ route('recuperar.solicitud') }}" class="transition hover:text-slate-700">Usar otro correo</a>
     </div>
 
+    <p class="mt-4 text-center text-sm font-medium text-slate-500">
+        <a href="{{ route('login') }}" class="font-bold text-[#39A900] transition hover:text-[#247200]">← Volver a iniciar sesión</a>
+    </p>
+
     <script>
         // Solo dígitos en el campo del código.
         document.getElementById('codigo').addEventListener('input', function () {

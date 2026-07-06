@@ -47,6 +47,10 @@ return [
             'password' => env('MAIL_PASSWORD'),
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
+            // En false relaja la verificación del certificado TLS. Necesario en
+            // redes con antivirus/proxy que inspeccionan las conexiones cifradas
+            // (reemplazan el certificado del servidor). Solo para desarrollo.
+            'verificar_tls' => env('MAIL_VERIFICAR_TLS', true),
         ],
 
         'ses' => [
