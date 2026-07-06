@@ -299,21 +299,38 @@ class InstructorLlamadoController extends Controller
     {
         $instructor = $this->getInstructor();
 
+        // Puede consultar sus propios llamados y, en solo lectura, los de los
+        // aprendices de las fichas a las que está asignado (desde el historial
+        // disciplinario de la ficha). La edición sigue siendo solo del propio.
+        $fichasIds = $instructor->fichas()->pluck('ficha.id_ficha')
+            ->merge($instructor->fichasLideradas()->pluck('id_ficha'))
+            ->map(fn ($id) => (int) $id)
+            ->unique();
+
         $llamado = LlamadoAtencion::with([
             'aprendiz.usuario',
+            'instructor.usuario',
             'coordinacion',
             'faltas',
             'articulo',
         ])
-        ->where('id_instructor', $instructor->id_instructor)
+        ->where(function ($q) use ($instructor, $fichasIds) {
+            $q->where('id_instructor', $instructor->id_instructor)
+                ->orWhereHas('aprendiz.matriculas', fn ($m) => $m->whereIn('id_ficha', $fichasIds));
+        })
         ->findOrFail($llamado);
 
-        // Marcar como recibidas las notificaciones asociadas a este llamado
-        \App\Models\Notificacion::where('id_llamado', $llamado->id_llamado)
-            ->where('estado_notificacion', 'enviada')
-            ->update(['estado_notificacion' => 'recibida']);
+        $esPropio = (int) $llamado->id_instructor === (int) $instructor->id_instructor;
 
-        return view('instructor.llamados.show', compact('llamado'));
+        // Marcar como recibidas las notificaciones asociadas a este llamado
+        // (solo cuando lo revisa el instructor que lo reportó).
+        if ($esPropio) {
+            \App\Models\Notificacion::where('id_llamado', $llamado->id_llamado)
+                ->where('estado_notificacion', 'enviada')
+                ->update(['estado_notificacion' => 'recibida']);
+        }
+
+        return view('instructor.llamados.show', compact('llamado', 'esPropio'));
     }
 
     /**

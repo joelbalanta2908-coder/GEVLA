@@ -25,7 +25,8 @@
             <div>
                 <div class="flex items-center gap-3">
                     <h2 class="text-xl font-bold text-[#00324D]">{{ $llamado->asunto }}</h2>
-                    @if($llamado->estado_llamado === 'registrado')
+                    {{-- Editar/eliminar: solo el instructor que registró el llamado --}}
+                    @if(($esPropio ?? true) && $llamado->estado_llamado === 'registrado')
                         <div class="flex gap-2">
                             <a href="{{ route('instructor.llamados.edit', $llamado->id_llamado) }}" class="rounded bg-amber-50 p-1.5 text-amber-600 hover:bg-amber-100 transition" title="Editar">
                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
@@ -44,6 +45,10 @@
                 </div>
                 <p class="mt-1 text-sm text-gray-500">
                     Reportado el {{ \Carbon\Carbon::parse($llamado->fecha_llamado)->translatedFormat('d \d\e F \d\e Y') }}
+                    @unless($esPropio ?? true)
+                        por <span class="font-semibold text-gray-700">{{ $llamado->instructor?->usuario?->nombres }} {{ $llamado->instructor?->usuario?->apellidos }}</span>
+                        <span class="ml-1 rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-blue-600">Solo consulta</span>
+                    @endunless
                 </p>
             </div>
             <span class="shrink-0 rounded-full px-3 py-1 text-xs font-medium {{ $estadoBadge }}">
