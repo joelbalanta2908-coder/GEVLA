@@ -27,8 +27,26 @@
         </div>
     @endif
 
+    @php
+        // Logo institucional incrustado en base64: se ve igual en la vista
+        // imprimible (PDF) y al abrir el archivo Word/Excel sin servidor.
+        $rutaLogo = public_path('img/logo-sena-verde.png');
+        $logoBase64 = is_file($rutaLogo) ? 'data:image/png;base64,' . base64_encode((string) file_get_contents($rutaLogo)) : null;
+    @endphp
     <div class="encabezado">
-        <div class="marca">GEVLA · SENA</div>
+        <table style="width:100%; border-collapse:collapse; margin:0;">
+            <tr>
+                <td style="border:none; padding:0; width:70px; vertical-align:middle;">
+                    @if($logoBase64)
+                        <img src="{{ $logoBase64 }}" alt="SENA" width="58" style="display:block;">
+                    @endif
+                </td>
+                <td style="border:none; padding:0 0 0 6px; vertical-align:middle;">
+                    <div class="marca" style="font-size:26px; letter-spacing:2px;">GEVLA</div>
+                    <div style="font-size:11px; color:#64748b; letter-spacing:3px; font-weight:700;">SENA &middot; GESTI&Oacute;N DISCIPLINARIA Y FORMATIVA</div>
+                </td>
+            </tr>
+        </table>
         <h1>{{ $titulo }}</h1>
         <div class="meta">
             @foreach($meta as $m)

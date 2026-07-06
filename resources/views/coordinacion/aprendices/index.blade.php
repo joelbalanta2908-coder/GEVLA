@@ -78,7 +78,8 @@
                         <td class="px-5 py-3 text-center" data-label="Llamados">{{ $ap->llamados_atencion_count }}</td>
                         <td class="px-5 py-3 text-center" data-label="Procesos">{{ $ap->procesos_disciplinarios_count }}</td>
                         <td class="px-5 py-3 text-right" data-label="Acción">
-                            <div class="flex items-center justify-end gap-3">
+                            {{-- whitespace-nowrap: las acciones no se parten en dos líneas --}}
+                            <div class="flex items-center justify-end gap-3 whitespace-nowrap">
                                 <a href="{{ route('coordinacion.aprendices.show', $ap->id_aprendiz) }}" class="font-medium text-[#39A900] hover:underline">Ver información</a>
                                 <a href="{{ route('coordinacion.aprendices.editar', $ap->id_aprendiz) }}" class="font-medium text-amber-600 hover:underline">Editar</a>
                                 @if($ap->usuario && $estadoCuenta !== 'bloqueado')

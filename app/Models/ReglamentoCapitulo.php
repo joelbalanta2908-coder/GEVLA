@@ -33,6 +33,10 @@ class ReglamentoCapitulo extends Model
 
     public function articulos(): HasMany
     {
-        return $this->hasMany(ReglamentoArticulo::class, 'id_capitulo', 'id_capitulo')->orderBy('id_articulo');
+        // Orden del documento: por número de artículo (Art. 1, Art. 2, ...) y,
+        // dentro del mismo artículo, sus faltas numeradas (Art. 8 #4, #5, ...).
+        return $this->hasMany(ReglamentoArticulo::class, 'id_capitulo', 'id_capitulo')
+            ->orderByRaw('CAST(SUBSTRING(numero_articulo, 6) AS UNSIGNED)')
+            ->orderByRaw("CAST(SUBSTRING_INDEX(numero_articulo, '#', -1) AS UNSIGNED)");
     }
 }

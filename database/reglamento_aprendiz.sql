@@ -143,36 +143,39 @@ INSERT INTO `reglamento_articulo` (`id_articulo`, `id_capitulo`, `numero_articul
 -- 10) FALTAS clasificadas por calificacion (alimentan el selector de
 --     faltas del formulario de llamados). Se conservan sus ids 8..29
 --     para no romper los llamados existentes que los referencian.
+--     Cada falta vive en el capitulo de su articulo de origen, siguiendo
+--     el orden del documento: las de Art. 8 y Art. 9 en el Capitulo III
+--     (deberes y prohibiciones) y las de Art. 42 en el Capitulo V.
 -- ---------------------------------------------------------------------
--- 10.1) FALTAS LEVES
+-- 10.1) FALTAS LEVES (numerales del Art. 8 - Capitulo III)
 INSERT INTO `reglamento_articulo` (`id_articulo`, `id_capitulo`, `numero_articulo`, `titulo`, `calificacion`, `contenido`) VALUES
-(8,  5, 'Art. 8 #5',  'Impuntualidad o inasistencia esporadica a las actividades de formacion', 'leve', 'Hechos contrarios al reglamento que no ponen en riesgo significativo el orden o los derechos de terceros.'),
-(9,  5, 'Art. 8 #15', 'No usar los elementos de proteccion personal requeridos', 'leve', 'Incumplimiento de buenas practicas de seguridad y salud en el trabajo sin generar dano.'),
-(10, 5, 'Art. 8 #19', 'No portar el carne o los elementos de identificacion institucional', 'leve', 'Falta leve por incumplimiento de los deberes de identificacion.'),
-(11, 5, 'Art. 8 #11', 'Uso inadecuado de ambientes, equipos o recursos sin causar dano', 'leve', 'Manejo descuidado de recursos sin detrimento patrimonial.'),
-(12, 5, 'Art. 8 #7',  'No justificar oportunamente las inasistencias o incumplimientos', 'leve', 'Incumplimiento del deber de justificar dentro de los terminos del reglamento.'),
-(13, 5, 'Art. 8 #4',  'No mantener actualizados los datos en los sistemas del SENA', 'leve', 'Incumplimiento del deber de registrar y actualizar la informacion personal.');
+(8,  3, 'Art. 8 #5',  'Impuntualidad o inasistencia esporadica a las actividades de formacion', 'leve', 'Hechos contrarios al reglamento que no ponen en riesgo significativo el orden o los derechos de terceros.'),
+(9,  3, 'Art. 8 #15', 'No usar los elementos de proteccion personal requeridos', 'leve', 'Incumplimiento de buenas practicas de seguridad y salud en el trabajo sin generar dano.'),
+(10, 3, 'Art. 8 #19', 'No portar el carne o los elementos de identificacion institucional', 'leve', 'Falta leve por incumplimiento de los deberes de identificacion.'),
+(11, 3, 'Art. 8 #11', 'Uso inadecuado de ambientes, equipos o recursos sin causar dano', 'leve', 'Manejo descuidado de recursos sin detrimento patrimonial.'),
+(12, 3, 'Art. 8 #7',  'No justificar oportunamente las inasistencias o incumplimientos', 'leve', 'Incumplimiento del deber de justificar dentro de los terminos del reglamento.'),
+(13, 3, 'Art. 8 #4',  'No mantener actualizados los datos en los sistemas del SENA', 'leve', 'Incumplimiento del deber de registrar y actualizar la informacion personal.');
 
--- 10.2) FALTAS GRAVES
+-- 10.2) FALTAS GRAVES (numerales del Art. 9 - Capitulo III; las de Art. 42 en el V)
 INSERT INTO `reglamento_articulo` (`id_articulo`, `id_capitulo`, `numero_articulo`, `titulo`, `calificacion`, `contenido`) VALUES
-(14, 5, 'Art. 9 #4',  'Plagiar trabajos o documentos, o cometer fraude en actividades evaluativas', 'grave', 'Comportamientos que cuestionan los principios y valores y perturban el proceso formativo.'),
-(15, 5, 'Art. 9 #2',  'Suplantar identidad en cualquier tramite academico o administrativo', 'grave', 'Afecta de manera significativa a la institucion o a un miembro de la comunidad.'),
-(16, 5, 'Art. 9 #3',  'Alterar, falsificar o sustraer documentos del SENA', 'grave', 'Conducta que compromete las normas basicas de convivencia.'),
-(17, 5, 'Art. 9 #1',  'Aportar documentos o registrar informacion falsa para obtener un beneficio', 'grave', 'Falta grave por afectar la transparencia de los procesos institucionales.'),
-(18, 5, 'Art. 9 #8',  'Usar el nombre, instalaciones o recursos del SENA para fines particulares', 'grave', 'Uso indebido de los recursos institucionales.'),
-(19, 5, 'Art. 9 #11', 'Realizar proselitismo politico o religioso en ambientes de formacion', 'grave', 'Conducta que perturba el normal desarrollo de la formacion.'),
-(20, 5, 'Art. 9 #12', 'Ingresar o salir por sitios no autorizados saltando muros o cerramientos', 'grave', 'Pone en riesgo la seguridad y el orden institucional.'),
+(14, 3, 'Art. 9 #4',  'Plagiar trabajos o documentos, o cometer fraude en actividades evaluativas', 'grave', 'Comportamientos que cuestionan los principios y valores y perturban el proceso formativo.'),
+(15, 3, 'Art. 9 #2',  'Suplantar identidad en cualquier tramite academico o administrativo', 'grave', 'Afecta de manera significativa a la institucion o a un miembro de la comunidad.'),
+(16, 3, 'Art. 9 #3',  'Alterar, falsificar o sustraer documentos del SENA', 'grave', 'Conducta que compromete las normas basicas de convivencia.'),
+(17, 3, 'Art. 9 #1',  'Aportar documentos o registrar informacion falsa para obtener un beneficio', 'grave', 'Falta grave por afectar la transparencia de los procesos institucionales.'),
+(18, 3, 'Art. 9 #8',  'Usar el nombre, instalaciones o recursos del SENA para fines particulares', 'grave', 'Uso indebido de los recursos institucionales.'),
+(19, 3, 'Art. 9 #11', 'Realizar proselitismo politico o religioso en ambientes de formacion', 'grave', 'Conducta que perturba el normal desarrollo de la formacion.'),
+(20, 3, 'Art. 9 #12', 'Ingresar o salir por sitios no autorizados saltando muros o cerramientos', 'grave', 'Pone en riesgo la seguridad y el orden institucional.'),
 (21, 5, 'Art. 42 #1', 'Reincidencia en la comision de faltas leves', 'grave', 'La acumulacion o reincidencia de faltas leves puede derivar en falta grave.');
 
--- 10.3) FALTAS GRAVISIMAS
+-- 10.3) FALTAS GRAVISIMAS (numerales del Art. 9 - Capitulo III; las de Art. 42 en el V)
 INSERT INTO `reglamento_articulo` (`id_articulo`, `id_capitulo`, `numero_articulo`, `titulo`, `calificacion`, `contenido`) VALUES
-(22, 5, 'Art. 9 #6',  'Ingresar, consumir o comercializar bebidas alcoholicas o sustancias psicoactivas', 'muy_grave', 'Conductas que ponen en riesgo la vida y la integridad de las personas.'),
-(23, 5, 'Art. 9 #7',  'Ingresar o portar armas u objetos que pongan en riesgo la integridad', 'muy_grave', 'Atenta contra la integridad fisica de la comunidad educativa.'),
-(24, 5, 'Art. 9 #9',  'Cometer, ser complice o participe de delitos contra la comunidad o la institucion', 'muy_grave', 'Conducta gravisima que atenta contra los principios del SENA.'),
-(25, 5, 'Art. 9 #10', 'Destruir, sustraer o danar intencionalmente bienes del SENA o de terceros', 'muy_grave', 'Dano material que puede causar perjuicios irreparables.'),
-(26, 5, 'Art. 9 #14', 'Discriminar a cualquier miembro de la comunidad educativa', 'muy_grave', 'Atenta contra la dignidad y los derechos humanos de las personas.'),
-(27, 5, 'Art. 9 #13', 'Hostigamiento, acoso (bullying / mobbing) o acoso sexual', 'muy_grave', 'Conducta que atenta contra la integridad psicologica y moral de las personas.'),
-(28, 5, 'Art. 9 #5',  'Difundir contenido violento, pornografico o ilegal por medios del SENA', 'muy_grave', 'Uso de las TIC para causar danos al nombre, honra o derechos ajenos.'),
+(22, 3, 'Art. 9 #6',  'Ingresar, consumir o comercializar bebidas alcoholicas o sustancias psicoactivas', 'muy_grave', 'Conductas que ponen en riesgo la vida y la integridad de las personas.'),
+(23, 3, 'Art. 9 #7',  'Ingresar o portar armas u objetos que pongan en riesgo la integridad', 'muy_grave', 'Atenta contra la integridad fisica de la comunidad educativa.'),
+(24, 3, 'Art. 9 #9',  'Cometer, ser complice o participe de delitos contra la comunidad o la institucion', 'muy_grave', 'Conducta gravisima que atenta contra los principios del SENA.'),
+(25, 3, 'Art. 9 #10', 'Destruir, sustraer o danar intencionalmente bienes del SENA o de terceros', 'muy_grave', 'Dano material que puede causar perjuicios irreparables.'),
+(26, 3, 'Art. 9 #14', 'Discriminar a cualquier miembro de la comunidad educativa', 'muy_grave', 'Atenta contra la dignidad y los derechos humanos de las personas.'),
+(27, 3, 'Art. 9 #13', 'Hostigamiento, acoso (bullying / mobbing) o acoso sexual', 'muy_grave', 'Conducta que atenta contra la integridad psicologica y moral de las personas.'),
+(28, 3, 'Art. 9 #5',  'Difundir contenido violento, pornografico o ilegal por medios del SENA', 'muy_grave', 'Uso de las TIC para causar danos al nombre, honra o derechos ajenos.'),
 (29, 5, 'Art. 42 #2', 'Conductas que atenten contra los derechos humanos o la integridad de las personas', 'muy_grave', 'Faltas gravisimas que dan lugar a la cancelacion de matricula.');
 
 -- ---------------------------------------------------------------------

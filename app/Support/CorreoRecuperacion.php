@@ -83,31 +83,93 @@ class CorreoRecuperacion
 
     /**
      * Plantilla HTML del correo, con la paleta institucional de GEVLA.
+     * Maquetada con tablas (el estándar de los clientes de correo) y con el
+     * logosímbolo SENA verde alojado en un CDN público, ya que Gmail y otros
+     * clientes no muestran imágenes incrustadas en base64.
      */
     private static function plantilla(string $nombre, string $codigo): string
     {
         $nombreSeguro = htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8');
+        $anio = date('Y');
+        $logo = 'https://commons.wikimedia.org/wiki/Special:FilePath/Sena_Colombia_logo.svg?width=110';
 
         return <<<HTML
-        <div style="margin:0 auto;max-width:520px;font-family:Arial,Helvetica,sans-serif;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
-            <div style="background:#39A900;padding:20px 28px;">
-                <p style="margin:0;font-size:22px;font-weight:bold;color:#ffffff;">GEVLA</p>
-                <p style="margin:2px 0 0;font-size:12px;letter-spacing:2px;color:#eaffe0;">SENA &middot; RECUPERACI&Oacute;N DE CONTRASE&Ntilde;A</p>
-            </div>
-            <div style="padding:28px;background:#ffffff;color:#0f172a;">
-                <p style="margin:0 0 12px;font-size:15px;">Hola <strong>{$nombreSeguro}</strong>,</p>
-                <p style="margin:0 0 20px;font-size:14px;color:#475569;">
-                    Recibimos una solicitud para restablecer tu contrase&ntilde;a en GEVLA.
-                    Usa el siguiente c&oacute;digo para continuar:
-                </p>
-                <p style="margin:0 auto 20px;width:fit-content;background:#f4f9ee;border:1px dashed #39A900;border-radius:10px;padding:14px 28px;font-size:30px;font-weight:bold;letter-spacing:10px;color:#247200;">{$codigo}</p>
-                <p style="margin:0 0 6px;font-size:13px;color:#475569;">El c&oacute;digo vence en <strong>10 minutos</strong>.</p>
-                <p style="margin:0;font-size:13px;color:#94a3b8;">Si no solicitaste este cambio, ignora este mensaje: tu contrase&ntilde;a seguir&aacute; siendo la misma.</p>
-            </div>
-            <div style="background:#00324D;padding:14px 28px;">
-                <p style="margin:0;font-size:11px;color:#cbd5e1;">Mensaje autom&aacute;tico de GEVLA &middot; SENA. No respondas a este correo.</p>
-            </div>
-        </div>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef2f0;padding:32px 12px;">
+            <tr>
+                <td align="center">
+                    <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#ffffff;border-radius:14px;overflow:hidden;font-family:'Segoe UI',Arial,Helvetica,sans-serif;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+
+                        <!-- Cabecera con logo sobre blanco -->
+                        <tr>
+                            <td style="padding:30px 40px 22px;">
+                                <table role="presentation" cellpadding="0" cellspacing="0">
+                                    <tr>
+                                        <td style="vertical-align:middle;"><img src="{$logo}" alt="SENA" width="54" style="display:block;"></td>
+                                        <td style="vertical-align:middle;padding-left:14px;">
+                                            <div style="font-size:26px;font-weight:800;color:#39A900;letter-spacing:2px;line-height:1;">GEVLA</div>
+                                            <div style="font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:3px;padding-top:4px;">SERVICIO NACIONAL DE APRENDIZAJE</div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+
+                        <!-- Barra de acento institucional -->
+                        <tr><td style="height:4px;background:#39A900;font-size:0;line-height:0;">&nbsp;</td></tr>
+
+                        <!-- Cuerpo -->
+                        <tr>
+                            <td style="padding:34px 40px 10px;">
+                                <p style="margin:0 0 6px;font-size:19px;font-weight:700;color:#0f172a;">Recuperaci&oacute;n de contrase&ntilde;a</p>
+                                <p style="margin:0 0 22px;font-size:14px;line-height:1.7;color:#475569;">
+                                    Hola <strong style="color:#0f172a;">{$nombreSeguro}</strong>,<br>
+                                    recibimos una solicitud para restablecer la contrase&ntilde;a de tu cuenta en GEVLA.
+                                    Ingresa el siguiente c&oacute;digo de verificaci&oacute;n para continuar:
+                                </p>
+                            </td>
+                        </tr>
+
+                        <!-- Codigo -->
+                        <tr>
+                            <td align="center" style="padding:0 40px;">
+                                <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                                    <tr>
+                                        <td align="center" style="background:#f4f9ee;border:1px solid #cde8b8;border-radius:12px;padding:22px 10px;">
+                                            <div style="font-size:36px;font-weight:800;letter-spacing:14px;color:#247200;font-family:'Segoe UI',Arial,sans-serif;padding-left:14px;">{$codigo}</div>
+                                            <div style="font-size:11px;font-weight:700;color:#94a3b8;letter-spacing:1px;padding-top:8px;">V&Aacute;LIDO POR 10 MINUTOS</div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+
+                        <!-- Notas -->
+                        <tr>
+                            <td style="padding:26px 40px 34px;">
+                                <p style="margin:0 0 8px;font-size:13px;line-height:1.7;color:#64748b;">
+                                    Por tu seguridad, no compartas este c&oacute;digo con nadie. El equipo de GEVLA
+                                    nunca te lo pedir&aacute; por tel&eacute;fono ni por mensaje.
+                                </p>
+                                <p style="margin:0;font-size:13px;line-height:1.7;color:#94a3b8;">
+                                    Si no solicitaste este cambio, puedes ignorar este mensaje:
+                                    tu contrase&ntilde;a seguir&aacute; siendo la misma.
+                                </p>
+                            </td>
+                        </tr>
+
+                        <!-- Pie -->
+                        <tr>
+                            <td style="background:#00324D;padding:18px 40px;">
+                                <p style="margin:0;font-size:11px;line-height:1.6;color:#cbd5e1;">
+                                    Mensaje autom&aacute;tico de <strong style="color:#ffffff;">GEVLA</strong> &middot; Sistema de Gesti&oacute;n Disciplinaria y Formativa<br>
+                                    &copy; {$anio} SENA &mdash; Servicio Nacional de Aprendizaje. No respondas a este correo.
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
         HTML;
     }
 }

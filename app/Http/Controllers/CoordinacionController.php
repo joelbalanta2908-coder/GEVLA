@@ -120,41 +120,6 @@ class CoordinacionController extends Controller
     }
 
     /**
-     * Vista de usuarios del sistema: todas las cuentas con sus roles y estado,
-     * con buscador y filtros combinables (solo consulta).
-     */
-    public function usuarios(Request $request): View
-    {
-        $buscar = trim((string) $request->input('buscar', ''));
-        $rol    = $request->input('rol');
-        $estado = $request->input('estado_usuario');
-
-        $usuarios = Usuario::query()
-            ->with(['roles' => fn ($q) => $q->wherePivot('estado_asignacion', 'activa')])
-            // Búsqueda con inferencia: coincidencia parcial por cada palabra.
-            ->when($buscar !== '', function ($q) use ($buscar) {
-                foreach (Busqueda::tokens($buscar) as $token) {
-                    $q->where(function ($sub) use ($token) {
-                        $sub->where('nombres', 'like', "%{$token}%")
-                            ->orWhere('apellidos', 'like', "%{$token}%")
-                            ->orWhere('correo', 'like', "%{$token}%")
-                            ->orWhere('numero_documento', 'like', "%{$token}%")
-                            ->orWhere('username', 'like', "%{$token}%");
-                    });
-                }
-            })
-            ->when($rol, fn ($q) => $q->whereHas('roles', fn ($r) => $r->where('nombre_rol', $rol)))
-            ->when($estado, fn ($q) => $q->where('estado_usuario', $estado))
-            ->orderBy('nombres')
-            ->paginate(15)
-            ->withQueryString();
-
-        $roles = Rol::orderBy('nombre_rol')->pluck('nombre_rol');
-
-        return view('coordinacion.usuarios.index', compact('usuarios', 'roles', 'buscar', 'rol', 'estado'));
-    }
-
-    /**
      * Centro de reportes del coordinador: generación y exportación de los
      * reportes de llamados, actas y procesos, con filtro por ficha.
      */
@@ -371,6 +336,209 @@ class CoordinacionController extends Controller
 
     /*
     |--------------------------------------------------------------------------
+    | Coordinadores (gestión de los perfiles de coordinación)
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Listado de coordinadores con búsqueda por inferencia y filtro de estado.
+     */
+    public function coordinadores(Request $request): View
+    {
+        $buscar = trim((string) $request->input('buscar', ''));
+        $estado = $request->input('estado_coordinacion');
+
+        $coordinadores = \App\Models\Coordinacion::query()
+            ->with('usuario')
+            ->withCount('llamadosAtencion')
+            ->when($buscar !== '', function ($q) use ($buscar) {
+                foreach (Busqueda::tokens($buscar) as $token) {
+                    $q->where(function ($sub) use ($token) {
+                        $sub->where('cargo', 'like', "%{$token}%")
+                            ->orWhere('dependencia', 'like', "%{$token}%")
+                            ->orWhereHas('usuario', fn ($u) => $u
+                                ->where('nombres', 'like', "%{$token}%")
+                                ->orWhere('apellidos', 'like', "%{$token}%")
+                                ->orWhere('numero_documento', 'like', "%{$token}%"));
+                    });
+                }
+            })
+            ->when($estado, fn ($q) => $q->where('estado_coordinacion', $estado))
+            ->orderBy('id_coordinacion')
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('coordinacion.coordinadores.index', compact('coordinadores', 'buscar', 'estado'));
+    }
+
+    /**
+     * Formulario para dar de alta un coordinador.
+     */
+    public function crearCoordinadorForm(): View
+    {
+        return view('coordinacion.coordinadores.create');
+    }
+
+    /**
+     * Crea un coordinador (usuario + perfil + rol) en una sola transacción.
+     */
+    public function crearCoordinador(Request $request): RedirectResponse
+    {
+        $datos = $this->validarPersona($request, [
+            'cargo'       => ['nullable', 'string', 'max:100'],
+            'dependencia' => ['nullable', 'string', 'max:120'],
+        ]);
+
+        DB::transaction(function () use ($datos, $request) {
+            $usuario = $this->crearUsuarioConRol($datos, Roles::COORDINADOR);
+
+            \App\Models\Coordinacion::create([
+                'id_usuario'           => $usuario->id_usuario,
+                'cargo'                => $request->input('cargo') ?: 'Coordinador Misional',
+                'dependencia'          => $request->input('dependencia'),
+                'estado_coordinacion'  => 'activo',
+            ]);
+        });
+
+        return redirect()
+            ->route('coordinacion.coordinadores.index')
+            ->with('success', 'Coordinador creado correctamente. Si no indicaste contraseña, la inicial es su número de documento.');
+    }
+
+    /**
+     * Formulario para editar los datos de un coordinador ya creado.
+     */
+    public function editarCoordinadorForm(\App\Models\Coordinacion $coordinador): View|RedirectResponse
+    {
+        $usuario = $coordinador->usuario;
+
+        if (! $usuario) {
+            return back()->withErrors(['error' => 'El coordinador no tiene una cuenta de usuario asociada.']);
+        }
+
+        if ($usuario->estado_usuario === 'bloqueado') {
+            return back()->withErrors(['error' => 'La cuenta está bloqueada por el administrador; no puede editarse desde coordinación.']);
+        }
+
+        return view('coordinacion.coordinadores.edit', compact('coordinador', 'usuario'));
+    }
+
+    /**
+     * Actualiza los datos de un coordinador (usuario + perfil) en transacción.
+     */
+    public function actualizarCoordinador(Request $request, \App\Models\Coordinacion $coordinador): RedirectResponse
+    {
+        $usuario = $coordinador->usuario;
+
+        if (! $usuario) {
+            return back()->withErrors(['error' => 'El coordinador no tiene una cuenta de usuario asociada.']);
+        }
+
+        if ($usuario->estado_usuario === 'bloqueado') {
+            return back()->withErrors(['error' => 'La cuenta está bloqueada por el administrador; no puede editarse desde coordinación.']);
+        }
+
+        $datos = $this->validarPersonaEdicion($request, $usuario, [
+            'cargo'       => ['nullable', 'string', 'max:100'],
+            'dependencia' => ['nullable', 'string', 'max:120'],
+        ]);
+
+        DB::transaction(function () use ($datos, $usuario, $coordinador) {
+            $this->actualizarDatosUsuario($usuario, $datos);
+
+            $coordinador->update([
+                'cargo'       => $datos['cargo'] ?: $coordinador->cargo,
+                'dependencia' => $datos['dependencia'] ?? null,
+            ]);
+        });
+
+        return redirect()
+            ->route('coordinacion.coordinadores.index')
+            ->with('success', 'Datos del coordinador actualizados correctamente.');
+    }
+
+    /**
+     * Activa o inactiva un coordinador (perfil + cuenta). Nadie puede
+     * inactivarse a sí mismo ni tocar cuentas bloqueadas.
+     */
+    public function actualizarEstadoCoordinador(\App\Models\Coordinacion $coordinador): RedirectResponse
+    {
+        $usuario = $coordinador->usuario;
+
+        if ($usuario && (int) $usuario->id_usuario === (int) auth()->id()) {
+            return back()->withErrors(['error' => 'No puedes cambiar el estado de tu propia cuenta.']);
+        }
+
+        if ($usuario && $usuario->estado_usuario === 'bloqueado') {
+            return back()->withErrors(['error' => 'La cuenta está bloqueada por el administrador; no puede modificarse desde coordinación.']);
+        }
+
+        $nuevo = $coordinador->estado_coordinacion === 'activo' ? 'inactivo' : 'activo';
+
+        DB::transaction(function () use ($coordinador, $usuario, $nuevo) {
+            $coordinador->update(['estado_coordinacion' => $nuevo]);
+            $usuario?->update(['estado_usuario' => $nuevo]);
+        });
+
+        $nombre = $usuario ? trim($usuario->nombres . ' ' . $usuario->apellidos) : ('#' . $coordinador->id_coordinacion);
+
+        return back()->with('success', $nuevo === 'activo'
+            ? "Coordinador {$nombre} activado correctamente."
+            : "Coordinador {$nombre} inactivado correctamente. No podrá iniciar sesión mientras esté inactivo.");
+    }
+
+    /**
+     * Elimina un coordinador definitivamente. Solo si no tiene llamados
+     * gestionados a su nombre y no es la propia cuenta.
+     */
+    public function eliminarCoordinador(\App\Models\Coordinacion $coordinador): RedirectResponse
+    {
+        $usuario = $coordinador->usuario;
+
+        if ($usuario && (int) $usuario->id_usuario === (int) auth()->id()) {
+            return back()->withErrors(['error' => 'No puedes eliminar tu propia cuenta.']);
+        }
+
+        if ($usuario && $usuario->estado_usuario === 'bloqueado') {
+            return back()->withErrors(['error' => 'La cuenta está bloqueada por el administrador; no puede eliminarse desde coordinación.']);
+        }
+
+        if ($coordinador->llamadosAtencion()->exists()) {
+            return back()->withErrors([
+                'error' => 'No se puede eliminar el coordinador porque tiene llamados de atención gestionados a su nombre. Inactívalo para conservar la trazabilidad.',
+            ]);
+        }
+
+        $nombre = $usuario ? trim($usuario->nombres . ' ' . $usuario->apellidos) : ('#' . $coordinador->id_coordinacion);
+
+        DB::transaction(function () use ($coordinador, $usuario) {
+            $coordinador->delete();
+
+            if (! $usuario) {
+                return;
+            }
+
+            $rolCoordinador = \App\Models\Rol::where('nombre_rol', Roles::COORDINADOR)->value('id_rol');
+            if ($rolCoordinador) {
+                $usuario->roles()->detach($rolCoordinador);
+            }
+
+            if ($usuario->roles()->count() === 0) {
+                try {
+                    $usuario->delete();
+                } catch (\Illuminate\Database\QueryException) {
+                    $usuario->update(['estado_usuario' => 'inactivo']);
+                }
+            }
+        });
+
+        return redirect()
+            ->route('coordinacion.coordinadores.index')
+            ->with('success', "Coordinador {$nombre} eliminado correctamente.");
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | Docentes (instructores a cargo de la coordinación)
     |--------------------------------------------------------------------------
     */
@@ -479,6 +647,72 @@ class CoordinacionController extends Controller
         $tipos = Instructor::tiposDocente();
 
         return view('coordinacion.docentes.show', compact('instructor', 'tipos'));
+    }
+
+    /**
+     * Elimina un instructor definitivamente. Solo se permite cuando no tiene
+     * historia en el sistema (llamados, fichas o liderazgos); si la tiene, lo
+     * correcto es inactivarlo para conservar la trazabilidad.
+     */
+    public function eliminarDocente(Instructor $instructor): RedirectResponse
+    {
+        $usuario = $instructor->usuario;
+
+        if ($usuario && $usuario->estado_usuario === 'bloqueado') {
+            return back()->withErrors(['error' => 'La cuenta está bloqueada por el administrador; no puede eliminarse desde coordinación.']);
+        }
+
+        // Validaciones de integridad: con historia en el sistema no se elimina.
+        $motivos = [];
+        if ($instructor->llamadosAtencion()->exists()) {
+            $motivos[] = 'tiene llamados de atención registrados';
+        }
+        if ($instructor->fichas()->exists()) {
+            $motivos[] = 'tiene fichas asignadas';
+        }
+        if ($instructor->fichasLideradas()->exists()) {
+            $motivos[] = 'es instructor líder de una ficha';
+        }
+        if (\App\Models\HistorialInstructorLider::where('id_instructor_anterior', $instructor->id_instructor)
+            ->orWhere('id_instructor_nuevo', $instructor->id_instructor)
+            ->exists()) {
+            $motivos[] = 'aparece en el historial de liderazgo de fichas';
+        }
+
+        if ($motivos !== []) {
+            return back()->withErrors([
+                'error' => 'No se puede eliminar el instructor porque ' . implode(', ', $motivos) . '. Inactívalo para que no pueda ingresar ni ser asignado, conservando la trazabilidad.',
+            ]);
+        }
+
+        $nombre = $usuario ? trim($usuario->nombres . ' ' . $usuario->apellidos) : $instructor->codigo_instructor;
+
+        DB::transaction(function () use ($instructor, $usuario) {
+            $instructor->delete();
+
+            if (! $usuario) {
+                return;
+            }
+
+            // Se retira el rol de instructor; si la cuenta no tiene más roles,
+            // se elimina también (si algo más la referencia, solo se inactiva).
+            $rolInstructor = \App\Models\Rol::where('nombre_rol', Roles::INSTRUCTOR)->value('id_rol');
+            if ($rolInstructor) {
+                $usuario->roles()->detach($rolInstructor);
+            }
+
+            if ($usuario->roles()->count() === 0) {
+                try {
+                    $usuario->delete();
+                } catch (\Illuminate\Database\QueryException) {
+                    $usuario->update(['estado_usuario' => 'inactivo']);
+                }
+            }
+        });
+
+        return redirect()
+            ->route('coordinacion.docentes.index')
+            ->with('success', "Instructor {$nombre} eliminado correctamente.");
     }
 
     /**

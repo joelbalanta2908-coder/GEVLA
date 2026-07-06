@@ -62,9 +62,9 @@
             @php
                 $navItems = [
                     ['label' => 'Dashboard', 'route' => 'coordinacion.dashboard', 'icon' => 'home'],
-                    ['label' => 'Usuarios', 'route' => 'coordinacion.usuarios.index', 'icon' => 'idcard'],
                     ['label' => 'Aprendices', 'route' => 'coordinacion.aprendices.index', 'icon' => 'users'],
                     ['label' => 'Instructores', 'route' => 'coordinacion.docentes.index', 'icon' => 'chalk'],
+                    ['label' => 'Coordinadores', 'route' => 'coordinacion.coordinadores.index', 'icon' => 'idcard'],
                     ['label' => 'Fichas', 'route' => 'coordinacion.fichas.index', 'icon' => 'grid'],
                     ['label' => 'Programas', 'route' => 'coordinacion.programas.index', 'icon' => 'cap'],
                     ['label' => 'Llamados de atención', 'route' => 'coordinacion.llamados.index', 'icon' => 'bell'],

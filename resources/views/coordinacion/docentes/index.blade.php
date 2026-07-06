@@ -54,7 +54,7 @@
                             <p class="font-semibold text-gray-900">{{ $du ? trim($du->nombres.' '.$du->apellidos) : $docente->codigo_instructor }}</p>
                             <p class="text-xs text-gray-500">{{ $docente->codigo_instructor }}{{ $du?->correo ? ' · '.$du->correo : '' }}</p>
                         </td>
-                        <td class="px-5 py-3 text-gray-600" data-label="Documento">{{ $du?->tipo_documento }} {{ $du?->numero_documento }}</td>
+                        <td class="whitespace-nowrap px-5 py-3 text-gray-600" data-label="Documento">{{ $du?->tipo_documento }} {{ $du?->numero_documento }}</td>
                         <td class="px-5 py-3 text-gray-600" data-label="Área">{{ $docente->area_formacion ?? '—' }}</td>
                         <td class="px-5 py-3" data-label="Tipo">
                             <form method="POST" action="{{ route('coordinacion.docentes.tipo', $docente->id_instructor) }}" data-live-form>
@@ -83,12 +83,13 @@
                             @endif
                         </td>
                         <td class="px-5 py-3" data-label="Estado">
-                            <span class="estado-badge inline-flex rounded-full px-2.5 py-1 text-xs font-medium {{ $docente->estado_instructor === 'activo' ? 'bg-[#39A900]/10 text-[#247200]' : 'bg-red-100 text-red-700' }}">
+                            <span class="estado-badge inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium {{ $docente->estado_instructor === 'activo' ? 'bg-[#39A900]/10 text-[#247200]' : 'bg-red-100 text-red-700' }}">
                                 {{ ucfirst($docente->estado_instructor) }}
                             </span>
                         </td>
                         <td class="px-5 py-3 text-right" data-label="Acción">
-                            <div class="flex items-center justify-end gap-3">
+                            {{-- whitespace-nowrap: las acciones no se parten en dos líneas --}}
+                            <div class="flex items-center justify-end gap-3 whitespace-nowrap">
                                 <a href="{{ route('coordinacion.docentes.show', $docente->id_instructor) }}" class="font-medium text-[#39A900] hover:underline">Ver</a>
                                 <a href="{{ route('coordinacion.docentes.editar', $docente->id_instructor) }}" class="font-medium text-amber-600 hover:underline">Editar</a>
                                 @php
@@ -108,6 +109,16 @@
                                                 ? 'bg-red-50 text-red-600 hover:bg-red-100'
                                                 : 'bg-[#39A900]/10 text-[#247200] hover:bg-[#39A900]/20' }}">
                                         {{ $docenteActivo ? 'Inactivar' : 'Activar' }}
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ route('coordinacion.docentes.destroy', $docente->id_instructor) }}"
+                                      data-confirm="{{ "¿Eliminar definitivamente al instructor {$nombreDocente}? Esta acción no se puede deshacer. Solo es posible si no tiene llamados, fichas ni liderazgos registrados." }}"
+                                      data-confirm-title="Eliminar instructor" data-confirm-btn="Sí, eliminar">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" title="Eliminar instructor"
+                                            class="rounded-full bg-red-50 px-3 py-1.5 text-xs font-bold text-red-600 transition hover:bg-red-100">
+                                        Eliminar
                                     </button>
                                 </form>
                             </div>

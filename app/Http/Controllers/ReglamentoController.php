@@ -40,7 +40,10 @@ class ReglamentoController extends Controller
 
         $capitulos = \App\Models\ReglamentoCapitulo::with([
             'articulos' => function ($q) use ($buscar, $calificacion) {
-                $q->with('paragrafos')->orderBy('id_articulo');
+                // Orden del documento: número de artículo y luego sus faltas #n.
+                $q->with('paragrafos')
+                    ->orderByRaw('CAST(SUBSTRING(numero_articulo, 6) AS UNSIGNED)')
+                    ->orderByRaw("CAST(SUBSTRING_INDEX(numero_articulo, '#', -1) AS UNSIGNED)");
                 if ($buscar !== '') {
                     $q->where(function ($sub) use ($buscar) {
                         $sub->where('titulo', 'like', "%{$buscar}%")

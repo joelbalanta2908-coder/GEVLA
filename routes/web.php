@@ -123,9 +123,6 @@ Route::middleware('auth')->group(function () {
     Route::prefix('coordinacion')->name('coordinacion.')->middleware('rol:Coordinador')->group(function () {
         Route::get('/dashboard', [CoordinacionController::class, 'dashboard'])->name('dashboard');
 
-        // Usuarios del sistema (vista de consulta con roles y estado de cuenta)
-        Route::get('/usuarios', [CoordinacionController::class, 'usuarios'])->name('usuarios.index');
-
         // Centro de reportes (generación y exportación con filtro por ficha)
         Route::get('/reportes', [CoordinacionController::class, 'reportes'])->name('reportes.index');
 
@@ -138,6 +135,16 @@ Route::middleware('auth')->group(function () {
         Route::put('/aprendices/{aprendiz}', [CoordinacionController::class, 'actualizarAprendiz'])->name('aprendices.update');
         Route::get('/aprendices/{id}', [CoordinacionController::class, 'aprendizShow'])->name('aprendices.show');
 
+        // Coordinadores: CRUD completo (crear, editar, activar/inactivar y
+        // eliminar con validaciones). La ruta /crear va ANTES de /{coordinador}.
+        Route::get('/coordinadores', [CoordinacionController::class, 'coordinadores'])->name('coordinadores.index');
+        Route::get('/coordinadores/crear', [CoordinacionController::class, 'crearCoordinadorForm'])->name('coordinadores.crear');
+        Route::post('/coordinadores', [CoordinacionController::class, 'crearCoordinador'])->name('coordinadores.store');
+        Route::get('/coordinadores/{coordinador}/editar', [CoordinacionController::class, 'editarCoordinadorForm'])->name('coordinadores.editar');
+        Route::put('/coordinadores/{coordinador}', [CoordinacionController::class, 'actualizarCoordinador'])->name('coordinadores.update');
+        Route::patch('/coordinadores/{coordinador}/estado', [CoordinacionController::class, 'actualizarEstadoCoordinador'])->name('coordinadores.estado');
+        Route::delete('/coordinadores/{coordinador}', [CoordinacionController::class, 'eliminarCoordinador'])->name('coordinadores.destroy');
+
         // Docentes (instructores): alta, fichas asignadas, liderazgo, tipo
         // (materia/transversal) y activación/inactivación. La ruta /crear debe
         // declararse ANTES de /{instructor} para no colisionar.
@@ -148,6 +155,7 @@ Route::middleware('auth')->group(function () {
         Route::patch('/docentes/{instructor}/estado', [CoordinacionController::class, 'actualizarEstadoDocente'])->name('docentes.estado');
         Route::get('/docentes/{instructor}/editar', [CoordinacionController::class, 'editarDocenteForm'])->name('docentes.editar');
         Route::put('/docentes/{instructor}', [CoordinacionController::class, 'actualizarDocente'])->name('docentes.update');
+        Route::delete('/docentes/{instructor}', [CoordinacionController::class, 'eliminarDocente'])->name('docentes.destroy');
         Route::get('/docentes/{instructor}', [CoordinacionController::class, 'docenteShow'])->name('docentes.show');
 
         // Gestión de Fichas (CRUD + asociaciones + instructor líder).
