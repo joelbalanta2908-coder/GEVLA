@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ReglamentoAprendiz;
 use App\Models\ReglamentoArticulo;
+use App\Support\Busqueda;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -49,12 +50,17 @@ class ReglamentoController extends Controller
                 $q->with('paragrafos')
                     ->orderByRaw('CAST(SUBSTRING(numero_articulo, 6) AS UNSIGNED)')
                     ->orderByRaw("CAST(SUBSTRING_INDEX(numero_articulo, '#', -1) AS UNSIGNED)");
+                // Búsqueda con inferencia: cada palabra debe coincidir parcialmente
+                // con el título, el número o el contenido del artículo, sin exigir
+                // el texto exacto (igual que el resto de buscadores del sistema).
                 if ($buscar !== '') {
-                    $q->where(function ($sub) use ($buscar) {
-                        $sub->where('titulo', 'like', "%{$buscar}%")
-                            ->orWhere('numero_articulo', 'like', "%{$buscar}%")
-                            ->orWhere('contenido', 'like', "%{$buscar}%");
-                    });
+                    foreach (Busqueda::tokens($buscar) as $token) {
+                        $q->where(function ($sub) use ($token) {
+                            $sub->where('titulo', 'like', "%{$token}%")
+                                ->orWhere('numero_articulo', 'like', "%{$token}%")
+                                ->orWhere('contenido', 'like', "%{$token}%");
+                        });
+                    }
                 }
                 if ($calificacion) {
                     $q->where('calificacion', $calificacion);
