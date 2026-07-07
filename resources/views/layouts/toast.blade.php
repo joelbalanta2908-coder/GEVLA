@@ -87,3 +87,18 @@
         document.addEventListener('DOMContentLoaded', wire);
     })();
 </script>
+
+{{-- Validación en vivo de campos personales: bloquea al escribir los
+     caracteres no permitidos, en vez de esperar a que el usuario envíe el
+     formulario y se entere por el mensaje de error. El backend (CreaUsuarios)
+     sigue siendo la validación real; esto es solo una ayuda de UX. --}}
+<script>
+    document.addEventListener('input', function (e) {
+        if (e.target.matches('[data-solo-letras]')) {
+            e.target.value = e.target.value.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ\s]/g, '');
+        }
+        if (e.target.matches('[data-solo-numeros]')) {
+            e.target.value = e.target.value.replace(/\D/g, '');
+        }
+    });
+</script>

@@ -65,10 +65,16 @@ class PerfilController extends Controller
         $usuario = Auth::user();
 
         $validated = $request->validate([
-            'nombres'     => ['required', 'string', 'max:255'],
-            'apellidos'   => ['required', 'string', 'max:255'],
+            'nombres'     => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s]+$/u'],
+            'apellidos'   => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s]+$/u'],
             'correo'      => ['required', 'email', 'max:255', 'unique:usuario,correo,' . $usuario->id_usuario . ',id_usuario'],
             'foto_perfil' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        ], [
+            'nombres.regex'   => 'Los nombres solo pueden contener letras y espacios, sin números ni caracteres especiales.',
+            'nombres.min'     => 'Los nombres deben tener al menos 2 caracteres.',
+            'apellidos.regex' => 'Los apellidos solo pueden contener letras y espacios, sin números ni caracteres especiales.',
+            'apellidos.min'   => 'Los apellidos deben tener al menos 2 caracteres.',
+            'correo.email'    => 'El correo debe ser una dirección válida (debe contener @).',
         ]);
 
         $datos = [

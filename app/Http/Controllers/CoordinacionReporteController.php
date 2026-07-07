@@ -193,15 +193,14 @@ class CoordinacionReporteController extends Controller
             return response()->view('reportes.tabla', $data + ['imprimir' => true]);
         }
 
-        // Excel: hoja de cálculo XML nativa (SpreadsheetML). Excel la abre sin
-        // la advertencia de "formato y extensión no coinciden" del viejo truco
-        // de servir HTML con extensión .xls.
+        // Excel: archivo .xlsx REAL (Office Open XML) generado con ZipArchive:
+        // icono de Excel, doble clic abre Excel y sin advertencias de formato.
         if ($formato === 'excel') {
-            $xml = view('reportes.excel', $data)->render();
+            $binario = \App\Support\ReporteExcel::generar($titulo, $meta, $encabezados, $filas);
 
-            return response($xml, 200, [
-                'Content-Type'        => 'application/vnd.ms-excel; charset=UTF-8',
-                'Content-Disposition' => "attachment; filename=\"{$slug}_{$fecha}.xml\"",
+            return response($binario, 200, [
+                'Content-Type'        => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition' => "attachment; filename=\"{$slug}_{$fecha}.xlsx\"",
             ]);
         }
 

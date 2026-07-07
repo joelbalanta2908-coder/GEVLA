@@ -60,18 +60,14 @@ trait CreaUsuarios
     protected function validarPersona(Request $request, array $extra = []): array
     {
         return $request->validate(array_merge([
-            'nombres'          => ['required', 'string', 'max:100'],
-            'apellidos'        => ['required', 'string', 'max:100'],
+            'nombres'          => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s]+$/u'],
+            'apellidos'        => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s]+$/u'],
             'tipo_documento'   => ['required', Rule::in(['CC', 'TI', 'CE', 'PEP'])],
-            'numero_documento' => ['required', 'string', 'max:20', 'unique:usuario,numero_documento'],
+            'numero_documento' => ['required', 'digits_between:8,10', 'unique:usuario,numero_documento'],
             'correo'           => ['required', 'email', 'max:120', 'unique:usuario,correo'],
-            'telefono'         => ['nullable', 'string', 'max:20'],
+            'telefono'         => ['nullable', 'digits:10'],
             'password'         => ['nullable', 'string', 'min:6', 'max:255', 'confirmed'],
-        ], $extra), [
-            'password.confirmed'      => 'La confirmación de la contraseña no coincide.',
-            'numero_documento.unique' => 'Ya existe un usuario con ese número de documento.',
-            'correo.unique'           => 'Ya existe un usuario con ese correo.',
-        ]);
+        ], $extra), $this->mensajesValidacionPersona());
     }
 
     /**
@@ -84,18 +80,37 @@ trait CreaUsuarios
     protected function validarPersonaEdicion(Request $request, Usuario $usuario, array $extra = []): array
     {
         return $request->validate(array_merge([
-            'nombres'          => ['required', 'string', 'max:100'],
-            'apellidos'        => ['required', 'string', 'max:100'],
+            'nombres'          => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s]+$/u'],
+            'apellidos'        => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s]+$/u'],
             'tipo_documento'   => ['required', Rule::in(['CC', 'TI', 'CE', 'PEP'])],
-            'numero_documento' => ['required', 'string', 'max:20', Rule::unique('usuario', 'numero_documento')->ignore($usuario->id_usuario, 'id_usuario')],
+            'numero_documento' => ['required', 'digits_between:8,10', Rule::unique('usuario', 'numero_documento')->ignore($usuario->id_usuario, 'id_usuario')],
             'correo'           => ['required', 'email', 'max:120', Rule::unique('usuario', 'correo')->ignore($usuario->id_usuario, 'id_usuario')],
-            'telefono'         => ['nullable', 'string', 'max:20'],
+            'telefono'         => ['nullable', 'digits:10'],
             'password'         => ['nullable', 'string', 'min:6', 'max:255', 'confirmed'],
-        ], $extra), [
-            'password.confirmed'      => 'La confirmación de la contraseña no coincide.',
-            'numero_documento.unique' => 'Ya existe otro usuario con ese número de documento.',
-            'correo.unique'           => 'Ya existe otro usuario con ese correo.',
-        ]);
+        ], $extra), $this->mensajesValidacionPersona(edicion: true));
+    }
+
+    /**
+     * Mensajes de error compartidos por validarPersona() y
+     * validarPersonaEdicion(); solo cambia el texto de "unicidad" según si es
+     * alta (choca con cualquiera) o edición (choca con "otro" usuario).
+     *
+     * @return array<string, string>
+     */
+    private function mensajesValidacionPersona(bool $edicion = false): array
+    {
+        return [
+            'nombres.regex'                   => 'Los nombres solo pueden contener letras y espacios, sin números ni caracteres especiales.',
+            'nombres.min'                     => 'Los nombres deben tener al menos 2 caracteres.',
+            'apellidos.regex'                 => 'Los apellidos solo pueden contener letras y espacios, sin números ni caracteres especiales.',
+            'apellidos.min'                   => 'Los apellidos deben tener al menos 2 caracteres.',
+            'numero_documento.digits_between' => 'El número de documento debe tener entre 8 y 10 dígitos, solo números.',
+            'telefono.digits'                 => 'El teléfono debe tener exactamente 10 dígitos, solo números.',
+            'correo.email'                    => 'El correo debe ser una dirección válida (debe contener @).',
+            'password.confirmed'              => 'La confirmación de la contraseña no coincide.',
+            'numero_documento.unique'         => $edicion ? 'Ya existe otro usuario con ese número de documento.' : 'Ya existe un usuario con ese número de documento.',
+            'correo.unique'                   => $edicion ? 'Ya existe otro usuario con ese correo.' : 'Ya existe un usuario con ese correo.',
+        ];
     }
 
     /**

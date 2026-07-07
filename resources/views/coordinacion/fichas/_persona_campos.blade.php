@@ -7,12 +7,16 @@
 @endphp
 <div>
     <label class="mb-1 block text-xs font-semibold text-gray-600">Nombres</label>
-    <input type="text" name="nombres" value="{{ old('nombres', $persona->nombres ?? '') }}" required maxlength="100"
+    <input type="text" name="nombres" value="{{ old('nombres', $persona->nombres ?? '') }}" required
+           minlength="2" maxlength="100" pattern="[A-Za-zÀ-ÖØ-öø-ÿ\s]+" data-solo-letras
+           title="Solo letras y espacios, sin números ni caracteres especiales"
            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
 </div>
 <div>
     <label class="mb-1 block text-xs font-semibold text-gray-600">Apellidos</label>
-    <input type="text" name="apellidos" value="{{ old('apellidos', $persona->apellidos ?? '') }}" required maxlength="100"
+    <input type="text" name="apellidos" value="{{ old('apellidos', $persona->apellidos ?? '') }}" required
+           minlength="2" maxlength="100" pattern="[A-Za-zÀ-ÖØ-öø-ÿ\s]+" data-solo-letras
+           title="Solo letras y espacios, sin números ni caracteres especiales"
            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
 </div>
 <div>
@@ -26,17 +30,22 @@
 </div>
 <div>
     <label class="mb-1 block text-xs font-semibold text-gray-600">Número de documento</label>
-    <input type="text" name="numero_documento" value="{{ old('numero_documento', $persona->numero_documento ?? '') }}" required maxlength="20"
+    <input type="text" name="numero_documento" value="{{ old('numero_documento', $persona->numero_documento ?? '') }}" required
+           inputmode="numeric" minlength="8" maxlength="10" pattern="[0-9]{8,10}" data-solo-numeros
+           title="Solo números, entre 8 y 10 dígitos"
            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
 </div>
 <div class="sm:col-span-2">
     <label class="mb-1 block text-xs font-semibold text-gray-600">Correo</label>
     <input type="email" name="correo" value="{{ old('correo', $persona->correo ?? '') }}" required maxlength="120"
+           title="Debe ser un correo válido con @"
            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
 </div>
 <div class="sm:col-span-2">
     <label class="mb-1 block text-xs font-semibold text-gray-600">Teléfono <span class="font-normal text-gray-400">(opcional)</span></label>
-    <input type="text" name="telefono" value="{{ old('telefono', $persona->telefono ?? '') }}" maxlength="20"
+    <input type="text" name="telefono" value="{{ old('telefono', $persona->telefono ?? '') }}"
+           inputmode="numeric" minlength="10" maxlength="10" pattern="[0-9]{10}" data-solo-numeros
+           title="Solo números, exactamente 10 dígitos"
            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
 </div>
 <div>
