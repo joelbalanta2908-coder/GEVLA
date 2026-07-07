@@ -14,7 +14,7 @@
     <form method="POST" action="{{ route('recuperar.guardar') }}" class="space-y-5">
         @csrf
 
-        <div>
+        <div data-campo>
             <label for="password" class="mb-2 block text-sm font-semibold text-slate-700">Nueva contraseña</label>
             <div class="group relative">
                 <span class="pointer-events-none absolute inset-y-0 left-0 flex w-11 items-center justify-center text-slate-400 transition group-focus-within:text-[#39A900]">
@@ -29,15 +29,17 @@
                     minlength="8"
                     autofocus
                     autocomplete="new-password"
+                    data-validar="minlen" data-min="8" data-msg-invalido="Mínimo 8 caracteres."
                     class="w-full rounded-xl border border-slate-300 bg-slate-50 py-3 pl-11 pr-12 text-sm text-slate-900 outline-none transition focus:border-[#39A900] focus:bg-white focus:ring-4 focus:ring-green-100"
                 >
                 <button type="button" data-alternar="password" class="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-slate-400 transition hover:text-slate-700" aria-label="Mostrar u ocultar contraseña">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                 </button>
             </div>
+            <p data-ayuda class="mt-2 text-xs font-medium text-gray-400">Mínimo 8 caracteres.</p>
         </div>
 
-        <div>
+        <div data-campo>
             <label for="password_confirmation" class="mb-2 block text-sm font-semibold text-slate-700">Confirmar contraseña</label>
             <div class="group relative">
                 <span class="pointer-events-none absolute inset-y-0 left-0 flex w-11 items-center justify-center text-slate-400 transition group-focus-within:text-[#39A900]">
@@ -51,13 +53,14 @@
                     required
                     minlength="8"
                     autocomplete="new-password"
+                    data-validar="match" data-target="#password" data-msg-invalido="Las contraseñas no coinciden."
                     class="w-full rounded-xl border border-slate-300 bg-slate-50 py-3 pl-11 pr-12 text-sm text-slate-900 outline-none transition focus:border-[#39A900] focus:bg-white focus:ring-4 focus:ring-green-100"
                 >
                 <button type="button" data-alternar="password_confirmation" class="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-slate-400 transition hover:text-slate-700" aria-label="Mostrar u ocultar contraseña">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                 </button>
             </div>
-            <p id="aviso-coincidencia" class="mt-2 hidden text-xs font-semibold text-red-600">Las contraseñas no coinciden.</p>
+            <p data-ayuda class="mt-2 text-xs font-medium text-gray-400">Debe coincidir con la contraseña ingresada.</p>
         </div>
 
         <button type="submit" class="btn-primary flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold text-white transition focus:outline-none">
@@ -78,19 +81,7 @@
                 campo.type = campo.type === 'password' ? 'text' : 'password';
             });
         });
-
-        // Aviso en vivo si la confirmación no coincide.
-        var clave = document.getElementById('password');
-        var confirmacion = document.getElementById('password_confirmation');
-        var aviso = document.getElementById('aviso-coincidencia');
-
-        function validarCoincidencia() {
-            var distintas = confirmacion.value.length > 0 && clave.value !== confirmacion.value;
-            aviso.classList.toggle('hidden', !distintas);
-            confirmacion.setCustomValidity(distintas ? 'Las contraseñas no coinciden.' : '');
-        }
-
-        clave.addEventListener('input', validarCoincidencia);
-        confirmacion.addEventListener('input', validarCoincidencia);
+        // La validación en vivo (borde rojo/verde y coincidencia de
+        // contraseñas) la resuelve el script compartido layouts.validacion-vivo.
     </script>
 @endsection

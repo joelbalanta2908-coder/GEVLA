@@ -102,3 +102,5 @@
         }
     });
 </script>
+
+@include('layouts.validacion-vivo')

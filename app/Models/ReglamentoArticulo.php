@@ -45,4 +45,58 @@ class ReglamentoArticulo extends Model
     {
         return $this->hasMany(ReglamentoParagrafo::class, 'id_articulo', 'id_articulo');
     }
+
+    /**
+     * Separa el contenido en un encabezado y una lista numerada, para que la
+     * vista pueda mostrar cada numeral en su propia línea con el término
+     * inicial en negrita, en vez de un párrafo gigante. Devuelve null cuando
+     * el artículo no tiene una lista numerada (se muestra como un solo
+     * párrafo, igual que antes).
+     *
+     * Un marcador válido es "N) " que NO esté precedido de un paréntesis de
+     * apertura: así "7) Justificar..." se reconoce como ítem de lista, pero
+     * "ocho (8) días" (una aclaración numérica dentro del texto) no se
+     * confunde con un marcador.
+     *
+     * @return array{intro: string, items: array<int, array{numero: int, termino: ?string, texto: string}>}|null
+     */
+    public function getListaAttribute(): ?array
+    {
+        $contenido = (string) $this->contenido;
+
+        if (! preg_match('/(?<!\()\b1\)\s/', $contenido)) {
+            return null;
+        }
+
+        preg_match_all('/(?<!\()(\d+)\)\s+/', $contenido, $marcadores, PREG_OFFSET_CAPTURE);
+
+        if (count($marcadores[0]) < 2) {
+            // Un solo marcador no es una lista real (podría ser una coincidencia aislada).
+            return null;
+        }
+
+        $primerMarcador = $marcadores[0][0];
+        $intro = trim(substr($contenido, 0, $primerMarcador[1]));
+
+        $items = [];
+        $totalMarcadores = count($marcadores[0]);
+
+        for ($i = 0; $i < $totalMarcadores; $i++) {
+            $numero = (int) $marcadores[1][$i][0];
+            $inicioTexto = $marcadores[0][$i][1] + strlen($marcadores[0][$i][0]);
+            $finTexto = $i + 1 < $totalMarcadores ? $marcadores[0][$i + 1][1] : strlen($contenido);
+            $texto = trim(substr($contenido, $inicioTexto, $finTexto - $inicioTexto));
+
+            $termino = null;
+            $posDosPuntos = mb_strpos($texto, ':');
+            if ($posDosPuntos !== false && $posDosPuntos <= 90) {
+                $termino = trim(mb_substr($texto, 0, $posDosPuntos));
+                $texto = trim(mb_substr($texto, $posDosPuntos + 1));
+            }
+
+            $items[] = ['numero' => $numero, 'termino' => $termino, 'texto' => $texto];
+        }
+
+        return ['intro' => $intro, 'items' => $items];
+    }
 }

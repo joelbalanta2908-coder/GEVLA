@@ -256,27 +256,33 @@
                 </div>
 
                 <div class="grid gap-6 sm:grid-cols-2">
-                    <div class="space-y-2">
+                    <div class="space-y-2" data-campo>
                         <label class="block text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Nombres</label>
                         <input type="text" name="nombres" required value="{{ old('nombres', $usuario->nombres) }}"
                                minlength="2" maxlength="100" pattern="[A-Za-zÀ-ÖØ-öø-ÿ\s]+" data-solo-letras
+                               data-validar="minlen" data-min="2" data-msg-invalido="Mínimo 2 caracteres."
                                title="Solo letras y espacios, sin números ni caracteres especiales"
                                class="w-full rounded-2xl border border-[#d9e4d4] bg-[#f8faf6] px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/20">
+                        <p data-ayuda class="text-xs font-medium text-gray-400">Mínimo 2 caracteres, solo letras.</p>
                     </div>
-                    <div class="space-y-2">
+                    <div class="space-y-2" data-campo>
                         <label class="block text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Apellidos</label>
                         <input type="text" name="apellidos" required value="{{ old('apellidos', $usuario->apellidos) }}"
                                minlength="2" maxlength="100" pattern="[A-Za-zÀ-ÖØ-öø-ÿ\s]+" data-solo-letras
+                               data-validar="minlen" data-min="2" data-msg-invalido="Mínimo 2 caracteres."
                                title="Solo letras y espacios, sin números ni caracteres especiales"
                                class="w-full rounded-2xl border border-[#d9e4d4] bg-[#f8faf6] px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/20">
+                        <p data-ayuda class="text-xs font-medium text-gray-400">Mínimo 2 caracteres, solo letras.</p>
                     </div>
                 </div>
 
-                <div class="space-y-2">
+                <div class="space-y-2" data-campo>
                     <label class="block text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Correo electrónico</label>
                     <input type="email" name="correo" required value="{{ old('correo', $usuario->correo) }}"
+                           data-validar="email" data-msg-invalido="Debe ser un correo válido (con @ y dominio)."
                            title="Debe ser un correo válido con @"
                            class="w-full rounded-2xl border border-[#d9e4d4] bg-[#f8faf6] px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/20">
+                    <p data-ayuda class="text-xs font-medium text-gray-400">Debe ser un correo válido, ejemplo: nombre@dominio.com.</p>
                 </div>
 
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

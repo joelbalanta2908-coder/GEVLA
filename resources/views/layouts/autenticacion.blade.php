@@ -89,5 +89,7 @@
             </div>
         </section>
     </main>
+
+    @include('layouts.validacion-vivo')
 </body>
 </html>

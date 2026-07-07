@@ -79,7 +79,26 @@
                                     </span>
                                 @endif
                             </div>
-                            @if($articulo->contenido)
+                            @if($articulo->lista)
+                                {{-- Contenido con lista numerada: cada numeral en su propia línea,
+                                     con el término inicial en negrita, en vez de un párrafo gigante. --}}
+                                @if($articulo->lista['intro'])
+                                    <p class="mt-2 text-sm leading-relaxed text-slate-600">{{ $articulo->lista['intro'] }}</p>
+                                @endif
+                                <ol class="mt-2 space-y-2">
+                                    @foreach($articulo->lista['items'] as $item)
+                                        <li class="flex gap-2 text-sm leading-relaxed text-slate-600">
+                                            <span class="shrink-0 font-bold text-[#247200]">{{ $item['numero'] }})</span>
+                                            <span>
+                                                @if($item['termino'])
+                                                    <span class="font-bold text-slate-800">{{ $item['termino'] }}:</span>
+                                                @endif
+                                                {{ ' ' . $item['texto'] }}
+                                            </span>
+                                        </li>
+                                    @endforeach
+                                </ol>
+                            @elseif($articulo->contenido)
                                 <p class="mt-2 text-sm leading-relaxed text-slate-600">{{ $articulo->contenido }}</p>
                             @endif
                             @if($articulo->paragrafos->isNotEmpty())
