@@ -497,7 +497,7 @@ class FichaController extends Controller
         return $request->validate([
             'id_programa'          => ['required', 'integer', 'exists:programa_formacion,id_programa'],
             'id_instructor_lider'  => ['required', 'integer', 'exists:instructor,id_instructor'],
-            'numero_ficha'         => ['required', 'string', 'max:20', $numeroUnico],
+            'numero_ficha'         => ['required', 'digits_between:1,20', $numeroUnico],
             'modalidad'            => ['required', Rule::in($modalidadesPermitidas)],
             'estado_ficha'         => ['required', Rule::in(array_keys(Ficha::estados()))],
             'fecha_inicio'         => $reglasInicio,
@@ -506,6 +506,7 @@ class FichaController extends Controller
             'fecha_inicio.after_or_equal'         => 'La fecha de inicio no puede estar en el pasado.',
             'fecha_fin_programada.after_or_equal' => 'La fecha de finalización no puede estar en el pasado.',
             'fecha_fin_programada.after'          => 'La fecha de finalización debe ser posterior a la fecha de inicio.',
+            'numero_ficha.digits_between'         => 'El número de ficha solo debe contener números.',
             'numero_ficha.unique'                 => 'Ya existe una ficha con ese número.',
         ]);
     }

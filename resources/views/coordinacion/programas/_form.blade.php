@@ -6,6 +6,7 @@
     <div>
         <label for="codigo_programa" class="mb-1 block text-sm font-semibold text-gray-700">Código del programa</label>
         <input type="text" id="codigo_programa" name="codigo_programa" maxlength="20" required
+               inputmode="numeric" pattern="[0-9]+" data-solo-numeros title="Solo números"
                value="{{ old('codigo_programa', $programa->codigo_programa ?? '') }}"
                class="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm caret-[#39A900] focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
     </div>
@@ -20,6 +21,7 @@
     <div class="sm:col-span-2">
         <label for="nombre_programa" class="mb-1 block text-sm font-semibold text-gray-700">Nombre del programa</label>
         <input type="text" id="nombre_programa" name="nombre_programa" maxlength="150" required
+               pattern="[A-Za-zÀ-ÖØ-öø-ÿ\s]+" data-solo-letras title="Solo letras y espacios, sin números ni caracteres especiales"
                value="{{ old('nombre_programa', $programa->nombre_programa ?? '') }}"
                class="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm caret-[#39A900] focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
     </div>

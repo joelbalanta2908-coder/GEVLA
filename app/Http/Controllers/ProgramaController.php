@@ -105,12 +105,14 @@ class ProgramaController extends Controller
         }
 
         return $request->validate([
-            'codigo_programa' => ['required', 'string', 'max:20', $codigoUnico],
-            'nombre_programa' => ['required', 'string', 'max:150'],
+            'codigo_programa' => ['required', 'digits_between:1,20', $codigoUnico],
+            'nombre_programa' => ['required', 'string', 'max:150', 'regex:/^[\pL\s]+$/u'],
             'nivel'           => ['required', Rule::in(array_keys(ProgramaFormacion::niveles()))],
             'duracion_meses'  => ['required', 'integer', 'min:1', 'max:120'],
         ], [
-            'codigo_programa.unique' => 'Ya existe un programa con ese código.',
+            'codigo_programa.digits_between' => 'El código del programa solo debe contener números.',
+            'codigo_programa.unique'         => 'Ya existe un programa con ese código.',
+            'nombre_programa.regex'          => 'El nombre del programa solo puede contener letras y espacios, sin números ni caracteres especiales.',
         ]);
     }
 }

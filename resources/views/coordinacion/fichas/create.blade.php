@@ -14,7 +14,8 @@
         </div>
     </div>
 
-    <form method="POST" action="{{ route('coordinacion.fichas.store') }}" class="space-y-5 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+    <form method="POST" action="{{ route('coordinacion.fichas.store') }}" class="space-y-5 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+          x-data="fichaComboboxes()" @submit="validarCombos($event)">
         @csrf
         @include('coordinacion.fichas._form', ['ficha' => null])
 
