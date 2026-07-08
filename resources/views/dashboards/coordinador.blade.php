@@ -232,7 +232,7 @@
                             </div>
                         </div>
                         <div class="flex shrink-0 items-center gap-2 sm:gap-3">
-                            <span class="hidden text-xs font-semibold text-slate-400 sm:block">{{ \Carbon\Carbon::parse($llamado->fecha_llamado)->format('d M, Y') }}</span>
+                            <span class="hidden text-xs font-semibold text-slate-400 sm:block">{{ \Carbon\Carbon::parse($llamado->fecha_llamado)->translatedFormat('d M, Y') }}</span>
                             @php
                                 $estadoBadge = match($llamado->estado_llamado) {
                                     'registrado'  => 'bg-slate-100 text-slate-600',

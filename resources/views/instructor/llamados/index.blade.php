@@ -1,6 +1,6 @@
 @extends('layouts.instructor')
 
-@section('titulo', 'Mis Reportes')
+@section('titulo', 'Llamados de atención')
 
 @section('contenido')
 <div class="space-y-5">
@@ -15,7 +15,7 @@
                 </span>
                 <div>
                     <p class="text-[11px] font-bold uppercase tracking-[0.24em] text-[#39A900]">Seguimiento disciplinario</p>
-                    <h2 class="mt-1 text-2xl font-extrabold tracking-tight text-slate-900">Mis Reportes</h2>
+                    <h2 class="mt-1 text-2xl font-extrabold tracking-tight text-slate-900">Llamados de atención</h2>
                     <p class="mt-1 text-sm text-slate-500">Listado de los llamados de atención que has emitido a los aprendices.</p>
                 </div>
             </div>
@@ -25,6 +25,12 @@
                 </span>
                 {{-- Exportar reportes (con filtro para clasificar por ficha) --}}
                 @include('reportes._botones', ['rutaBase' => 'instructor.llamados.export', 'fichas' => $fichasExport])
+                <a href="{{ route('instructor.llamados.create') }}" class="inline-flex items-center gap-2 rounded-full bg-[#39A900] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#247200]">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Nuevo llamado
+                </a>
             </div>
         </div>
     </div>

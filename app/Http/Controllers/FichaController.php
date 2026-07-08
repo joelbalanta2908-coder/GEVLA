@@ -254,8 +254,19 @@ class FichaController extends Controller
             'instructores.*' => ['integer', 'exists:instructor,id_instructor'],
         ], [], ['instructores' => 'instructores']);
 
-        $datos = collect($validated['instructores'])
-            ->mapWithKeys(fn ($id) => [(int) $id => ['fecha_asignacion' => now()->toDateString()]])
+        $ids = array_map('intval', $validated['instructores']);
+
+        // Un instructor no puede impartir clases en la ficha donde él mismo
+        // está matriculado como aprendiz.
+        $conflictivo = collect($ids)->first(fn ($id) => $this->instructorEsAprendizDeFicha($id, $ficha->id_ficha));
+        if ($conflictivo) {
+            return back()->withErrors([
+                'instructores' => 'Uno de los instructores seleccionados está matriculado como aprendiz en esta misma ficha y no puede impartir clases en ella.',
+            ]);
+        }
+
+        $datos = collect($ids)
+            ->mapWithKeys(fn ($id) => [$id => ['fecha_asignacion' => now()->toDateString()]])
             ->all();
 
         $ficha->instructores()->syncWithoutDetaching($datos);
@@ -305,6 +316,14 @@ class FichaController extends Controller
 
         $nuevoLider = (int) $validated['id_instructor_lider'];
         $liderAnterior = $ficha->id_instructor_lider !== null ? (int) $ficha->id_instructor_lider : null;
+
+        // Un instructor no puede impartir clases (y mucho menos liderar) la
+        // ficha donde él mismo está matriculado como aprendiz.
+        if ($this->instructorEsAprendizDeFicha($nuevoLider, $ficha->id_ficha)) {
+            return back()->withErrors([
+                'id_instructor_lider' => 'Este instructor está matriculado como aprendiz en esta misma ficha y no puede ser su líder.',
+            ]);
+        }
 
         if ($liderAnterior === $nuevoLider) {
             return redirect()
@@ -364,6 +383,15 @@ class FichaController extends Controller
         if (! empty($conflictivos)) {
             return back()->withErrors([
                 'aprendices' => 'Uno o más aprendices ya tienen una matrícula activa en otra ficha del mismo programa. Retíralos de esa ficha primero.',
+            ]);
+        }
+
+        // Reverso de la misma regla: un aprendiz que también sea instructor
+        // no puede matricularse en la ficha donde él mismo imparte clases.
+        $solapado = collect($ids)->first(fn ($id) => $this->aprendizEsInstructorDeFicha($id, $ficha->id_ficha));
+        if ($solapado) {
+            return back()->withErrors([
+                'aprendices' => 'Uno de los aprendices seleccionados es instructor asignado a esta misma ficha y no puede matricularse en ella.',
             ]);
         }
 
@@ -449,6 +477,56 @@ class FichaController extends Controller
             ->max();
 
         return 'INS-' . str_pad((string) (((int) $maximo) + 1), 3, '0', STR_PAD_LEFT);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Restricción: un usuario Instructor+Aprendiz no puede impartir clases en
+    | la ficha donde él mismo está matriculado como aprendiz.
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Indica si el instructor dado también tiene perfil de Aprendiz con una
+     * matrícula ACTIVA en esa misma ficha.
+     */
+    private function instructorEsAprendizDeFicha(int $idInstructor, int $idFicha): bool
+    {
+        $instructor = Instructor::find($idInstructor);
+        if (! $instructor || ! $instructor->id_usuario) {
+            return false;
+        }
+
+        $aprendiz = Aprendiz::where('id_usuario', $instructor->id_usuario)->first();
+        if (! $aprendiz) {
+            return false;
+        }
+
+        return Matricula::where('id_aprendiz', $aprendiz->id_aprendiz)
+            ->where('id_ficha', $idFicha)
+            ->where('estado_matricula', 'activa')
+            ->exists();
+    }
+
+    /**
+     * Reverso de instructorEsAprendizDeFicha(): indica si el aprendiz dado
+     * también tiene perfil de Instructor asignado (o líder) de esa misma
+     * ficha, para bloquear el mismo solapamiento desde la matrícula.
+     */
+    private function aprendizEsInstructorDeFicha(int $idAprendiz, int $idFicha): bool
+    {
+        $aprendiz = Aprendiz::find($idAprendiz);
+        if (! $aprendiz || ! $aprendiz->id_usuario) {
+            return false;
+        }
+
+        $instructor = Instructor::where('id_usuario', $aprendiz->id_usuario)->first();
+        if (! $instructor) {
+            return false;
+        }
+
+        return $instructor->fichas()->where('ficha.id_ficha', $idFicha)->exists()
+            || $instructor->fichasLideradas()->where('id_ficha', $idFicha)->exists();
     }
 
     /*

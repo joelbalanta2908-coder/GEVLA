@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Support\Texto;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * Modelo del Llamado de Atención.
@@ -232,6 +234,47 @@ class LlamadoAtencion extends Model
     public static function puedeRegistrarseNuevoLlamado(int $idAprendiz, string $categoria): bool
     {
         return static::contarLlamadosDeAprendiz($idAprendiz, $categoria) < self::MAX_LLAMADOS_REGLAMENTARIOS;
+    }
+
+    /**
+     * Días mínimos que deben transcurrir para poder repetir un llamado de
+     * atención por exactamente la misma razón (asunto) al mismo aprendiz.
+     */
+    public const DIAS_MINIMOS_MISMA_RAZON = 14;
+
+    /**
+     * Indica si YA existe un llamado de atención reciente (dentro de los
+     * últimos DIAS_MINIMOS_MISMA_RAZON días) para el mismo aprendiz con
+     * exactamente la misma razón (asunto), ignorando mayúsculas/minúsculas y
+     * espacios dobles o al borde. Los llamados cancelados no cuentan, igual
+     * que el resto de reglas del reglamento en este modelo.
+     *
+     * Se compara en PHP (no con SQL) porque el volumen de llamados por
+     * aprendiz es bajo y así la normalización de espacios/mayúsculas queda
+     * garantizada igual en los tres motores de base de datos soportados.
+     */
+    public static function existeLlamadoRecienteMismaRazon(int $idAprendiz, string $asunto, ?int $ignorarId = null): bool
+    {
+        $buscado = mb_strtolower(Texto::normalizarEspacios($asunto));
+
+        if ($buscado === '') {
+            return false;
+        }
+
+        $coincidencia = static::query()
+            ->deAprendiz($idAprendiz)
+            ->vigentes()
+            ->when($ignorarId, fn (Builder $q) => $q->where('id_llamado', '!=', $ignorarId))
+            ->get(['id_llamado', 'asunto', 'fecha_llamado'])
+            ->first(fn (self $llamado) => mb_strtolower(Texto::normalizarEspacios((string) $llamado->asunto)) === $buscado);
+
+        if (! $coincidencia) {
+            return false;
+        }
+
+        $diasTranscurridos = Carbon::parse($coincidencia->fecha_llamado)->startOfDay()->diffInDays(now()->startOfDay());
+
+        return $diasTranscurridos < self::DIAS_MINIMOS_MISMA_RAZON;
     }
 
     /**

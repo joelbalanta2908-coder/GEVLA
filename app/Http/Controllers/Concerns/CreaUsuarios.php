@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Concerns;
 
+use App\Models\Aprendiz;
+use App\Models\Coordinacion;
+use App\Models\Instructor;
 use App\Models\Rol;
 use App\Models\Usuario;
+use App\Support\Roles;
+use App\Support\Texto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -59,6 +64,8 @@ trait CreaUsuarios
      */
     protected function validarPersona(Request $request, array $extra = []): array
     {
+        $this->normalizarNombres($request);
+
         return $request->validate(array_merge([
             'nombres'          => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s]+$/u'],
             'apellidos'        => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s]+$/u'],
@@ -79,6 +86,8 @@ trait CreaUsuarios
      */
     protected function validarPersonaEdicion(Request $request, Usuario $usuario, array $extra = []): array
     {
+        $this->normalizarNombres($request);
+
         return $request->validate(array_merge([
             'nombres'          => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s]+$/u'],
             'apellidos'        => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s]+$/u'],
@@ -141,5 +150,218 @@ trait CreaUsuarios
         }
 
         $usuario->update($cambios);
+    }
+
+    /**
+     * Recorta y colapsa los espacios de nombres/apellidos ANTES de validar,
+     * para que "John   Fredy " llegue como "John Fredy" tanto a las reglas de
+     * validación (min:2, regex) como al valor que finalmente se guarda.
+     */
+    private function normalizarNombres(Request $request): void
+    {
+        if ($request->has('nombres')) {
+            $request->merge(['nombres' => Texto::normalizarEspacios($request->input('nombres'))]);
+        }
+        if ($request->has('apellidos')) {
+            $request->merge(['apellidos' => Texto::normalizarEspacios($request->input('apellidos'))]);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Roles adicionales (múltiples roles por usuario)
+    |--------------------------------------------------------------------------
+    | Cada sección del coordinador (Aprendices/Instructores/Coordinadores) crea
+    | y administra su propio perfil "ancla" con su lógica existente. Estos
+    | métodos SOLO se encargan de los roles ADICIONALES que se marquen en el
+    | formulario, reutilizando las columnas de estado que cada tabla ya tiene
+    | (estado_instructor, estado_coordinacion, estado_academico) — no crean
+    | columnas ni tocan la estructura de la base de datos.
+    */
+
+    /**
+     * Valida el arreglo de roles del formulario contra la matriz de
+     * compatibilidad (Roles::mensajeIncompatibilidad) y devuelve la lista ya
+     * depurada (sin vacíos ni duplicados). Si algo no es válido, redirige de
+     * vuelta con el error en la clave "roles", igual que el resto de
+     * validaciones de este trait.
+     *
+     * @param  array<int, mixed>  $rolesFormulario
+     * @return array<int, string>
+     */
+    protected function validarRolesSolicitados(array $rolesFormulario, string $rolAncla): array
+    {
+        $roles = array_values(array_unique(array_filter(array_map('strval', $rolesFormulario))));
+
+        // El rol ancla de la sección siempre debe quedar incluido, incluso si
+        // el checkbox llegó deshabilitado y no se envió en el POST.
+        if (! in_array($rolAncla, $roles, true)) {
+            $roles[] = $rolAncla;
+        }
+
+        $mensaje = Roles::mensajeIncompatibilidad($roles);
+        if ($mensaje !== null) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['roles' => $mensaje]);
+        }
+
+        return $roles;
+    }
+
+    /**
+     * Crea, reactiva o inactiva los perfiles de los roles ADICIONALES al rol
+     * ancla de la sección actual (por ejemplo, si se está en "Editar
+     * instructor", el rol Instructor no se toca aquí: lo gestiona el flujo
+     * propio de esa sección).
+     *
+     * @param  array<int, string>  $rolesSeleccionados
+     */
+    protected function sincronizarRolesAdicionales(Usuario $usuario, array $rolesSeleccionados, string $rolAncla): void
+    {
+        foreach ([Roles::COORDINADOR, Roles::INSTRUCTOR, Roles::APRENDIZ] as $rol) {
+            if ($rol === $rolAncla) {
+                continue;
+            }
+
+            $debeEstarActivo = in_array($rol, $rolesSeleccionados, true);
+
+            match ($rol) {
+                Roles::INSTRUCTOR  => $this->sincronizarPerfilInstructor($usuario, $debeEstarActivo),
+                Roles::COORDINADOR => $this->sincronizarPerfilCoordinacion($usuario, $debeEstarActivo),
+                Roles::APRENDIZ    => $this->sincronizarPerfilAprendiz($usuario, $debeEstarActivo),
+            };
+
+            $this->sincronizarPivoteRol($usuario, $rol, $debeEstarActivo);
+        }
+    }
+
+    private function sincronizarPerfilInstructor(Usuario $usuario, bool $activo): void
+    {
+        $instructor = $usuario->instructor;
+
+        if ($activo) {
+            if ($instructor) {
+                if ($instructor->estado_instructor !== 'activo') {
+                    $instructor->update(['estado_instructor' => 'activo']);
+                }
+
+                return;
+            }
+
+            Instructor::create([
+                'id_usuario'        => $usuario->id_usuario,
+                'codigo_instructor' => $this->generarCodigoInstructorParaRolAdicional(),
+                'estado_instructor' => 'activo',
+            ]);
+
+            return;
+        }
+
+        if ($instructor && $instructor->estado_instructor !== 'inactivo') {
+            $instructor->update(['estado_instructor' => 'inactivo']);
+        }
+    }
+
+    private function sincronizarPerfilCoordinacion(Usuario $usuario, bool $activo): void
+    {
+        $coordinacion = $usuario->coordinacion;
+
+        if ($activo) {
+            if ($coordinacion) {
+                if ($coordinacion->estado_coordinacion !== 'activo') {
+                    $coordinacion->update(['estado_coordinacion' => 'activo']);
+                }
+
+                return;
+            }
+
+            Coordinacion::create([
+                'id_usuario'          => $usuario->id_usuario,
+                'cargo'               => 'Coordinador',
+                'estado_coordinacion' => 'activo',
+            ]);
+
+            return;
+        }
+
+        if ($coordinacion && $coordinacion->estado_coordinacion !== 'inactivo') {
+            $coordinacion->update(['estado_coordinacion' => 'inactivo']);
+        }
+    }
+
+    private function sincronizarPerfilAprendiz(Usuario $usuario, bool $activo): void
+    {
+        $aprendiz = $usuario->aprendiz;
+
+        if ($activo) {
+            if ($aprendiz) {
+                if ($aprendiz->estado_academico !== 'en_formacion') {
+                    $aprendiz->update(['estado_academico' => 'en_formacion']);
+                }
+
+                return;
+            }
+
+            Aprendiz::create([
+                'id_usuario'                => $usuario->id_usuario,
+                'correo_institucional'      => $usuario->correo,
+                'correo_personal'           => $usuario->correo,
+                'estado_academico'          => 'en_formacion',
+                'tiene_apoyo_sostenimiento' => 0,
+            ]);
+
+            return;
+        }
+
+        // No hay una columna de "inactivo" genérica para el aprendiz: la más
+        // cercana sin inventar estados nuevos es "cancelado" (deja de contar
+        // como Aprendiz activo en Roles::disponiblesPara), igual que ya hace
+        // el flujo normal de retiro académico.
+        if ($aprendiz && $aprendiz->estado_academico !== 'cancelado') {
+            $aprendiz->update(['estado_academico' => 'cancelado']);
+        }
+    }
+
+    /**
+     * Mantiene la tabla usuario_rol en sincronía con el estado de cada
+     * perfil, reutilizando exactamente el mismo patrón de
+     * crearUsuarioConRol() (fecha_asignacion + estado_asignacion).
+     */
+    private function sincronizarPivoteRol(Usuario $usuario, string $nombreRol, bool $activo): void
+    {
+        $idRol = Rol::where('nombre_rol', $nombreRol)->value('id_rol');
+        if (! $idRol) {
+            return;
+        }
+
+        $yaAsignado = $usuario->roles()->where('rol.id_rol', $idRol)->exists();
+
+        if ($activo) {
+            if ($yaAsignado) {
+                $usuario->roles()->updateExistingPivot($idRol, ['estado_asignacion' => 'activa']);
+            } else {
+                $usuario->roles()->attach($idRol, ['fecha_asignacion' => now(), 'estado_asignacion' => 'activa']);
+            }
+
+            return;
+        }
+
+        if ($yaAsignado) {
+            $usuario->roles()->updateExistingPivot($idRol, ['estado_asignacion' => 'inactiva']);
+        }
+    }
+
+    /**
+     * Código de instructor autogenerado cuando se agrega el rol Instructor
+     * como rol ADICIONAL (no desde la sección de Instructores, que ya genera
+     * el suyo con su propio formulario).
+     */
+    private function generarCodigoInstructorParaRolAdicional(): string
+    {
+        $maximo = Instructor::where('codigo_instructor', 'like', 'INS-%')
+            ->get()
+            ->map(fn (Instructor $i) => (int) preg_replace('/\D/', '', (string) $i->codigo_instructor))
+            ->max();
+
+        return 'INS-' . str_pad((string) (((int) $maximo) + 1), 3, '0', STR_PAD_LEFT);
     }
 }

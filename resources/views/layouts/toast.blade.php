@@ -95,12 +95,24 @@
 <script>
     document.addEventListener('input', function (e) {
         if (e.target.matches('[data-solo-letras]')) {
-            e.target.value = e.target.value.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ\s]/g, '');
+            e.target.value = e.target.value
+                .replace(/[^A-Za-zÀ-ÖØ-öø-ÿ\s]/g, '') // solo letras y espacios
+                .replace(/^\s+/, '')                    // sin espacio al inicio
+                .replace(/\s{2,}/g, ' ');                // espacios consecutivos -> uno solo
         }
         if (e.target.matches('[data-solo-numeros]')) {
             e.target.value = e.target.value.replace(/\D/g, '');
         }
     });
+
+    // Al salir del campo se recorta también el espacio final (mientras se
+    // escribe se conserva, porque separa la siguiente palabra). "blur" no
+    // burbujea, por eso se escucha en fase de captura (tercer argumento true).
+    document.addEventListener('blur', function (e) {
+        if (e.target.matches('[data-solo-letras]') && e.target.value.endsWith(' ')) {
+            e.target.value = e.target.value.trimEnd();
+        }
+    }, true);
 </script>
 
 @include('layouts.validacion-vivo')

@@ -96,6 +96,38 @@ final class Roles
         return $rol;
     }
 
+    /**
+     * Matriz de compatibilidad de roles (contexto SENA):
+     *   ✅ Aprendiz · Instructor · Coordinador (solos)
+     *   ✅ Instructor + Aprendiz
+     *   ✅ Coordinador + Instructor
+     *   ❌ Coordinador + Aprendiz
+     *   ❌ Coordinador + Instructor + Aprendiz
+     *
+     * Las dos combinaciones prohibidas comparten un único rasgo: Coordinador
+     * y Aprendiz juntos. Por eso basta con esa sola comprobación.
+     *
+     * @param  array<int, string>  $roles
+     */
+    public static function combinacionValida(array $roles): bool
+    {
+        return ! (in_array(self::COORDINADOR, $roles, true) && in_array(self::APRENDIZ, $roles, true));
+    }
+
+    /**
+     * Mensaje de error si la combinación de roles no es válida, o null si lo es.
+     *
+     * @param  array<int, string>  $roles
+     */
+    public static function mensajeIncompatibilidad(array $roles): ?string
+    {
+        if (self::combinacionValida($roles)) {
+            return null;
+        }
+
+        return 'Un Coordinador no puede tener también el rol de Aprendiz (un Coordinador puede ser Instructor, y un Instructor puede ser Aprendiz, pero un Coordinador nunca puede ser Aprendiz).';
+    }
+
     private static function tieneCoordinador(Usuario $usuario): bool
     {
         return $usuario->tieneRol(self::COORDINADOR)

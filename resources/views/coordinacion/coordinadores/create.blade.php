@@ -23,7 +23,7 @@
     <form method="POST" action="{{ route('coordinacion.coordinadores.store') }}" class="space-y-5 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
         @csrf
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            @include('coordinacion.fichas._persona_campos')
+            @include('coordinacion.fichas._persona_campos', ['rolAncla' => \App\Support\Roles::COORDINADOR])
 
             <div>
                 <label class="mb-1 block text-xs font-semibold text-gray-600">Cargo <span class="font-normal text-gray-400">(opcional)</span></label>

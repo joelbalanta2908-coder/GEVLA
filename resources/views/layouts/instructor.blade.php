@@ -59,7 +59,7 @@
             @php
                 $navItems = [
                     ['label' => 'Mi Dashboard', 'route' => 'instructor.dashboard', 'icon' => 'home'],
-                    ['label' => 'Mis Reportes', 'route' => 'instructor.llamados.index', 'icon' => 'bell'],
+                    ['label' => 'Llamados de atención', 'route' => 'instructor.llamados.index', 'icon' => 'bell'],
                     ['label' => 'Mis Fichas', 'route' => 'instructor.fichas.index', 'icon' => 'grid'],
                     ['label' => 'Procesos', 'route' => 'instructor.procesos.index', 'icon' => 'flow'],
                     ['label' => 'Notificaciones', 'route' => 'instructor.notificaciones.index', 'icon' => 'inbox'],

@@ -233,12 +233,31 @@ class InstructorLlamadoController extends Controller
             'id_articulo'        => ['required', 'integer', Rule::exists('reglamento_articulo', 'id_articulo')->where('calificacion', $request->input('calificacion_falta'))],
         ]);
 
+        // Un instructor que también sea aprendiz no puede generar un llamado
+        // de atención sobre sí mismo.
+        $aprendizObjetivo = Aprendiz::find($validated['id_aprendiz']);
+        if ($aprendizObjetivo && (int) $aprendizObjetivo->id_usuario === (int) $instructor->id_usuario) {
+            return back()->withInput()->withErrors([
+                'id_aprendiz' => 'No puedes registrar un llamado de atención sobre ti mismo.',
+            ]);
+        }
+
         // Regla del reglamento (Art. 46): máximo 2 llamados de atención por categoría.
         if (! LlamadoAtencion::puedeRegistrarseNuevoLlamado((int) $validated['id_aprendiz'], $validated['categoria'])) {
             return back()->withInput()->withErrors([
                 'id_aprendiz' => 'Este aprendiz ya tiene los ' . LlamadoAtencion::MAX_LLAMADOS_REGLAMENTARIOS
                     . ' llamados de atención ' . LlamadoAtencion::categorias()[$validated['categoria']]
                     . 's permitidos por el reglamento (Art. 46). Procede un plan de mejoramiento.',
+            ]);
+        }
+
+        // No se permite un llamado por exactamente la misma razón al mismo
+        // aprendiz si aún no han pasado al menos 14 días desde el último con
+        // esa razón (ignora mayúsculas y espacios dobles al comparar).
+        if (LlamadoAtencion::existeLlamadoRecienteMismaRazon((int) $validated['id_aprendiz'], $validated['asunto'])) {
+            return back()->withInput()->withErrors([
+                'asunto' => 'Este aprendiz ya tiene un llamado de atención por esta misma razón dentro de los últimos '
+                    . LlamadoAtencion::DIAS_MINIMOS_MISMA_RAZON . ' días. Deben transcurrir al menos dos semanas para registrar otro llamado con el mismo motivo.',
             ]);
         }
 

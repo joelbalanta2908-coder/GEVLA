@@ -4,6 +4,21 @@
 @php
     $persona = $persona ?? null;
     $esEdicion = $esEdicion ?? false;
+
+    // Rol "ancla" de la sección actual (Aprendiz en /aprendices, Instructor en
+    // /docentes, Coordinador en /coordinadores): esa casilla siempre queda
+    // marcada y bloqueada, porque su perfil lo gestiona el flujo propio de la
+    // sección. Las otras dos casillas permiten sumar (o quitar, en edición)
+    // roles adicionales compatibles.
+    $rolAncla = $rolAncla ?? \App\Support\Roles::APRENDIZ;
+    $rolesActuales = $persona ? \App\Support\Roles::disponiblesPara($persona) : [$rolAncla];
+    $rolesSeleccionados = old('roles', $rolesActuales);
+
+    $catalogoRoles = [
+        \App\Support\Roles::APRENDIZ    => 'Aprendiz',
+        \App\Support\Roles::INSTRUCTOR  => 'Instructor',
+        \App\Support\Roles::COORDINADOR => 'Coordinador',
+    ];
 @endphp
 <div data-campo>
     <label class="mb-1 block text-xs font-semibold text-gray-600">Nombres</label>
@@ -75,3 +90,71 @@
 @else
     <p class="text-[11px] text-gray-400 sm:col-span-2">Si dejas la contraseña vacía, la inicial será el número de documento. Para iniciar sesión se usa el correo o el documento.</p>
 @endif
+
+{{-- Roles: el rol ancla de esta sección va siempre marcado (con un input
+     oculto que garantiza que se envíe aunque el checkbox se muestre
+     deshabilitado). Un Coordinador nunca puede ser también Aprendiz; el
+     script de abajo lo refleja en vivo, y el backend lo vuelve a validar. --}}
+<div class="sm:col-span-2" data-roles-contenedor>
+    <label class="mb-1 block text-xs font-semibold text-gray-600">Roles del usuario</label>
+    <div class="flex flex-wrap gap-4 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5">
+        @foreach($catalogoRoles as $valorRol => $etiquetaRol)
+            @php $marcado = in_array($valorRol, $rolesSeleccionados, true); @endphp
+            <label class="inline-flex items-center gap-1.5 text-sm text-gray-700">
+                @if($valorRol === $rolAncla)
+                    <input type="checkbox" checked disabled
+                           class="h-4 w-4 rounded border-gray-300 text-[#39A900] focus:ring-[#39A900]/30">
+                    <input type="hidden" name="roles[]" value="{{ $valorRol }}">
+                @else
+                    <input type="checkbox" name="roles[]" value="{{ $valorRol }}" data-rol-checkbox @checked($marcado)
+                           class="h-4 w-4 rounded border-gray-300 text-[#39A900] focus:ring-[#39A900]/30">
+                @endif
+                {{ $etiquetaRol }}
+                @if($valorRol === $rolAncla)
+                    <span class="text-[10px] font-semibold uppercase tracking-wide text-gray-400">(fijo)</span>
+                @endif
+            </label>
+        @endforeach
+    </div>
+    <p class="mt-1 text-xs font-medium text-gray-400">
+        Un Coordinador no puede tener también el rol de Aprendiz. Las demás combinaciones sí son válidas
+        (Instructor + Aprendiz, Coordinador + Instructor).
+    </p>
+    <p data-roles-error class="mt-1 hidden text-xs font-medium text-red-600">
+        Un Coordinador no puede tener también el rol de Aprendiz.
+    </p>
+</div>
+
+<script>
+    // Refleja en vivo la única incompatibilidad de roles: Coordinador + Aprendiz.
+    // El backend (Roles::mensajeIncompatibilidad) es quien realmente lo exige.
+    (function () {
+        var contenedor = document.querySelector('[data-roles-contenedor]');
+        if (!contenedor || contenedor.__rolesWired) return;
+        contenedor.__rolesWired = true;
+
+        var error = contenedor.querySelector('[data-roles-error]');
+
+        function marcado(rol) {
+            var fijo = contenedor.querySelector('input[type="hidden"][value="' + rol + '"]');
+            if (fijo) return true;
+            var casilla = contenedor.querySelector('input[data-rol-checkbox][value="' + rol + '"]');
+            return casilla ? casilla.checked : false;
+        }
+
+        function actualizar() {
+            var conflicto = marcado('Coordinador') && marcado('Aprendiz');
+            error.classList.toggle('hidden', !conflicto);
+
+            contenedor.querySelectorAll('[data-rol-checkbox]').forEach(function (casilla) {
+                var esParDelConflicto = casilla.value === 'Coordinador' || casilla.value === 'Aprendiz';
+                casilla.disabled = conflicto && esParDelConflicto && !casilla.checked;
+            });
+        }
+
+        contenedor.querySelectorAll('[data-rol-checkbox]').forEach(function (casilla) {
+            casilla.addEventListener('change', actualizar);
+        });
+        actualizar();
+    })();
+</script>

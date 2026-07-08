@@ -2,7 +2,7 @@
 <html lang="es" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">
 <head>
     <meta charset="UTF-8">
-    <title>Mis Reportes - GEVLA SENA</title>
+    <title>Llamados de atención - GEVLA SENA</title>
     <link rel="icon" type="image/png" href="https://oficinavirtualderadicacion.sena.edu.co/oficinavirtual/Resources/logoSenaNaranja.png">
     <style>
         body { font-family: 'Segoe UI', Calibri, Arial, sans-serif; color: #1e293b; margin: 28px; }

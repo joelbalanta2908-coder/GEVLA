@@ -194,8 +194,9 @@ class CoordinacionController extends Controller
             'correo_institucional' => ['nullable', 'email', 'max:120'],
             'id_ficha'             => ['nullable', 'integer', 'exists:ficha,id_ficha'],
         ]);
+        $roles = $this->validarRolesSolicitados($request->input('roles', []), Roles::APRENDIZ);
 
-        $aprendizCreado = DB::transaction(function () use ($datos, $request) {
+        $aprendizCreado = DB::transaction(function () use ($datos, $request, $roles) {
             $usuario = $this->crearUsuarioConRol($datos, Roles::APRENDIZ);
 
             $aprendiz = Aprendiz::create([
@@ -214,6 +215,10 @@ class CoordinacionController extends Controller
                     'estado_matricula' => 'activa',
                 ]);
             }
+
+            // Roles adicionales marcados en el formulario (Instructor y/o
+            // Coordinador), respetando la matriz de compatibilidad.
+            $this->sincronizarRolesAdicionales($usuario, $roles, Roles::APRENDIZ);
 
             return $aprendiz;
         });
@@ -316,8 +321,9 @@ class CoordinacionController extends Controller
             'correo_institucional' => ['nullable', 'email', 'max:120'],
             'estado_academico'     => ['required', Rule::in(['en_formacion', 'aplazado', 'cancelado', 'certificado'])],
         ]);
+        $roles = $this->validarRolesSolicitados($request->input('roles', []), Roles::APRENDIZ);
 
-        DB::transaction(function () use ($datos, $usuario, $aprendiz) {
+        DB::transaction(function () use ($datos, $usuario, $aprendiz, $roles) {
             $this->actualizarDatosUsuario($usuario, $datos);
 
             $aprendiz->update([
@@ -327,6 +333,11 @@ class CoordinacionController extends Controller
                 'correo_institucional' => $datos['correo_institucional'] ?: $datos['correo'],
                 'estado_academico'     => $datos['estado_academico'],
             ]);
+
+            // Roles adicionales: el rol Aprendiz lo sigue gestionando el
+            // estado_academico de arriba; aquí solo se sincronizan
+            // Instructor/Coordinador si se marcaron o se quitaron.
+            $this->sincronizarRolesAdicionales($usuario, $roles, Roles::APRENDIZ);
         });
 
         return redirect()
@@ -388,8 +399,9 @@ class CoordinacionController extends Controller
             'cargo'       => ['nullable', 'string', 'max:100'],
             'dependencia' => ['nullable', 'string', 'max:120'],
         ]);
+        $roles = $this->validarRolesSolicitados($request->input('roles', []), Roles::COORDINADOR);
 
-        DB::transaction(function () use ($datos, $request) {
+        DB::transaction(function () use ($datos, $request, $roles) {
             $usuario = $this->crearUsuarioConRol($datos, Roles::COORDINADOR);
 
             \App\Models\Coordinacion::create([
@@ -398,6 +410,11 @@ class CoordinacionController extends Controller
                 'dependencia'          => $request->input('dependencia'),
                 'estado_coordinacion'  => 'activo',
             ]);
+
+            // Roles adicionales marcados en el formulario (solo Instructor es
+            // compatible con Coordinador; Aprendiz queda bloqueado por la
+            // matriz de compatibilidad).
+            $this->sincronizarRolesAdicionales($usuario, $roles, Roles::COORDINADOR);
         });
 
         return redirect()
@@ -442,14 +459,17 @@ class CoordinacionController extends Controller
             'cargo'       => ['nullable', 'string', 'max:100'],
             'dependencia' => ['nullable', 'string', 'max:120'],
         ]);
+        $roles = $this->validarRolesSolicitados($request->input('roles', []), Roles::COORDINADOR);
 
-        DB::transaction(function () use ($datos, $usuario, $coordinador) {
+        DB::transaction(function () use ($datos, $usuario, $coordinador, $roles) {
             $this->actualizarDatosUsuario($usuario, $datos);
 
             $coordinador->update([
                 'cargo'       => $datos['cargo'] ?: $coordinador->cargo,
                 'dependencia' => $datos['dependencia'] ?? null,
             ]);
+
+            $this->sincronizarRolesAdicionales($usuario, $roles, Roles::COORDINADOR);
         });
 
         return redirect()
@@ -601,8 +621,9 @@ class CoordinacionController extends Controller
             'area_formacion'    => ['nullable', 'string', 'max:120'],
             'tipo_docente'      => ['nullable', Rule::in(array_keys(Instructor::tiposDocente()))],
         ]);
+        $roles = $this->validarRolesSolicitados($request->input('roles', []), Roles::INSTRUCTOR);
 
-        DB::transaction(function () use ($datos, $request) {
+        DB::transaction(function () use ($datos, $request, $roles) {
             $usuario = $this->crearUsuarioConRol($datos, Roles::INSTRUCTOR);
 
             Instructor::create([
@@ -612,6 +633,10 @@ class CoordinacionController extends Controller
                 'tipo_docente'      => $request->input('tipo_docente') ?: null,
                 'estado_instructor' => 'activo',
             ]);
+
+            // Roles adicionales marcados en el formulario (Aprendiz y/o
+            // Coordinador), respetando la matriz de compatibilidad.
+            $this->sincronizarRolesAdicionales($usuario, $roles, Roles::INSTRUCTOR);
         });
 
         return redirect()
@@ -756,8 +781,9 @@ class CoordinacionController extends Controller
             'area_formacion'    => ['nullable', 'string', 'max:120'],
             'tipo_docente'      => ['nullable', Rule::in(array_keys(Instructor::tiposDocente()))],
         ]);
+        $roles = $this->validarRolesSolicitados($request->input('roles', []), Roles::INSTRUCTOR);
 
-        DB::transaction(function () use ($datos, $usuario, $instructor) {
+        DB::transaction(function () use ($datos, $usuario, $instructor, $roles) {
             $this->actualizarDatosUsuario($usuario, $datos);
 
             $instructor->update([
@@ -766,6 +792,8 @@ class CoordinacionController extends Controller
                 'area_formacion'    => $datos['area_formacion'] ?? null,
                 'tipo_docente'      => $datos['tipo_docente'] ?: null,
             ]);
+
+            $this->sincronizarRolesAdicionales($usuario, $roles, Roles::INSTRUCTOR);
         });
 
         return redirect()

@@ -24,7 +24,7 @@
         @csrf
         @method('PUT')
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            @include('coordinacion.fichas._persona_campos', ['persona' => $usuario, 'esEdicion' => true])
+            @include('coordinacion.fichas._persona_campos', ['persona' => $usuario, 'esEdicion' => true, 'rolAncla' => \App\Support\Roles::INSTRUCTOR])
 
             <div>
                 <label class="mb-1 block text-xs font-semibold text-gray-600">Código de instructor</label>

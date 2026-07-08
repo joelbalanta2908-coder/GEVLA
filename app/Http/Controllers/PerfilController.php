@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Support\Texto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -63,6 +64,14 @@ class PerfilController extends Controller
     public function update(Request $request): RedirectResponse
     {
         $usuario = Auth::user();
+
+        // Recorta y colapsa espacios ("John   Fredy " -> "John Fredy") antes
+        // de validar, para que la regla min:2 y el valor guardado sean sobre
+        // el texto ya limpio.
+        $request->merge([
+            'nombres'   => Texto::normalizarEspacios($request->input('nombres')),
+            'apellidos' => Texto::normalizarEspacios($request->input('apellidos')),
+        ]);
 
         $validated = $request->validate([
             'nombres'     => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s]+$/u'],

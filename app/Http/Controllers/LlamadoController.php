@@ -113,6 +113,16 @@ class LlamadoController extends Controller
             'observaciones'      => ['nullable', 'string'],
         ]);
 
+        // No se permite un llamado por exactamente la misma razón al mismo
+        // aprendiz si aún no han pasado al menos 14 días desde el último con
+        // esa razón (ignora mayúsculas y espacios dobles al comparar).
+        if (LlamadoAtencion::existeLlamadoRecienteMismaRazon((int) $validated['id_aprendiz'], $validated['asunto'])) {
+            return back()->withInput()->withErrors([
+                'asunto' => 'Este aprendiz ya tiene un llamado de atención por esta misma razón dentro de los últimos '
+                    . LlamadoAtencion::DIAS_MINIMOS_MISMA_RAZON . ' días. Deben transcurrir al menos dos semanas para registrar otro llamado con el mismo motivo.',
+            ]);
+        }
+
         $validated['id_usuario_reporta'] = Auth::id() ?? 1; // Fallback por si acaso en entorno dev
 
         $llamado = LlamadoAtencion::create($validated);

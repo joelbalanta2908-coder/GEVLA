@@ -129,7 +129,7 @@
                 <form x-show="open" x-cloak method="POST" action="{{ route('coordinacion.fichas.instructores.crear', $ficha) }}" class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                     @csrf
                     <input type="hidden" name="_form" value="instructor">
-                    @include('coordinacion.fichas._persona_campos')
+                    @include('coordinacion.fichas._persona_campos', ['rolAncla' => \App\Support\Roles::INSTRUCTOR])
                     <div>
                         <label class="mb-1 block text-xs font-semibold text-gray-600">Código <span class="font-normal text-gray-400">(opcional)</span></label>
                         <input type="text" name="codigo_instructor" value="{{ old('codigo_instructor') }}" maxlength="30" placeholder="Se genera automáticamente"
