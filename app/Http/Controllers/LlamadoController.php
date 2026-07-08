@@ -10,10 +10,13 @@ use App\Models\Instructor;
 use App\Models\LlamadoAtencion;
 use App\Models\NotificacionUsuario;
 use App\Support\Busqueda;
+use App\Support\CorreoLlamado;
+use App\Support\PruebasLlamado;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -109,9 +112,19 @@ class LlamadoController extends Controller
             'asunto'             => ['required', 'string', 'max:200'],
             'descripcion_hechos' => ['required', 'string'],
             'pruebas_aportadas'  => ['nullable', 'string'],
+            'pruebas_fotos'      => ['nullable', 'array', 'max:8'],
+            'pruebas_fotos.*'    => ['image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'estado_llamado'     => ['required', Rule::in(['registrado', 'en_revision', 'notificado', 'cerrado', 'cancelado'])],
             'observaciones'      => ['nullable', 'string'],
+        ], [
+            'pruebas_fotos.*.image' => 'Cada prueba debe ser una imagen (JPG, PNG o WEBP).',
+            'pruebas_fotos.*.max'   => 'Cada foto de prueba no puede superar los 4 MB.',
+            'pruebas_fotos.max'     => 'Puedes adjuntar como máximo 8 fotos de prueba.',
         ]);
+
+        // Texto + fotos de evidencia se combinan en el mismo campo (JSON).
+        $validated['pruebas_aportadas'] = PruebasLlamado::desdeRequest($request);
+        unset($validated['pruebas_fotos']);
 
         // No se permite un llamado por exactamente la misma razón al mismo
         // aprendiz si aún no han pasado al menos 14 días desde el último con
@@ -126,6 +139,11 @@ class LlamadoController extends Controller
         $validated['id_usuario_reporta'] = Auth::id() ?? 1; // Fallback por si acaso en entorno dev
 
         $llamado = LlamadoAtencion::create($validated);
+
+        // Correo personalizado al aprendiz con el detalle del llamado. Solo se
+        // envía para llamados nuevos (aquí, en la creación); nunca de forma
+        // retroactiva. Si el envío falla, no rompe la creación del llamado.
+        CorreoLlamado::enviar($llamado);
 
         // Notificaciones: al aprendiz y al instructor asignado.
         $llamado->load(['aprendiz.usuario', 'instructor.usuario']);
@@ -190,9 +208,19 @@ class LlamadoController extends Controller
             'asunto'             => ['required', 'string', 'max:200'],
             'descripcion_hechos' => ['required', 'string'],
             'pruebas_aportadas'  => ['nullable', 'string'],
+            'pruebas_fotos'      => ['nullable', 'array', 'max:8'],
+            'pruebas_fotos.*'    => ['image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'estado_llamado'     => ['required', Rule::in(['registrado', 'en_revision', 'notificado', 'cerrado', 'cancelado'])],
             'observaciones'      => ['nullable', 'string'],
+        ], [
+            'pruebas_fotos.*.image' => 'Cada prueba debe ser una imagen (JPG, PNG o WEBP).',
+            'pruebas_fotos.*.max'   => 'Cada foto de prueba no puede superar los 4 MB.',
+            'pruebas_fotos.max'     => 'Puedes adjuntar como máximo 8 fotos de prueba.',
         ]);
+
+        // Conserva las fotos previas (menos las que se quiten), agrega nuevas.
+        $validated['pruebas_aportadas'] = PruebasLlamado::desdeRequest($request, $llamadoModel->pruebas_aportadas);
+        unset($validated['pruebas_fotos']);
 
         $llamadoModel->update($validated);
 
@@ -246,15 +274,27 @@ class LlamadoController extends Controller
     public function destroy(string $llamado): RedirectResponse
     {
         $llamadoModel = LlamadoAtencion::findOrFail($llamado);
-        
-        // Comprobar relaciones (faltas o procesos) para no romper FK
-        if ($llamadoModel->faltas()->exists() || $llamadoModel->procesosDisciplinarios()->exists()) {
+
+        // Un llamado que ya derivó en un proceso disciplinario no se elimina:
+        // es la raíz de ese proceso y borrarlo dejaría el expediente incompleto.
+        if ($llamadoModel->procesosDisciplinarios()->exists()) {
             return redirect()
                 ->route('coordinacion.llamados.index')
-                ->withErrors(['login' => 'No se puede eliminar el llamado porque tiene faltas o procesos asociados.']);
+                ->withErrors(['login' => 'No se puede eliminar el llamado porque ya tiene un proceso disciplinario asociado.']);
         }
-        
-        $llamadoModel->delete();
+
+        // Se eliminan primero los registros dependientes (faltas y las
+        // notificaciones oficiales generadas al crear el llamado) para no
+        // violar las claves foráneas, y se limpian las fotos del storage.
+        $fotos = $llamadoModel->pruebas_fotos;
+
+        DB::transaction(function () use ($llamadoModel) {
+            $llamadoModel->faltas()->delete();
+            $llamadoModel->notificaciones()->delete();
+            $llamadoModel->delete();
+        });
+
+        PruebasLlamado::eliminarArchivos($fotos);
 
         return redirect()
             ->route('coordinacion.llamados.index')

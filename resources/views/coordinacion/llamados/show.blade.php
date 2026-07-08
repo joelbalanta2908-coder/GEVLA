@@ -59,12 +59,7 @@
                         <h3 class="text-xs font-medium uppercase text-gray-400">Descripción de los hechos</h3>
                         <p class="mt-1 text-sm text-gray-700">{{ $llamado->descripcion_hechos }}</p>
                     </div>
-                    @if($llamado->pruebas_aportadas)
-                        <div>
-                            <h3 class="text-xs font-medium uppercase text-gray-400">Pruebas aportadas</h3>
-                            <p class="mt-1 text-sm text-gray-700">{{ $llamado->pruebas_aportadas }}</p>
-                        </div>
-                    @endif
+                    @include('llamados._pruebas_muestra')
                     @if($llamado->observaciones)
                         <div>
                             <h3 class="text-xs font-medium uppercase text-gray-400">Observaciones de coordinación</h3>
@@ -128,6 +123,22 @@
                    class="block w-full rounded-lg bg-[#39A900] px-4 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-[#2D8200]">
                     Expedir acta de coordinación
                 </a>
+
+                {{-- Proceso disciplinario: si el llamado ya derivó en uno, se
+                     enlaza a su detalle; si no, se abre el formulario con el
+                     llamado y el aprendiz ya preseleccionados. --}}
+                @php $procesoExistente = $llamado->procesosDisciplinarios()->first(); @endphp
+                @if($procesoExistente)
+                    <a href="{{ route('coordinacion.procesos.show', $procesoExistente->id_proceso) }}"
+                       class="block w-full rounded-lg border border-[#00324D]/20 bg-[#00324D]/5 px-4 py-2.5 text-center text-sm font-semibold text-[#00324D] transition hover:bg-[#00324D]/10">
+                        Ver proceso disciplinario
+                    </a>
+                @else
+                    <a href="{{ route('coordinacion.procesos.create', ['id_llamado' => $llamado->id_llamado, 'id_aprendiz' => $llamado->id_aprendiz]) }}"
+                       class="block w-full rounded-lg border border-[#39A900] px-4 py-2.5 text-center text-sm font-semibold text-[#39A900] transition hover:bg-[#39A900]/10">
+                        Iniciar proceso disciplinario
+                    </a>
+                @endif
 
                 <form method="POST" action="{{ route('coordinacion.llamados.actualizarEstado', $llamado->id_llamado) }}" class="space-y-2">
                     @csrf

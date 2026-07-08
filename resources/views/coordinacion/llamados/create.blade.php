@@ -12,7 +12,7 @@
         <h2 class="text-xl font-bold text-[#00324D]">Registrar nuevo llamado de atención</h2>
         <p class="mt-1 text-sm text-gray-500">Diligencia la información para registrar un nuevo llamado.</p>
 
-        <form method="POST" action="{{ route('coordinacion.llamados.store') }}" class="mt-6 space-y-5">
+        <form method="POST" action="{{ route('coordinacion.llamados.store') }}" enctype="multipart/form-data" class="mt-6 space-y-5">
             @csrf
 
             <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -93,6 +93,7 @@
                 <textarea name="pruebas_aportadas" rows="2"
                           class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2"
                           placeholder="Enlaces a documentos, actas firmadas, fotos...">{{ old('pruebas_aportadas') }}</textarea>
+                @include('llamados._pruebas_fotos')
             </div>
             
             <div>

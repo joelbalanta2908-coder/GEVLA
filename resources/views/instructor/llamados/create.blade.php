@@ -12,7 +12,7 @@
         <h2 class="text-xl font-bold text-[#00324D]">Reportar Llamado de Atención</h2>
         <p class="mt-1 text-sm text-gray-500">Ingresa los datos correspondientes al llamado de atención. Una vez en revisión por coordinación, no podrás editarlo.</p>
 
-        <form method="POST" action="{{ route('instructor.llamados.store') }}" class="mt-6 space-y-5">
+        <form method="POST" action="{{ route('instructor.llamados.store') }}" enctype="multipart/form-data" class="mt-6 space-y-5">
             @csrf
 
             <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -130,6 +130,7 @@
                 <label class="block text-sm font-bold text-gray-700">Pruebas aportadas (Opcional)</label>
                 <textarea name="pruebas_aportadas" rows="3" placeholder="Ej: Control de asistencia firmado, pantallazos, etc."
                           class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm caret-[#39A900] focus:border-[#39A900] focus:ring-2 focus:ring-[#39A900]/30">{{ old('pruebas_aportadas') }}</textarea>
+                @include('llamados._pruebas_fotos')
             </div>
 
             <div class="flex items-center justify-end gap-3 border-t border-gray-100 pt-5">

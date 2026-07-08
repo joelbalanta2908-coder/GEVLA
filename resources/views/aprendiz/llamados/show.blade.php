@@ -15,9 +15,13 @@
 @endphp
 
 <div class="space-y-6">
-    <a href="{{ route('aprendiz.llamados.index') }}" class="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-900">
-        ← Volver a mis llamados
-    </a>
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <a href="{{ route('aprendiz.llamados.index') }}" class="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-900">
+            ← Volver a mis llamados
+        </a>
+        {{-- Exportar este llamado en específico (PDF / Excel / Word). --}}
+        @include('reportes._botones', ['rutaBase' => 'aprendiz.llamados.detalle.export', 'rutaParams' => ['id' => $llamado->id_llamado]])
+    </div>
 
     <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <div class="flex items-start justify-between gap-4">
@@ -52,12 +56,7 @@
                 <h3 class="text-xs font-medium uppercase text-gray-400">Descripción de los hechos</h3>
                 <p class="mt-1 text-sm text-gray-700 whitespace-pre-wrap">{{ $llamado->descripcion_hechos }}</p>
             </div>
-            @if($llamado->pruebas_aportadas)
-                <div>
-                    <h3 class="text-xs font-medium uppercase text-gray-400">Pruebas aportadas</h3>
-                    <p class="mt-1 text-sm text-gray-700 whitespace-pre-wrap">{{ $llamado->pruebas_aportadas }}</p>
-                </div>
-            @endif
+            @include('llamados._pruebas_muestra')
         </div>
     </div>
 

@@ -86,12 +86,7 @@
                 <h3 class="text-xs font-medium uppercase text-gray-400">Descripción de los hechos</h3>
                 <p class="mt-1 text-sm text-gray-700 whitespace-pre-wrap">{{ $llamado->descripcion_hechos }}</p>
             </div>
-            @if($llamado->pruebas_aportadas)
-                <div>
-                    <h3 class="text-xs font-medium uppercase text-gray-400">Pruebas aportadas</h3>
-                    <p class="mt-1 text-sm text-gray-700 whitespace-pre-wrap">{{ $llamado->pruebas_aportadas }}</p>
-                </div>
-            @endif
+            @include('llamados._pruebas_muestra')
         </div>
     </div>
 

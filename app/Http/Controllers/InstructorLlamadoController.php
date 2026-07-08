@@ -12,9 +12,12 @@ use App\Models\NotificacionUsuario;
 use App\Models\ProgramaFormacion;
 use App\Models\ReglamentoArticulo;
 use App\Support\Busqueda;
+use App\Support\CorreoLlamado;
+use App\Support\PruebasLlamado;
 use App\Support\Roles;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -227,11 +230,22 @@ class InstructorLlamadoController extends Controller
             'asunto'             => ['required', 'string', 'max:200'],
             'descripcion_hechos' => ['required', 'string'],
             'pruebas_aportadas'  => ['nullable', 'string'],
+            'pruebas_fotos'      => ['nullable', 'array', 'max:8'],
+            'pruebas_fotos.*'    => ['image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'tipo_llamado'       => ['required', Rule::in(array_keys(LlamadoAtencion::tipos()))],
             'categoria'          => ['required', Rule::in(array_keys(LlamadoAtencion::categorias()))],
             'calificacion_falta' => ['required', Rule::in(array_keys(LlamadoAtencion::calificaciones()))],
             'id_articulo'        => ['required', 'integer', Rule::exists('reglamento_articulo', 'id_articulo')->where('calificacion', $request->input('calificacion_falta'))],
+        ], [
+            'pruebas_fotos.*.image' => 'Cada prueba debe ser una imagen (JPG, PNG o WEBP).',
+            'pruebas_fotos.*.max'   => 'Cada foto de prueba no puede superar los 4 MB.',
+            'pruebas_fotos.max'     => 'Puedes adjuntar como máximo 8 fotos de prueba.',
         ]);
+
+        // Texto + fotos de evidencia se combinan en el mismo campo (JSON) sin
+        // tocar la estructura de la base de datos.
+        $validated['pruebas_aportadas'] = PruebasLlamado::desdeRequest($request);
+        unset($validated['pruebas_fotos']);
 
         // Un instructor que también sea aprendiz no puede generar un llamado
         // de atención sobre sí mismo.
@@ -266,6 +280,11 @@ class InstructorLlamadoController extends Controller
         $validated['estado_llamado'] = LlamadoAtencion::ESTADO_REGISTRADO; // Estado inicial
 
         $llamado = LlamadoAtencion::create($validated);
+
+        // Correo personalizado al aprendiz con el detalle del llamado. Solo se
+        // envía para llamados nuevos (aquí, en la creación); nunca de forma
+        // retroactiva. Si el envío falla, no rompe la creación del llamado.
+        CorreoLlamado::enviar($llamado);
 
         // Notificaciones: al aprendiz le llega el llamado y a los coordinadores
         // el aviso del nuevo llamado pendiente de revisión.
@@ -395,11 +414,22 @@ class InstructorLlamadoController extends Controller
             'asunto'             => ['required', 'string', 'max:200'],
             'descripcion_hechos' => ['required', 'string'],
             'pruebas_aportadas'  => ['nullable', 'string'],
+            'pruebas_fotos'      => ['nullable', 'array', 'max:8'],
+            'pruebas_fotos.*'    => ['image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'tipo_llamado'       => ['required', Rule::in(array_keys(LlamadoAtencion::tipos()))],
             'categoria'          => ['required', Rule::in(array_keys(LlamadoAtencion::categorias()))],
             'calificacion_falta' => ['required', Rule::in(array_keys(LlamadoAtencion::calificaciones()))],
             'id_articulo'        => ['required', 'integer', Rule::exists('reglamento_articulo', 'id_articulo')->where('calificacion', $request->input('calificacion_falta'))],
+        ], [
+            'pruebas_fotos.*.image' => 'Cada prueba debe ser una imagen (JPG, PNG o WEBP).',
+            'pruebas_fotos.*.max'   => 'Cada foto de prueba no puede superar los 4 MB.',
+            'pruebas_fotos.max'     => 'Puedes adjuntar como máximo 8 fotos de prueba.',
         ]);
+
+        // Conserva las fotos previas (menos las que se quiten), agrega las
+        // nuevas y actualiza el texto, todo en el mismo campo.
+        $validated['pruebas_aportadas'] = PruebasLlamado::desdeRequest($request, $llamadoModel->pruebas_aportadas);
+        unset($validated['pruebas_fotos']);
 
         $llamadoModel->update($validated);
 
@@ -423,9 +453,18 @@ class InstructorLlamadoController extends Controller
                 ->withErrors(['error' => 'No puedes eliminar un llamado que ya está siendo procesado por coordinación.']);
         }
 
-        // Eliminar faltas asociadas (opcional, dependiendo de si el instructor puede agregar faltas)
-        $llamadoModel->faltas()->delete();
-        $llamadoModel->delete();
+        // Se eliminan primero los registros que dependen del llamado (faltas y
+        // las notificaciones oficiales generadas al crearlo) para no violar las
+        // claves foráneas, y se limpian las fotos de evidencia del storage.
+        $fotos = $llamadoModel->pruebas_fotos;
+
+        DB::transaction(function () use ($llamadoModel) {
+            $llamadoModel->faltas()->delete();
+            $llamadoModel->notificaciones()->delete();
+            $llamadoModel->delete();
+        });
+
+        PruebasLlamado::eliminarArchivos($fotos);
 
         return redirect()
             ->route('instructor.llamados.index')

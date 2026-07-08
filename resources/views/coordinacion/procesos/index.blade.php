@@ -10,7 +10,14 @@
             <h2 class="text-2xl font-bold text-gray-900">Procesos disciplinarios</h2>
             <p class="text-gray-500">Seguimiento de las etapas de cada proceso abierto a partir de un llamado de atención.</p>
         </div>
-        @include('reportes._botones', ['rutaBase' => 'coordinacion.procesos.export', 'fichas' => $fichasExport])
+        <div class="flex flex-wrap items-center gap-3">
+            @include('reportes._botones', ['rutaBase' => 'coordinacion.procesos.export', 'fichas' => $fichasExport])
+            <a href="{{ route('coordinacion.procesos.create') }}"
+               class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#39A900] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#2D8200]">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                Nuevo proceso
+            </a>
+        </div>
     </div>
 
     @isset($trendLabels)

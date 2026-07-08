@@ -12,7 +12,7 @@
         <h2 class="text-xl font-bold text-[#00324D]">Editar llamado de atención</h2>
         <p class="mt-1 text-sm text-gray-500">Modifica los detalles del llamado registrado.</p>
 
-        <form method="POST" action="{{ route('coordinacion.llamados.update', $llamado->id_llamado) }}" class="mt-6 space-y-5">
+        <form method="POST" action="{{ route('coordinacion.llamados.update', $llamado->id_llamado) }}" enctype="multipart/form-data" class="mt-6 space-y-5">
             @csrf
             @method('PUT')
 
@@ -89,7 +89,8 @@
             <div>
                 <label class="block text-sm font-bold text-gray-700">Pruebas aportadas (Opcional)</label>
                 <textarea name="pruebas_aportadas" rows="2"
-                          class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">{{ old('pruebas_aportadas', $llamado->pruebas_aportadas) }}</textarea>
+                          class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">{{ old('pruebas_aportadas', $llamado->pruebas_texto) }}</textarea>
+                @include('llamados._pruebas_fotos', ['llamadoPruebas' => $llamado])
             </div>
             
             <div>

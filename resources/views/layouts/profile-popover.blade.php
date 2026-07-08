@@ -81,6 +81,19 @@
             </span>
             <span>Soporte y ayuda</span>
         </a>
+
+        {{-- Cerrar sesión: abre el mismo modal de confirmación (logoutModalOpen)
+             que ya usa el botón del sidebar y reutiliza el form #logout-form. --}}
+        <button type="button" @click="profileMenuOpen = false; logoutModalOpen = true"
+                class="group flex w-full items-center gap-3 rounded-2xl border border-transparent px-4 py-3 text-sm font-semibold text-red-600 transition hover:border-red-200 hover:bg-red-50">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-red-50 text-red-600">
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 7V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2" />
+                    <path d="M13 12h8m0 0-3-3m3 3-3 3" />
+                </svg>
+            </span>
+            <span>Cerrar sesión</span>
+        </button>
     </div>
 </div>
 

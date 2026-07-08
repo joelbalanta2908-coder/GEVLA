@@ -79,6 +79,67 @@ class AprendizReporteController extends Controller
         return $this->responder($formato, 'Mis llamados de atención', 'mis-llamados', $encabezados, $filas, $registros->count(), $ficha);
     }
 
+    /**
+     * Exporta el detalle de UN llamado de atención específico del aprendiz
+     * (formato campo/valor), en PDF, Excel o Word. Verifica que el llamado
+     * pertenezca al aprendiz autenticado antes de exponerlo.
+     */
+    public function llamadoDetalle(string $id, string $formato): Response
+    {
+        $aprendiz = $this->getAprendiz();
+        $ficha = $this->fichaDelAprendiz($aprendiz);
+
+        $llamado = LlamadoAtencion::with(['instructor.usuario', 'articulo'])
+            ->where('id_aprendiz', $aprendiz->id_aprendiz)
+            ->where('id_llamado', $id)
+            ->firstOrFail();
+
+        $instructorReporta = trim(($llamado->instructor?->usuario?->nombres ?? '') . ' ' . ($llamado->instructor?->usuario?->apellidos ?? ''));
+
+        $encabezados = ['Campo', 'Detalle'];
+        $filas = [
+            ['Asunto', $llamado->asunto],
+            ['Fecha del llamado', $llamado->fecha_llamado ? Carbon::parse($llamado->fecha_llamado)->format('d/m/Y') : '—'],
+            ['Instructor que reporta', $instructorReporta !== '' ? $instructorReporta : 'No asignado'],
+            ['Tipo de llamado', $llamado->tipo_label],
+            ['Categoría', $llamado->categoria_label],
+        ];
+
+        if ($llamado->calificacion_falta) {
+            $filas[] = ['Calificación de la falta', $llamado->calificacion_label];
+        }
+        if ($llamado->articulo) {
+            $filas[] = ['Artículo / falta del reglamento', trim($llamado->articulo->numero_articulo . ' — ' . $llamado->articulo->titulo)];
+        }
+
+        $filas[] = ['Estado', ucfirst(str_replace('_', ' ', (string) $llamado->estado_llamado))];
+        $filas[] = ['Descripción de los hechos', $llamado->descripcion_hechos];
+
+        if ($llamado->tiene_pruebas) {
+            $partes = [];
+            if ($llamado->pruebas_texto !== '') {
+                $partes[] = $llamado->pruebas_texto;
+            }
+            if (count($llamado->pruebas_fotos)) {
+                $partes[] = '(' . count($llamado->pruebas_fotos) . ' foto(s) de evidencia adjunta(s) en el sistema)';
+            }
+            $filas[] = ['Pruebas aportadas', implode("\n", $partes)];
+        }
+        if (! empty($llamado->observaciones)) {
+            $filas[] = ['Observaciones de Coordinación', $llamado->observaciones];
+        }
+
+        return $this->responder(
+            $formato,
+            'Llamado de atención N.° ' . $llamado->id_llamado,
+            'llamado-' . $llamado->id_llamado,
+            $encabezados,
+            $filas,
+            1,
+            $ficha
+        );
+    }
+
     public function actas(string $formato): Response
     {
         $aprendiz = $this->getAprendiz();

@@ -89,13 +89,22 @@ class ProcesoController extends Controller
     /**
      * Muestra el formulario para crear un proceso disciplinario.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
         $aprendices = Aprendiz::with('usuario')->get();
         // Mostrar llamados que no tienen proceso o para enlazarlos
         $llamados = LlamadoAtencion::with('aprendiz.usuario')->get();
 
-        return view('coordinacion.procesos.create', compact('aprendices', 'llamados'));
+        // Prefill opcional cuando el proceso se inicia desde el detalle de un
+        // llamado de atención: llegan por query string el llamado y el aprendiz.
+        $preLlamado  = $request->query('id_llamado');
+        $preAprendiz = $request->query('id_aprendiz');
+        // Si viene el llamado pero no el aprendiz, se deriva del propio llamado.
+        if ($preLlamado && ! $preAprendiz) {
+            $preAprendiz = optional(LlamadoAtencion::find($preLlamado))->id_aprendiz;
+        }
+
+        return view('coordinacion.procesos.create', compact('aprendices', 'llamados', 'preLlamado', 'preAprendiz'));
     }
 
     /**

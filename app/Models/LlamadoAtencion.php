@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Support\PruebasLlamado;
 use App\Support\Texto;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -172,6 +173,41 @@ class LlamadoAtencion extends Model
     public function getEstadoLabelAttribute(): string
     {
         return self::estados()[$this->estado_llamado] ?? ucfirst((string) str_replace('_', ' ', (string) $this->estado_llamado));
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pruebas aportadas (texto + fotos, guardadas en la misma columna)
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Solo la descripción de texto de las pruebas (sin las fotos). Funciona
+     * tanto con llamados antiguos (texto plano) como con los nuevos (JSON).
+     */
+    public function getPruebasTextoAttribute(): string
+    {
+        return PruebasLlamado::parse($this->pruebas_aportadas)['texto'];
+    }
+
+    /**
+     * Rutas relativas de las fotos de evidencia (vacío si no hay).
+     *
+     * @return array<int, string>
+     */
+    public function getPruebasFotosAttribute(): array
+    {
+        return PruebasLlamado::parse($this->pruebas_aportadas)['fotos'];
+    }
+
+    /**
+     * Indica si el llamado tiene alguna prueba (texto o fotos).
+     */
+    public function getTienePruebasAttribute(): bool
+    {
+        $p = PruebasLlamado::parse($this->pruebas_aportadas);
+
+        return $p['texto'] !== '' || $p['fotos'] !== [];
     }
 
     /*
@@ -417,5 +453,15 @@ class LlamadoAtencion extends Model
     public function procesosDisciplinarios(): HasMany
     {
         return $this->hasMany(ProcesoDisciplinario::class, 'id_llamado', 'id_llamado');
+    }
+
+    /**
+     * Comunicaciones oficiales (tabla `notificacion`) generadas por este
+     * llamado. Se usan, por ejemplo, para eliminarlas junto con el llamado y no
+     * violar la clave foránea al borrarlo.
+     */
+    public function notificaciones(): HasMany
+    {
+        return $this->hasMany(Notificacion::class, 'id_llamado', 'id_llamado');
     }
 }

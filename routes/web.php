@@ -70,6 +70,9 @@ Route::middleware('auth')->group(function () {
         // Exportación de reportes propios (PDF / Excel / Word). Deben ir ANTES de
         // las rutas /{id} para no colisionar.
         Route::get('llamados/export/{formato}', [\App\Http\Controllers\AprendizReporteController::class, 'llamados'])->where('formato', 'pdf|excel|word')->name('llamados.export');
+        // Exportación de UN llamado específico (desde su detalle). Va antes de
+        // /llamados/{id} para no colisionar.
+        Route::get('llamados/{id}/export/{formato}', [\App\Http\Controllers\AprendizReporteController::class, 'llamadoDetalle'])->where('formato', 'pdf|excel|word')->name('llamados.detalle.export');
         Route::get('actas/export/{formato}', [\App\Http\Controllers\AprendizReporteController::class, 'actas'])->where('formato', 'pdf|excel|word')->name('actas.export');
         Route::get('procesos/export/{formato}', [\App\Http\Controllers\AprendizReporteController::class, 'procesos'])->where('formato', 'pdf|excel|word')->name('procesos.export');
 
