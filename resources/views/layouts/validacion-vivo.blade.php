@@ -46,8 +46,13 @@
                 }
             }
 
-            campo.classList.remove('border-gray-300', 'border-red-400', 'border-emerald-500');
+            campo.classList.remove('border-gray-300', 'border-red-400', 'border-emerald-500', 'focus:border-[#39A900]', 'focus:border-red-400', 'focus:border-emerald-500', 'focus:border-gray-300');
             campo.classList.add(estado === 'invalido' ? 'border-red-400' : estado === 'valido' ? 'border-emerald-500' : 'border-gray-300');
+            if (estado === 'invalido') {
+                campo.classList.add('focus:border-red-400');
+            } else if (estado === 'valido') {
+                campo.classList.add('focus:border-emerald-500');
+            }
             campo.setCustomValidity(estado === 'invalido' ? (campo.dataset.msgInvalido || 'Valor inválido.') : '');
 
             if (ayuda) {
