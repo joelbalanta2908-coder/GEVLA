@@ -6,11 +6,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Aprendiz;
 use App\Models\Ficha;
+use App\Models\FirmaLlamado;
 use App\Models\Instructor;
 use App\Models\LlamadoAtencion;
 use App\Models\NotificacionUsuario;
 use App\Support\Busqueda;
 use App\Support\CorreoLlamado;
+use App\Support\DocumentoLlamado;
+use App\Support\Firmas;
 use App\Support\PruebasLlamado;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -299,5 +302,40 @@ class LlamadoController extends Controller
         return redirect()
             ->route('coordinacion.llamados.index')
             ->with('success', 'Llamado de atención eliminado correctamente.');
+    }
+
+    /**
+     * Registra la firma del coordinador autenticado sobre el llamado (cuando
+     * el flujo del proceso la requiere). Exige tener la firma registrada en
+     * Mi Perfil y deja trazabilidad con fecha y hora en firma_llamado.
+     */
+    public function firmar(string $llamado): RedirectResponse
+    {
+        $llamadoModel = LlamadoAtencion::findOrFail($llamado);
+
+        if (! FirmaLlamado::moduloInstalado()) {
+            return back()->withErrors([
+                'error' => 'El módulo de firmas no está instalado: importa database/sql/modulo_firmas.sql en la base de datos.',
+            ]);
+        }
+
+        if (! Firmas::tiene(Auth::user())) {
+            return back()->withErrors([
+                'error' => 'No puedes firmar este llamado: primero debes registrar tu firma desde Mi Perfil (sección Firma).',
+            ]);
+        }
+
+        FirmaLlamado::firmar((int) $llamadoModel->id_llamado, (int) Auth::id(), FirmaLlamado::ROL_COORDINADOR);
+
+        return back()->with('success', 'Llamado firmado como Coordinación correctamente. La firma quedó registrada con fecha y hora.');
+    }
+
+    /**
+     * Genera el documento del llamado (formato F002-008-25, imprimible como
+     * PDF) con todas las firmas registradas hasta el momento.
+     */
+    public function documento(string $llamado)
+    {
+        return DocumentoLlamado::render(LlamadoAtencion::findOrFail($llamado));
     }
 }

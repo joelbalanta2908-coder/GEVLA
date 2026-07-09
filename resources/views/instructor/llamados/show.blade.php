@@ -16,9 +16,21 @@
 
 <div class="space-y-6">
     {{-- Al volver se restauran los filtros de búsqueda que traía la URL. --}}
-    <a href="{{ route('instructor.llamados.index', request()->query()) }}" class="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-900">
-        ← Volver a mis reportes
-    </a>
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <a href="{{ route('instructor.llamados.index', request()->query()) }}" class="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-900">
+            ← Volver a mis reportes
+        </a>
+        @if($esPropio ?? true)
+            {{-- Documento del llamado con firmas (al abrirlo, tu firma queda
+                 registrada automáticamente si la tienes en Mi Perfil). --}}
+            <a href="{{ route('instructor.llamados.documento', $llamado->id_llamado) }}" target="_blank" rel="noopener"
+               class="inline-flex items-center gap-2 rounded-full border border-[#00324D]/30 bg-[#00324D]/5 px-4 py-2 text-sm font-bold text-[#00324D] transition hover:bg-[#00324D]/10"
+               title="Generar el documento del llamado con tu firma (imprimible como PDF)">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm7 0v5h5"/></svg>
+                Documento firmado (PDF)
+            </a>
+        @endif
+    </div>
 
     <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <div class="flex items-start justify-between gap-4">

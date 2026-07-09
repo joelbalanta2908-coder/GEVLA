@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Support\Firmas;
 use App\Support\Texto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class PerfilController extends Controller
 {
@@ -103,5 +105,57 @@ class PerfilController extends Controller
         $usuario->update($datos);
 
         return redirect()->route('perfil.show')->with('success', 'Perfil actualizado exitosamente.');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Firma manuscrita (sección "Firma" de Mi Perfil)
+    |--------------------------------------------------------------------------
+    | La imagen vive en el disco PRIVADO (storage/app/firmas): solo su dueño
+    | puede verla y el sistema la incrusta en los documentos de llamados.
+    */
+
+    /**
+     * Sirve la imagen de la firma del usuario AUTENTICADO (nunca la de otro).
+     */
+    public function verFirma(): BinaryFileResponse
+    {
+        $ruta = Firmas::rutaAbsoluta(Auth::user());
+
+        abort_if($ruta === null, 404);
+
+        return response()->file($ruta, [
+            // Sin caché: al reemplazar la firma se ve la nueva de inmediato.
+            'Cache-Control' => 'no-store, max-age=0',
+        ]);
+    }
+
+    /**
+     * Registra o reemplaza la firma del usuario autenticado.
+     */
+    public function guardarFirma(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'firma' => ['required', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
+        ], [
+            'firma.required' => 'Selecciona la imagen de tu firma.',
+            'firma.image'    => 'La firma debe ser una imagen (preferiblemente PNG con fondo transparente).',
+            'firma.mimes'    => 'Formatos admitidos: PNG, JPG o WEBP.',
+            'firma.max'      => 'La imagen de la firma no puede superar los 2 MB.',
+        ]);
+
+        Firmas::guardar(Auth::user(), $request->file('firma'));
+
+        return redirect()->route('perfil.show')->with('success', 'Firma registrada correctamente. Se usará automáticamente en los documentos de llamados de atención.');
+    }
+
+    /**
+     * Elimina la firma registrada del usuario autenticado.
+     */
+    public function eliminarFirma(): RedirectResponse
+    {
+        Firmas::eliminar(Auth::user());
+
+        return redirect()->route('perfil.show')->with('success', 'Firma eliminada correctamente.');
     }
 }

@@ -213,6 +213,74 @@
         </aside>
     </div>
 
+    {{-- ------------------------------------------------------------------
+         Sección FIRMA: cada usuario (instructor, coordinador o aprendiz)
+         registra aquí la imagen de su firma manuscrita. El sistema la usa
+         automáticamente al generar los documentos de llamados de atención.
+         La imagen es PRIVADA: solo el dueño puede verla.
+    ------------------------------------------------------------------- --}}
+    @php $tieneFirma = \App\Support\Firmas::tiene($usuario); @endphp
+    <section class="mt-6 overflow-hidden rounded-[28px] border border-[#e6eadf] bg-white shadow-[0_10px_30px_rgba(0,0,0,0.05)]">
+        <div class="border-b border-[#eef1e8] bg-[#fafbf8] px-6 py-5 sm:px-8">
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Firma</p>
+            <h2 class="mt-1 text-xl font-extrabold text-slate-900">Mi firma para documentos</h2>
+            <p class="mt-1 text-sm text-slate-500">
+                Esta firma se insertará automáticamente en los documentos de llamados de atención que te correspondan
+                (como {{ implode(' / ', \App\Support\Roles::disponiblesPara($usuario)) ?: 'usuario' }}).
+                Solo tú puedes ver esta imagen.
+            </p>
+        </div>
+
+        <div class="flex flex-col gap-6 px-6 py-6 sm:px-8 lg:flex-row lg:items-center lg:justify-between">
+            {{-- Firma actual --}}
+            <div class="flex items-center gap-5">
+                @if($tieneFirma)
+                    <div class="flex h-28 w-56 items-center justify-center overflow-hidden rounded-2xl border border-[#e6eadf] bg-[#f8faf6] p-2">
+                        <img src="{{ route('perfil.firma.ver') }}?v={{ time() }}" alt="Mi firma" class="max-h-full max-w-full object-contain">
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-slate-900">Firma registrada</p>
+                        <p class="text-xs text-slate-500">Puedes reemplazarla subiendo una nueva o eliminarla.</p>
+                    </div>
+                @else
+                    <div class="flex h-28 w-56 items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-gray-50 px-4 text-center text-xs text-gray-400">
+                        Aún no has registrado tu firma
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-slate-900">Sin firma registrada</p>
+                        <p class="text-xs text-slate-500">Sube una imagen de tu firma, preferiblemente PNG con fondo transparente.</p>
+                    </div>
+                @endif
+            </div>
+
+            {{-- Acciones: subir/reemplazar y eliminar --}}
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <form method="POST" action="{{ route('perfil.firma.guardar') }}" enctype="multipart/form-data" class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    @csrf
+                    <input type="file" name="firma" required accept="image/png,image/jpeg,image/webp"
+                           class="block w-full max-w-xs text-sm text-slate-600 file:mr-3 file:rounded-full file:border-0 file:bg-[#39A900]/10 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#247200] hover:file:bg-[#39A900]/20">
+                    <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-full bg-[#39A900] px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#247200]">
+                        {{ $tieneFirma ? 'Reemplazar firma' : 'Registrar firma' }}
+                    </button>
+                </form>
+                @if($tieneFirma)
+                    <form method="POST" action="{{ route('perfil.firma.eliminar') }}"
+                          data-confirm="¿Eliminar tu firma registrada? Los documentos nuevos no podrán firmarse hasta que registres otra."
+                          data-confirm-title="Eliminar firma" data-confirm-btn="Sí, eliminar">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="inline-flex w-full items-center justify-center rounded-full border border-red-200 bg-red-50 px-5 py-2.5 text-sm font-bold text-red-600 transition hover:bg-red-100 sm:w-auto">
+                            Eliminar
+                        </button>
+                    </form>
+                @endif
+            </div>
+        </div>
+        <p class="border-t border-[#eef1e8] bg-[#fafbf8] px-6 py-3 text-xs text-slate-400 sm:px-8">
+            PNG, JPG o WEBP · máximo 2 MB · idealmente la firma en tinta oscura sobre fondo transparente o blanco.
+        </p>
+    </section>
+
         {{-- Edición de perfil en modal --}}
         <div x-show="editando" x-cloak x-transition.opacity @keydown.escape.window="editando = false"
             class="fixed inset-0 z-[70] flex items-start justify-center pt-12 p-4">

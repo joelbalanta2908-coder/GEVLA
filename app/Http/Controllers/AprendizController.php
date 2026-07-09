@@ -6,8 +6,12 @@ namespace App\Http\Controllers;
 
 use App\Models\LlamadoAtencion;
 use App\Models\ActaCoordinacion;
+use App\Models\FirmaLlamado;
 use App\Models\Notificacion;
 use App\Models\ProcesoDisciplinario;
+use App\Support\DocumentoLlamado;
+use App\Support\Firmas;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -77,7 +81,52 @@ class AprendizController extends Controller
             ->where('id_aprendiz', $aprendiz->id_aprendiz)
             ->where('estado_notificacion', 'enviada')
             ->update(['estado_notificacion' => 'recibida']);
-        return view('aprendiz.llamados.show', compact('llamado'));
+
+        // Estado de la firma del aprendiz sobre este llamado (módulo de firmas).
+        $firmaAprendiz  = FirmaLlamado::de((int) $llamado->id_llamado, FirmaLlamado::ROL_APRENDIZ);
+        $puedeFirmar    = FirmaLlamado::moduloInstalado() && $firmaAprendiz === null;
+        $tieneFirmaImg  = Firmas::tiene(Auth::user());
+
+        return view('aprendiz.llamados.show', compact('llamado', 'firmaAprendiz', 'puedeFirmar', 'tieneFirmaImg'));
+    }
+
+    /**
+     * El aprendiz firma (acepta) el llamado de atención: su firma registrada
+     * en Mi Perfil queda incrustada en el documento y el acto se traza con
+     * fecha y hora en firma_llamado.
+     */
+    public function firmarLlamado(string $id): RedirectResponse
+    {
+        $aprendiz = $this->getAprendiz();
+        $llamado = LlamadoAtencion::where('id_aprendiz', $aprendiz->id_aprendiz)->findOrFail($id);
+
+        if (! FirmaLlamado::moduloInstalado()) {
+            return back()->withErrors([
+                'error' => 'El módulo de firmas no está instalado: importa database/sql/modulo_firmas.sql en la base de datos.',
+            ]);
+        }
+
+        if (! Firmas::tiene(Auth::user())) {
+            return back()->withErrors([
+                'error' => 'No puedes firmar este llamado: primero debes registrar tu firma desde Mi Perfil (sección Firma).',
+            ]);
+        }
+
+        FirmaLlamado::firmar((int) $llamado->id_llamado, (int) Auth::id(), FirmaLlamado::ROL_APRENDIZ);
+
+        return back()->with('success', 'Has firmado el llamado de atención. Tu firma quedó registrada con fecha y hora.');
+    }
+
+    /**
+     * Genera el documento del llamado (formato F002-008-25, imprimible como
+     * PDF) con las firmas registradas hasta el momento.
+     */
+    public function documentoLlamado(string $id)
+    {
+        $aprendiz = $this->getAprendiz();
+        $llamado = LlamadoAtencion::where('id_aprendiz', $aprendiz->id_aprendiz)->findOrFail($id);
+
+        return DocumentoLlamado::render($llamado);
     }
 
     // --- ACTAS DE COORDINACIÓN ---

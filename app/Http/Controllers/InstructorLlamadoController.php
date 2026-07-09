@@ -7,12 +7,15 @@ namespace App\Http\Controllers;
 use App\Models\LlamadoAtencion;
 use App\Models\Aprendiz;
 use App\Models\Ficha;
+use App\Models\FirmaLlamado;
 use App\Models\Notificacion;
 use App\Models\NotificacionUsuario;
 use App\Models\ProgramaFormacion;
 use App\Models\ReglamentoArticulo;
 use App\Support\Busqueda;
 use App\Support\CorreoLlamado;
+use App\Support\DocumentoLlamado;
+use App\Support\Firmas;
 use App\Support\PruebasLlamado;
 use App\Support\Roles;
 use Illuminate\Http\Request;
@@ -281,6 +284,13 @@ class InstructorLlamadoController extends Controller
 
         $llamado = LlamadoAtencion::create($validated);
 
+        // Firma automática del instructor: al generar el llamado, si tiene su
+        // firma registrada en Mi Perfil, queda firmado como Instructor con
+        // fecha y hora (trazabilidad en firma_llamado).
+        if (FirmaLlamado::moduloInstalado() && Firmas::tiene(Auth::user())) {
+            FirmaLlamado::firmar((int) $llamado->id_llamado, (int) Auth::id(), FirmaLlamado::ROL_INSTRUCTOR);
+        }
+
         // Correo personalizado al aprendiz con el detalle del llamado. Solo se
         // envía para llamados nuevos (aquí, en la creación); nunca de forma
         // retroactiva. Si el envío falla, no rompe la creación del llamado.
@@ -469,5 +479,33 @@ class InstructorLlamadoController extends Controller
         return redirect()
             ->route('instructor.llamados.index')
             ->with('success', 'Llamado de atención eliminado correctamente.');
+    }
+
+    /**
+     * Genera el documento firmado del llamado (formato F002-008-25, imprimible
+     * como PDF). Si el instructor aún no tiene su firma registrada, se impide
+     * la generación y se le indica registrarla desde Mi Perfil. Al generarlo,
+     * su firma queda registrada automáticamente (si aún no lo estaba).
+     */
+    public function documento(string $llamado)
+    {
+        $instructor = $this->getInstructor();
+
+        $llamadoModel = LlamadoAtencion::where('id_instructor', $instructor->id_instructor)
+            ->findOrFail($llamado);
+
+        if (! Firmas::tiene(Auth::user())) {
+            return back()->withErrors([
+                'error' => 'No puedes generar el documento firmado: primero debes registrar tu firma desde Mi Perfil (sección Firma).',
+            ]);
+        }
+
+        // Firma automática del instructor (cubre también llamados antiguos
+        // creados antes de registrar la firma).
+        if (FirmaLlamado::moduloInstalado()) {
+            FirmaLlamado::firmar((int) $llamadoModel->id_llamado, (int) Auth::id(), FirmaLlamado::ROL_INSTRUCTOR);
+        }
+
+        return DocumentoLlamado::render($llamadoModel);
     }
 }

@@ -464,4 +464,14 @@ class LlamadoAtencion extends Model
     {
         return $this->hasMany(Notificacion::class, 'id_llamado', 'id_llamado');
     }
+
+    /**
+     * Firmas registradas sobre este llamado (Instructor / Coordinador /
+     * Aprendiz), con su fecha y hora, para la trazabilidad del proceso.
+     * Requiere el módulo database/sql/modulo_firmas.sql.
+     */
+    public function firmas(): HasMany
+    {
+        return $this->hasMany(FirmaLlamado::class, 'id_llamado', 'id_llamado');
+    }
 }

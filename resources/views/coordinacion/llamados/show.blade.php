@@ -124,6 +124,28 @@
                     Expedir acta de coordinación
                 </a>
 
+                {{-- Firma de coordinación y documento firmado (módulo de firmas) --}}
+                @php $firmaCoordinacion = \App\Models\FirmaLlamado::de((int) $llamado->id_llamado, \App\Models\FirmaLlamado::ROL_COORDINADOR); @endphp
+                @if(\App\Models\FirmaLlamado::moduloInstalado() && ! $firmaCoordinacion)
+                    <form method="POST" action="{{ route('coordinacion.llamados.firmar', $llamado->id_llamado) }}"
+                          data-confirm="¿Firmar este llamado como Coordinación? Tu firma quedará registrada con fecha y hora y se insertará en el documento."
+                          data-confirm-title="Firmar llamado" data-confirm-btn="Sí, firmar">
+                        @csrf
+                        <button type="submit" class="block w-full rounded-lg border border-[#39A900] px-4 py-2.5 text-center text-sm font-semibold text-[#39A900] transition hover:bg-[#39A900]/10">
+                            Firmar como Coordinación
+                        </button>
+                    </form>
+                @elseif($firmaCoordinacion)
+                    <p class="rounded-lg bg-[#39A900]/5 px-4 py-2 text-center text-xs font-medium text-[#247200]">
+                        Firmado por Coordinación el {{ $firmaCoordinacion->fecha_firma->translatedFormat('d/m/Y, h:i a') }}
+                    </p>
+                @endif
+
+                <a href="{{ route('coordinacion.llamados.documento', $llamado->id_llamado) }}" target="_blank" rel="noopener"
+                   class="block w-full rounded-lg border border-[#00324D]/30 bg-[#00324D]/5 px-4 py-2.5 text-center text-sm font-semibold text-[#00324D] transition hover:bg-[#00324D]/10">
+                    Documento firmado (PDF)
+                </a>
+
                 {{-- Proceso disciplinario: si el llamado ya derivó en uno, se
                      enlaza a su detalle; si no, se abre el formulario con el
                      llamado y el aprendiz ya preseleccionados. --}}

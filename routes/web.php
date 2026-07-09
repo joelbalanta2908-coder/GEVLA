@@ -57,6 +57,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/editar', [\App\Http\Controllers\PerfilController::class, 'edit'])->name('edit');
         Route::put('/actualizar', [\App\Http\Controllers\PerfilController::class, 'update'])->name('update');
         Route::get('/ayuda', [\App\Http\Controllers\PerfilController::class, 'help'])->name('help');
+
+        // Firma manuscrita (imagen privada: solo el dueño puede verla/gestionarla)
+        Route::get('/firma', [\App\Http\Controllers\PerfilController::class, 'verFirma'])->name('firma.ver');
+        Route::post('/firma', [\App\Http\Controllers\PerfilController::class, 'guardarFirma'])->name('firma.guardar');
+        Route::delete('/firma', [\App\Http\Controllers\PerfilController::class, 'eliminarFirma'])->name('firma.eliminar');
     });
 
     // Endpoint general para marcar notificaciones como recibidas (usable por diferentes roles)
@@ -79,6 +84,10 @@ Route::middleware('auth')->group(function () {
         // Historial (Solo lectura)
         Route::get('/llamados', [AprendizController::class, 'llamados'])->name('llamados.index');
         Route::get('/llamados/{id}', [AprendizController::class, 'showLlamado'])->name('llamados.show');
+
+        // Firma del aprendiz sobre el llamado + documento firmado (F002-008-25)
+        Route::post('/llamados/{id}/firmar', [AprendizController::class, 'firmarLlamado'])->name('llamados.firmar');
+        Route::get('/llamados/{id}/documento', [AprendizController::class, 'documentoLlamado'])->name('llamados.documento');
 
         Route::get('/actas', [AprendizController::class, 'actas'])->name('actas.index');
         Route::get('/actas/{id}', [AprendizController::class, 'showActa'])->name('actas.show');
@@ -111,6 +120,9 @@ Route::middleware('auth')->group(function () {
         Route::get('llamados/export/{formato}', [\App\Http\Controllers\InstructorLlamadoController::class, 'export'])
             ->where('formato', 'pdf|excel|word')
             ->name('llamados.export');
+
+        // Documento firmado del llamado (formato F002-008-25, imprimible como PDF)
+        Route::get('llamados/{llamado}/documento', [\App\Http\Controllers\InstructorLlamadoController::class, 'documento'])->name('llamados.documento');
 
         // Gestión de Llamados (CRUD)
         Route::resource('llamados', \App\Http\Controllers\InstructorLlamadoController::class)->parameters(['llamados' => 'llamado']);
@@ -181,6 +193,10 @@ Route::middleware('auth')->group(function () {
         // Llamados de atención
         Route::resource('llamados', LlamadoController::class)->parameters(['llamados' => 'llamado']);
         Route::patch('llamados/{llamado}/estado', [LlamadoController::class, 'actualizarEstado'])->name('llamados.actualizarEstado');
+
+        // Firma del coordinador sobre el llamado + documento firmado (F002-008-25)
+        Route::post('llamados/{llamado}/firmar', [LlamadoController::class, 'firmar'])->name('llamados.firmar');
+        Route::get('llamados/{llamado}/documento', [LlamadoController::class, 'documento'])->name('llamados.documento');
 
         // Actas de coordinación. La ruta AJAX de aprendices por ficha se declara
         // ANTES del resource para no colisionar con /actas/{acta}.
