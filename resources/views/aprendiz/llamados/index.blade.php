@@ -31,17 +31,17 @@
             </div>
         @else
             <div class="overflow-x-auto">
-                <table class="responsive-cards w-full min-w-[640px] text-left text-sm text-gray-600">
+                <table class="responsive-cards w-full min-w-[1000px] text-left text-sm text-gray-600">
                     <thead class="bg-gray-50 text-xs font-semibold uppercase text-gray-500 border-b border-gray-200">
                         <tr>
-                            <th class="px-6 py-4">Fecha</th>
-                            <th class="px-6 py-4">Asunto</th>
-                            <th class="px-6 py-4">Artículo infringido</th>
-                            <th class="px-6 py-4">Categoría</th>
-                            <th class="px-6 py-4">Falta</th>
-                            <th class="px-6 py-4">Instructor</th>
-                            <th class="px-6 py-4">Estado</th>
-                            <th class="px-6 py-4 text-right">Detalle</th>
+                            <th class="whitespace-nowrap px-6 py-4">Fecha</th>
+                            <th class="whitespace-nowrap px-6 py-4">Asunto</th>
+                            <th class="whitespace-nowrap px-6 py-4">Artículo infringido</th>
+                            <th class="whitespace-nowrap px-6 py-4">Categoría</th>
+                            <th class="whitespace-nowrap px-6 py-4">Falta</th>
+                            <th class="whitespace-nowrap px-6 py-4">Instructor</th>
+                            <th class="whitespace-nowrap px-6 py-4">Estado</th>
+                            <th class="whitespace-nowrap px-6 py-4 text-right">Detalle</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -64,34 +64,34 @@
                                 };
                             @endphp
                             <tr class="hover:bg-gray-50/50">
-                                <td class="px-6 py-4" data-label="Fecha">{{ \Carbon\Carbon::parse($llamado->fecha_llamado)->format('d/m/Y') }}</td>
+                                <td class="whitespace-nowrap px-6 py-4" data-label="Fecha">{{ \Carbon\Carbon::parse($llamado->fecha_llamado)->format('d/m/Y') }}</td>
                                 <td class="px-6 py-4 font-medium text-gray-900" data-label="Asunto">{{ $llamado->asunto }}</td>
                                 <td class="px-6 py-4" data-label="Artículo infringido">
                                     @if($llamado->articulo)
-                                        <span class="font-semibold text-gray-800">{{ $llamado->articulo->numero_articulo }}</span>
+                                        <span class="whitespace-nowrap font-semibold text-gray-800">{{ $llamado->articulo->numero_articulo }}</span>
                                         <span class="block max-w-[220px] truncate text-xs text-gray-500" title="{{ $llamado->articulo->titulo }}">{{ $llamado->articulo->titulo }}</span>
                                     @else
                                         <span class="text-xs text-gray-400">—</span>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4" data-label="Categoría">
-                                    <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $catBadge }}">{{ $llamado->categoria_label }}</span>
+                                    <span class="whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium {{ $catBadge }}">{{ $llamado->categoria_label }}</span>
                                 </td>
                                 <td class="px-6 py-4" data-label="Falta">
                                     @if($llamado->calificacion_falta)
-                                        <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $califBadge }}">{{ $llamado->calificacion_label }}</span>
+                                        <span class="whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium {{ $califBadge }}">{{ $llamado->calificacion_label }}</span>
                                     @else
                                         <span class="text-xs text-gray-400">—</span>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4" data-label="Instructor">{{ $llamado->instructor->usuario->nombres ?? 'Desconocido' }} {{ $llamado->instructor->usuario->apellidos ?? '' }}</td>
+                                <td class="whitespace-nowrap px-6 py-4" data-label="Instructor">{{ $llamado->instructor->usuario->nombres ?? 'Desconocido' }} {{ $llamado->instructor->usuario->apellidos ?? '' }}</td>
                                 <td class="px-6 py-4" data-label="Estado">
-                                    <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $estadoBadge }}">
+                                    <span class="whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium {{ $estadoBadge }}">
                                         {{ $llamado->estado_label }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-right" data-label="Detalle">
-                                    <a href="{{ route('aprendiz.llamados.show', $llamado->id_llamado) }}" class="inline-flex items-center text-sm font-semibold text-[#39A900] hover:text-[#247200]">
+                                    <a href="{{ route('aprendiz.llamados.show', $llamado->id_llamado) }}" class="inline-flex items-center whitespace-nowrap text-sm font-semibold text-[#39A900] hover:text-[#247200]">
                                         Ver más →
                                     </a>
                                 </td>
