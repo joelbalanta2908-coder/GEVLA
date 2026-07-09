@@ -15,8 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectUsersTo('/');
 
         // Comparte el rol activo y los roles disponibles con todas las vistas.
+        // SeguridadSesion: sin caché tras cerrar sesión (el botón «atrás» ya no
+        // muestra el panel) y cierre de sesión al cerrar la pestaña.
         $middleware->web(append: [
             \App\Http\Middleware\ShareActiveRole::class,
+            \App\Http\Middleware\SeguridadSesion::class,
         ]);
 
         // Alias para restringir rutas por rol: ->middleware('rol:Coordinador')

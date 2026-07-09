@@ -51,7 +51,7 @@ class ProcesoController extends Controller
             $query->where('etapa_actual', $etapaActual);
         }
 
-        $procesos = $query->orderByDesc('fecha_inicio')->paginate(15)->withQueryString();
+        $procesos = $query->orderByDesc('fecha_inicio')->paginate(10)->withQueryString();
 
         $months = collect(range(5, 0, -1))
             ->map(fn (int $monthsAgo) => now()->subMonths($monthsAgo))

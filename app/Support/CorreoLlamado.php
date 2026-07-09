@@ -118,6 +118,168 @@ class CorreoLlamado
     }
 
     /**
+     * Notifica por correo al APRENDIZ y al INSTRUCTOR el nuevo estado del
+     * llamado de atención (registrado, en revisión, notificado, cerrado o
+     * cancelado). Best-effort: si el envío falla, la actualización del estado
+     * sigue siendo válida y solo queda constancia en el log.
+     */
+    public static function notificarEstado(LlamadoAtencion $llamado): bool
+    {
+        try {
+            $llamado->loadMissing(['aprendiz.usuario', 'instructor.usuario']);
+
+            $estadoLabel = $llamado->estado_label;
+            $nombreAprendiz = trim(($llamado->aprendiz?->usuario?->nombres ?? '') . ' ' . ($llamado->aprendiz?->usuario?->apellidos ?? '')) ?: 'Aprendiz';
+
+            // Destinos: todos los correos del aprendiz + el correo del instructor.
+            $destinos = self::correosDestino($llamado);
+            $correoInstructor = trim((string) ($llamado->instructor?->usuario?->correo ?? ''));
+            if ($correoInstructor !== '' && filter_var($correoInstructor, FILTER_VALIDATE_EMAIL)) {
+                $destinos[] = $correoInstructor;
+            }
+            $destinos = array_values(array_unique(array_map('mb_strtolower', $destinos)));
+
+            if ($destinos === []) {
+                Log::warning("[LLAMADO] Sin correos de destino para notificar el estado del llamado #{$llamado->id_llamado}.");
+
+                return false;
+            }
+
+            if (config('mail.default') === 'log') {
+                Log::info("[LLAMADO] Estado '{$estadoLabel}' del llamado #{$llamado->id_llamado} notificado a: " . implode(', ', $destinos));
+
+                return true;
+            }
+
+            $mail = self::mailer();
+            foreach ($destinos as $destino) {
+                $mail->addAddress($destino);
+            }
+
+            $fecha = Carbon::parse($llamado->fecha_llamado)->translatedFormat('d \d\e F \d\e Y');
+            $mail->isHTML(true);
+            $mail->Subject = 'GEVLA - Actualización del llamado de atención N.° ' . $llamado->id_llamado;
+            $mail->Body    = self::plantillaEstado($llamado, $nombreAprendiz, $estadoLabel, $fecha);
+            $mail->AltBody = "El llamado de atención N.° {$llamado->id_llamado} ({$llamado->asunto}) del aprendiz {$nombreAprendiz}, "
+                . "registrado el {$fecha}, cambió su estado a: {$estadoLabel}. Mensaje automático de GEVLA - SENA.";
+
+            $mail->send();
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::error("[LLAMADO] No se pudo notificar el estado del llamado #{$llamado->id_llamado}: " . $e->getMessage());
+
+            return false;
+        }
+    }
+
+    /**
+     * Instancia de PHPMailer ya configurada con el SMTP del .env (compartida
+     * por los distintos correos de llamados).
+     */
+    private static function mailer(): PHPMailer
+    {
+        $smtp   = (array) config('mail.mailers.smtp');
+        $puerto = (int) ($smtp['port'] ?? 587);
+
+        $mail = new PHPMailer(true);
+        $mail->isSMTP();
+        $mail->Host       = (string) ($smtp['host'] ?? 'smtp.gmail.com');
+        $mail->Port       = $puerto;
+        $mail->SMTPAuth   = true;
+        $mail->Username   = (string) ($smtp['username'] ?? '');
+        $mail->Password   = (string) ($smtp['password'] ?? '');
+        $mail->SMTPSecure = $puerto === 465 ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->CharSet    = PHPMailer::CHARSET_UTF8;
+        $mail->SMTPDebug  = SMTP::DEBUG_OFF;
+
+        if (! filter_var($smtp['verificar_tls'] ?? true, FILTER_VALIDATE_BOOL)) {
+            $mail->SMTPOptions = [
+                'ssl' => [
+                    'verify_peer'       => false,
+                    'verify_peer_name'  => false,
+                    'allow_self_signed' => true,
+                ],
+            ];
+        }
+
+        $mail->setFrom((string) config('mail.from.address'), (string) config('mail.from.name'));
+
+        return $mail;
+    }
+
+    /**
+     * Plantilla HTML del correo de cambio de estado (paleta institucional).
+     */
+    private static function plantillaEstado(LlamadoAtencion $llamado, string $nombreAprendiz, string $estadoLabel, string $fecha): string
+    {
+        $e = fn ($valor): string => htmlspecialchars((string) $valor, ENT_QUOTES, 'UTF-8');
+        $anio = date('Y');
+        $logo = 'https://commons.wikimedia.org/wiki/Special:FilePath/Sena_Colombia_logo.svg?width=110';
+
+        $filas  = self::fila('Llamado', 'N.° ' . $e((string) $llamado->id_llamado));
+        $filas .= self::fila('Aprendiz', $e($nombreAprendiz));
+        $filas .= self::fila('Asunto', $e($llamado->asunto));
+        $filas .= self::fila('Fecha del llamado', $e($fecha));
+        $filas .= self::fila('Nuevo estado', '<strong style="color:#247200;">' . $e($estadoLabel) . '</strong>');
+
+        return <<<HTML
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef2f0;padding:32px 12px;">
+            <tr>
+                <td align="center">
+                    <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#ffffff;border-radius:14px;overflow:hidden;font-family:'Segoe UI',Arial,Helvetica,sans-serif;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+                        <tr>
+                            <td style="padding:30px 40px 22px;">
+                                <table role="presentation" cellpadding="0" cellspacing="0">
+                                    <tr>
+                                        <td style="vertical-align:middle;"><img src="{$logo}" alt="SENA" width="54" style="display:block;"></td>
+                                        <td style="vertical-align:middle;padding-left:14px;">
+                                            <div style="font-size:26px;font-weight:800;color:#39A900;letter-spacing:2px;line-height:1;">GEVLA</div>
+                                            <div style="font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:3px;padding-top:4px;">SERVICIO NACIONAL DE APRENDIZAJE</div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr><td style="height:4px;background:#39A900;font-size:0;line-height:0;">&nbsp;</td></tr>
+                        <tr>
+                            <td style="padding:34px 40px 6px;">
+                                <p style="margin:0 0 6px;font-size:19px;font-weight:700;color:#0f172a;">Actualizaci&oacute;n del llamado de atenci&oacute;n</p>
+                                <p style="margin:0 0 20px;font-size:14px;line-height:1.7;color:#475569;">
+                                    El estado del llamado de atenci&oacute;n ha cambiado. Este es el detalle:
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding:0 40px;">
+                                <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">
+                                    {$filas}
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding:20px 40px 30px;">
+                                <p style="margin:0;font-size:13px;line-height:1.7;color:#94a3b8;">
+                                    Puedes consultar el detalle completo ingresando a tu portal GEVLA.
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="background:#00324D;padding:18px 40px;">
+                                <p style="margin:0;font-size:11px;line-height:1.6;color:#cbd5e1;">
+                                    Mensaje autom&aacute;tico de <strong style="color:#ffffff;">GEVLA</strong> &middot; Sistema de Gesti&oacute;n Disciplinaria y Formativa<br>
+                                    &copy; {$anio} SENA &mdash; Servicio Nacional de Aprendizaje. No respondas a este correo.
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        HTML;
+    }
+
+    /**
      * Correos del aprendiz a los que se enviará la notificación: se usan TODAS
      * las direcciones válidas y distintas (institucional, personal y la de la
      * cuenta), para maximizar la entrega. Así el aprendiz recibe el aviso sin

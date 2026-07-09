@@ -58,6 +58,7 @@
             <div>
                 <label class="mb-1 block text-xs font-bold uppercase tracking-[0.1em] text-slate-500">N.º de ficha</label>
                 <input type="text" name="numero_ficha" value="{{ $numeroFicha }}" placeholder="Ej. 2758934"
+                       inputmode="numeric" pattern="[0-9]*" data-solo-numeros title="Solo números"
                        class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm caret-[#39A900] focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
             </div>
             <div>

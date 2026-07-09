@@ -67,8 +67,8 @@
 
         <select name="estado_acta" class="rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
             <option value="">Estado: todos</option>
-            @foreach(['expedido','notificado','firme'] as $estado)
-                <option value="{{ $estado }}" @selected(request('estado_acta') == $estado)>{{ ucfirst($estado) }}</option>
+            @foreach(['expedido' => 'Expedida', 'notificado' => 'Notificada', 'firme' => 'Firmada'] as $estado => $etiquetaEstado)
+                <option value="{{ $estado }}" @selected(request('estado_acta') == $estado)>{{ $etiquetaEstado }}</option>
             @endforeach
         </select>
 
@@ -107,7 +107,7 @@
                             {{ $acta->fecha_firmeza ? \Carbon\Carbon::parse($acta->fecha_firmeza)->format('d/m/Y') : '—' }}
                         </td>
                         <td class="px-5 py-3" data-label="Estado">
-                            <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $estadoBadge }}">{{ ucfirst($acta->estado_acta) }}</span>
+                            <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $estadoBadge }}">{{ ['expedido' => 'Expedida', 'notificado' => 'Notificada', 'firme' => 'Firmada'][$acta->estado_acta] ?? ucfirst($acta->estado_acta) }}</span>
                         </td>
                         <td class="px-5 py-3 text-right" data-label="Acción">
                             <a href="{{ route('coordinacion.actas.show', $acta->id_acta) }}" class="font-medium text-[#39A900] hover:underline">Ver</a>
@@ -154,7 +154,7 @@
         });
     }
 
-    const actasStateLabels = {!! json_encode($statusLabels ?? ['Expedido','Notificado','Firme']) !!};
+    const actasStateLabels = {!! json_encode($statusLabels ?? ['Expedida','Notificada','Firmada']) !!};
     const actasStateData = {!! json_encode($actasEstadoData ?? []) !!};
     const actasStateElement = document.getElementById('chart-actas-state');
 

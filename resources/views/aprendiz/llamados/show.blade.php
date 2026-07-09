@@ -88,13 +88,44 @@
                 <dd class="mt-1 text-sm font-semibold text-gray-900">{{ $llamado->instructor->usuario->nombres }} {{ $llamado->instructor->usuario->apellidos }}</dd>
             </div>
             <div>
+                <dt class="text-xs font-medium uppercase text-gray-400">Fecha del llamado</dt>
+                <dd class="mt-1 text-sm text-gray-900">{{ \Carbon\Carbon::parse($llamado->fecha_llamado)->translatedFormat('d \d\e F \d\e Y') }}</dd>
+            </div>
+            <div>
                 <dt class="text-xs font-medium uppercase text-gray-400">Tipo de llamado</dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ str($llamado->tipo_llamado)->replace('_',' ')->ucfirst() }}</dd>
+                <dd class="mt-1 text-sm text-gray-900">{{ $llamado->tipo_label }}</dd>
             </div>
             <div>
                 <dt class="text-xs font-medium uppercase text-gray-400">Categoría</dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ ucfirst($llamado->categoria) }}</dd>
+                <dd class="mt-1 text-sm text-gray-900">{{ $llamado->categoria_label }}</dd>
             </div>
+            @if($llamado->calificacion_falta)
+                <div>
+                    <dt class="text-xs font-medium uppercase text-gray-400">Calificación de la falta</dt>
+                    @php
+                        $califBadgeAp = match($llamado->calificacion_falta) {
+                            'leve'      => 'bg-amber-100 text-amber-700',
+                            'grave'     => 'bg-orange-100 text-orange-700',
+                            'muy_grave' => 'bg-red-100 text-red-700',
+                            default     => 'bg-gray-100 text-gray-600',
+                        };
+                    @endphp
+                    <dd class="mt-1"><span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $califBadgeAp }}">{{ $llamado->calificacion_label }}</span></dd>
+                </div>
+            @endif
+            <div>
+                <dt class="text-xs font-medium uppercase text-gray-400">Estado del llamado</dt>
+                <dd class="mt-1 text-sm text-gray-900">{{ $llamado->estado_label }}</dd>
+            </div>
+            @if($llamado->articulo)
+                <div class="sm:col-span-2">
+                    <dt class="text-xs font-medium uppercase text-gray-400">Artículo del reglamento infringido</dt>
+                    <dd class="mt-1 text-sm text-gray-900">
+                        <span class="font-semibold">{{ $llamado->articulo->numero_articulo }}</span> — {{ $llamado->articulo->titulo }}
+                        <a href="{{ route('reglamento.index', ['buscar' => $llamado->articulo->numero_articulo]) }}" class="ml-1 text-xs font-semibold text-[#39A900] hover:underline">Ver en el reglamento</a>
+                    </dd>
+                </div>
+            @endif
         </dl>
 
         <div class="mt-6 space-y-4">
@@ -105,6 +136,36 @@
             @include('llamados._pruebas_muestra')
         </div>
     </div>
+
+    {{-- Faltas asociadas al llamado (si coordinación registró alguna) --}}
+    @if($llamado->faltas && $llamado->faltas->count())
+        <div class="rounded-xl border border-gray-200 bg-white shadow-sm">
+            <div class="border-b border-gray-200 px-6 py-4">
+                <h3 class="font-semibold text-gray-900">Faltas asociadas</h3>
+            </div>
+            <div class="divide-y divide-gray-100">
+                @foreach($llamado->faltas as $falta)
+                    @php
+                        $califBadge = match($falta->calificacion_falta) {
+                            'leve'      => 'bg-green-100 text-green-700',
+                            'grave'     => 'bg-amber-100 text-amber-700',
+                            'muy_grave' => 'bg-red-100 text-red-700',
+                            default     => 'bg-gray-100 text-gray-600',
+                        };
+                    @endphp
+                    <div class="px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <p class="text-sm font-medium text-gray-900">{{ $falta->principio_valor_infringido }}</p>
+                            <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $califBadge }}">
+                                {{ str($falta->calificacion_falta)->replace('_',' ')->ucfirst() }}
+                            </span>
+                        </div>
+                        <p class="mt-1 text-sm text-gray-600">{{ $falta->descripcion_hechos }}</p>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
 
     @if($llamado->observaciones)
         <div class="rounded-xl border border-gray-200 bg-gray-50 p-6 shadow-sm">

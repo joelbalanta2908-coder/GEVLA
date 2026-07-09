@@ -66,7 +66,7 @@
                     <select name="estado_acta" required class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
                         <option value="expedido" @selected(old('estado_acta', $acta->estado_acta) == 'expedido')>Expedida</option>
                         <option value="notificado" @selected(old('estado_acta', $acta->estado_acta) == 'notificado')>Notificada</option>
-                        <option value="firme" @selected(old('estado_acta', $acta->estado_acta) == 'firme')>Firme</option>
+                        <option value="firme" @selected(old('estado_acta', $acta->estado_acta) == 'firme')>Firmada</option>
                     </select>
                 </div>
                 

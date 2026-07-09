@@ -129,7 +129,7 @@ class InstructorLlamadoController extends Controller
             ->when($fechaDesde, fn ($q) => $q->whereDate('fecha_llamado', '>=', $fechaDesde))
             ->when($fechaHasta, fn ($q) => $q->whereDate('fecha_llamado', '<=', $fechaHasta))
             ->orderBy($columnaOrden, $dir)
-            ->paginate(15)
+            ->paginate(10)
             ->withQueryString();
 
         $programas = ProgramaFormacion::orderBy('nombre_programa')->get();

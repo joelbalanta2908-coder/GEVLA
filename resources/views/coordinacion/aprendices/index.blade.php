@@ -55,7 +55,8 @@
                     @endphp
                     <tr class="hover:bg-gray-50">
                         <td class="px-5 py-3 font-medium text-gray-900" data-label="Aprendiz">{{ optional($ap->usuario)->nombres }} {{ optional($ap->usuario)->apellidos }}</td>
-                        <td class="px-5 py-3 text-gray-600" data-label="Correo">{{ $ap->correo_institucional ?? optional($ap->usuario)->correo }}</td>
+                        {{-- Se muestra el correo principal de la cuenta; si no existe, el institucional. --}}
+                        <td class="px-5 py-3 text-gray-600" data-label="Correo">{{ optional($ap->usuario)->correo ?? $ap->correo_institucional }}</td>
                         <td class="px-5 py-3" data-label="Estado">
                             <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $eb }}">{{ ucfirst(str_replace('_',' ', $ap->estado_academico)) }}</span>
                         </td>

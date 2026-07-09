@@ -6,7 +6,16 @@
 <div class="mx-auto max-w-5xl space-y-6">
     {{-- Encabezado --}}
     <div class="overflow-hidden rounded-[28px] border border-[#e6eadf] bg-white p-6 shadow-[0_10px_30px_rgba(0,0,0,0.05)] sm:p-8">
-        <p class="text-xs font-bold uppercase tracking-[0.28em] text-[#39A900]">Normatividad institucional</p>
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <p class="text-xs font-bold uppercase tracking-[0.28em] text-[#39A900]">Normatividad institucional</p>
+            {{-- Reglamento oficial completo, descargable en PDF --}}
+            <a href="{{ asset('formatos/Acuerdo-009-2024-Reglamento-del-Aprendiz.pdf') }}" download="Acuerdo-009-2024-Reglamento-del-Aprendiz.pdf"
+               class="inline-flex shrink-0 items-center gap-2 rounded-full border border-[#39A900] px-4 py-2 text-sm font-bold text-[#39A900] transition hover:bg-[#39A900]/10"
+               title="Descargar el Reglamento del Aprendiz (Acuerdo 009 de 2024) completo en PDF">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+                Descargar PDF
+            </a>
+        </div>
         <h1 class="mt-2 text-2xl font-extrabold text-slate-900 sm:text-3xl">{{ $reglamento->nombre_reglamento ?? 'Reglamento del Aprendiz SENA' }}</h1>
         <p class="mt-1 text-sm text-slate-500">
             {{ $reglamento->version ?? 'Acuerdo 09 de 2024' }}
@@ -19,20 +28,18 @@
             <p class="mt-3 text-sm text-slate-600">{{ $reglamento->descripcion }}</p>
         @endif
 
-        {{-- Buscador --}}
-        <form method="GET" action="{{ route('reglamento.index') }}" class="mt-5 flex flex-col gap-3 sm:flex-row">
-            <input type="text" name="buscar" value="{{ $buscar }}" placeholder="Buscar por número, título o contenido del artículo..."
+        {{-- Buscador en vivo: la búsqueda se aplica sola al escribir o cambiar
+             el filtro (sin botón «Buscar», igual que el resto del sistema). --}}
+        <form method="GET" action="{{ route('reglamento.index') }}" data-live-form class="mt-5 flex flex-col gap-3 sm:flex-row">
+            <input type="text" name="buscar" value="{{ $buscar }}" data-live placeholder="Buscar por número, título o contenido del artículo..."
                    class="w-full rounded-full border border-[#d9e4d4] bg-[#f8faf6] px-5 py-2.5 text-sm text-slate-900 caret-[#39A900] focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
-            <select name="calificacion"
+            <select name="calificacion" data-live
                     class="rounded-full border border-[#d9e4d4] bg-white px-4 py-2.5 text-sm text-slate-700 focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
                 <option value="">Todas las faltas</option>
                 @foreach($calificaciones as $valor => $etiqueta)
                     <option value="{{ $valor }}" @selected($calificacion == $valor)>{{ $etiqueta }}</option>
                 @endforeach
             </select>
-            <button type="submit" class="rounded-full bg-[#39A900] px-6 py-2.5 text-sm font-bold text-white transition hover:bg-[#247200]">
-                Buscar
-            </button>
             @if($buscar !== '' || $calificacion)
                 <a href="{{ route('reglamento.index') }}" class="inline-flex items-center justify-center rounded-full border border-[#d8e2cf] bg-white px-5 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
                     Limpiar
@@ -64,7 +71,7 @@
                     @foreach($capitulo->articulos as $articulo)
                         <article class="px-6 py-5">
                             <div class="flex flex-wrap items-center gap-2">
-                                <h3 class="text-sm font-extrabold text-slate-900">{{ $articulo->numero_articulo }} — {{ $articulo->titulo }}</h3>
+                                <h3 class="text-sm font-extrabold text-slate-900">{!! \App\Support\Busqueda::resaltar($articulo->numero_articulo . ' — ' . $articulo->titulo, $buscar) !!}</h3>
                                 @if($articulo->calificacion)
                                     @php
                                         $badge = match($articulo->calificacion) {
@@ -83,7 +90,7 @@
                                 {{-- Contenido con lista numerada: cada numeral en su propia línea,
                                      con el término inicial en negrita, en vez de un párrafo gigante. --}}
                                 @if($articulo->lista['intro'])
-                                    <p class="mt-2 text-sm leading-relaxed text-slate-600">{{ $articulo->lista['intro'] }}</p>
+                                    <p class="mt-2 text-sm leading-relaxed text-slate-600">{!! \App\Support\Busqueda::resaltar($articulo->lista['intro'], $buscar) !!}</p>
                                 @endif
                                 <ol class="mt-2 space-y-2">
                                     @foreach($articulo->lista['items'] as $item)
@@ -91,20 +98,20 @@
                                             <span class="shrink-0 font-bold text-[#247200]">{{ $item['numero'] }})</span>
                                             <span>
                                                 @if($item['termino'])
-                                                    <span class="font-bold text-slate-800">{{ $item['termino'] }}:</span>
+                                                    <span class="font-bold text-slate-800">{!! \App\Support\Busqueda::resaltar($item['termino'], $buscar) !!}:</span>
                                                 @endif
-                                                {{ ' ' . $item['texto'] }}
+                                                {!! ' ' . \App\Support\Busqueda::resaltar($item['texto'], $buscar) !!}
                                             </span>
                                         </li>
                                     @endforeach
                                 </ol>
                             @elseif($articulo->contenido)
-                                <p class="mt-2 text-sm leading-relaxed text-slate-600">{{ $articulo->contenido }}</p>
+                                <p class="mt-2 text-sm leading-relaxed text-slate-600">{!! \App\Support\Busqueda::resaltar($articulo->contenido, $buscar) !!}</p>
                             @endif
                             @if($articulo->paragrafos->isNotEmpty())
                                 <div class="mt-3 space-y-2 border-l-2 border-[#39A900]/20 pl-4">
                                     @foreach($articulo->paragrafos as $paragrafo)
-                                        <p class="text-sm text-slate-500"><span class="font-semibold text-slate-700">{{ $paragrafo->numero_paragrafo }}:</span> {{ $paragrafo->contenido }}</p>
+                                        <p class="text-sm text-slate-500"><span class="font-semibold text-slate-700">{{ $paragrafo->numero_paragrafo }}:</span> {!! \App\Support\Busqueda::resaltar($paragrafo->contenido, $buscar) !!}</p>
                                     @endforeach
                                 </div>
                             @endif

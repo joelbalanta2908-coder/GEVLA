@@ -98,7 +98,9 @@
             e.target.value = e.target.value
                 .replace(/[^A-Za-zÀ-ÖØ-öø-ÿ\s]/g, '') // solo letras y espacios
                 .replace(/^\s+/, '')                    // sin espacio al inicio
-                .replace(/\s{2,}/g, ' ');                // espacios consecutivos -> uno solo
+                .replace(/\s{2,}/g, ' ')                 // espacios consecutivos -> uno solo
+                // Mayúscula automática al inicio y después de cada espacio.
+                .replace(/(^|\s)([a-zà-öø-ÿ])/g, function (todo, sep, letra) { return sep + letra.toUpperCase(); });
         }
         if (e.target.matches('[data-solo-numeros]')) {
             e.target.value = e.target.value.replace(/\D/g, '');
@@ -113,6 +115,24 @@
             e.target.value = e.target.value.trimEnd();
         }
     }, true);
+
+    // Señal de posible cierre de pestaña: al ocultarse la página se avisa al
+    // servidor (sendBeacon). Si era solo navegación interna, la siguiente
+    // petición llega en segundos y no pasa nada; si la pestaña se cerró de
+    // verdad, la sesión se invalida (middleware SeguridadSesion).
+    (function () {
+        if (window.__gevlaCierrePestana) return;
+        window.__gevlaCierrePestana = true;
+        window.addEventListener('pagehide', function (evento) {
+            // Si la página queda "congelada" (bfcache) no es un cierre real.
+            if (evento.persisted || !navigator.sendBeacon) return;
+            var token = document.querySelector('meta[name="csrf-token"]');
+            if (!token) return;
+            var datos = new FormData();
+            datos.append('_token', token.content);
+            navigator.sendBeacon('{{ route('sesion.cerrando') }}', datos);
+        });
+    })();
 </script>
 
 @include('layouts.validacion-vivo')

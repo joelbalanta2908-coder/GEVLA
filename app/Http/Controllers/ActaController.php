@@ -36,7 +36,7 @@ class ActaController extends Controller
             $query->where('estado_acta', $estadoActa);
         }
 
-        $actas = $query->orderByDesc('fecha_expedicion')->paginate(15)->withQueryString();
+        $actas = $query->orderByDesc('fecha_expedicion')->paginate(10)->withQueryString();
 
         $months = collect(range(5, 0, -1))
             ->map(fn (int $monthsAgo) => now()->subMonths($monthsAgo))
@@ -151,11 +151,14 @@ class ActaController extends Controller
                 'acondicionamiento_disciplinario',
                 'cancelacion_disciplinaria',
             ])],
-            'numero_acta'          => ['required', 'string', 'max:30', 'unique:acta_coordinacion,numero_acta'],
             'fecha_expedicion'     => ['required', 'date'],
             'sancion_descripcion'  => ['required', 'string'],
             'meses_inhabilitacion' => ['nullable', 'integer', 'min:0'],
         ]);
+
+        // El número de acta se genera automáticamente: consecutivo por año
+        // (AC-2026-001, AC-2026-002, ...), sin depender de digitación manual.
+        $validated['numero_acta'] = $this->generarNumeroActa();
 
         $acta = ActaCoordinacion::create($validated);
 
@@ -170,7 +173,24 @@ class ActaController extends Controller
 
         return redirect()
             ->route('coordinacion.actas.index')
-            ->with('success', 'Acta de coordinación expedida correctamente.');
+            ->with('success', 'Acta de coordinación expedida correctamente con el número ' . $acta->numero_acta . '.');
+    }
+
+    /**
+     * Genera el siguiente número de acta del año en curso: AC-AAAA-NNN.
+     * Busca el mayor consecutivo existente para el año y le suma 1.
+     */
+    private function generarNumeroActa(): string
+    {
+        $anio = now()->format('Y');
+        $prefijo = "AC-{$anio}-";
+
+        $maximo = ActaCoordinacion::where('numero_acta', 'like', $prefijo . '%')
+            ->get()
+            ->map(fn (ActaCoordinacion $a) => (int) substr((string) $a->numero_acta, strlen($prefijo)))
+            ->max();
+
+        return $prefijo . str_pad((string) (((int) $maximo) + 1), 3, '0', STR_PAD_LEFT);
     }
 
     /**

@@ -36,6 +36,9 @@
                         <tr>
                             <th class="px-6 py-4">Fecha</th>
                             <th class="px-6 py-4">Asunto</th>
+                            <th class="px-6 py-4">Artículo infringido</th>
+                            <th class="px-6 py-4">Categoría</th>
+                            <th class="px-6 py-4">Falta</th>
                             <th class="px-6 py-4">Instructor</th>
                             <th class="px-6 py-4">Estado</th>
                             <th class="px-6 py-4 text-right">Detalle</th>
@@ -52,14 +55,39 @@
                                     'cancelado'   => 'bg-red-100 text-red-700',
                                     default       => 'bg-gray-100 text-gray-600',
                                 };
+                                $catBadge = $llamado->categoria === 'disciplinario' ? 'bg-rose-50 text-rose-600' : 'bg-sky-50 text-sky-600';
+                                $califBadge = match($llamado->calificacion_falta) {
+                                    'leve'      => 'bg-amber-100 text-amber-700',
+                                    'grave'     => 'bg-orange-100 text-orange-700',
+                                    'muy_grave' => 'bg-red-100 text-red-700',
+                                    default     => 'bg-gray-100 text-gray-500',
+                                };
                             @endphp
                             <tr class="hover:bg-gray-50/50">
                                 <td class="px-6 py-4" data-label="Fecha">{{ \Carbon\Carbon::parse($llamado->fecha_llamado)->format('d/m/Y') }}</td>
                                 <td class="px-6 py-4 font-medium text-gray-900" data-label="Asunto">{{ $llamado->asunto }}</td>
+                                <td class="px-6 py-4" data-label="Artículo infringido">
+                                    @if($llamado->articulo)
+                                        <span class="font-semibold text-gray-800">{{ $llamado->articulo->numero_articulo }}</span>
+                                        <span class="block max-w-[220px] truncate text-xs text-gray-500" title="{{ $llamado->articulo->titulo }}">{{ $llamado->articulo->titulo }}</span>
+                                    @else
+                                        <span class="text-xs text-gray-400">—</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4" data-label="Categoría">
+                                    <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $catBadge }}">{{ $llamado->categoria_label }}</span>
+                                </td>
+                                <td class="px-6 py-4" data-label="Falta">
+                                    @if($llamado->calificacion_falta)
+                                        <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $califBadge }}">{{ $llamado->calificacion_label }}</span>
+                                    @else
+                                        <span class="text-xs text-gray-400">—</span>
+                                    @endif
+                                </td>
                                 <td class="px-6 py-4" data-label="Instructor">{{ $llamado->instructor->usuario->nombres ?? 'Desconocido' }} {{ $llamado->instructor->usuario->apellidos ?? '' }}</td>
                                 <td class="px-6 py-4" data-label="Estado">
                                     <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $estadoBadge }}">
-                                        {{ str($llamado->estado_llamado)->replace('_',' ')->ucfirst() }}
+                                        {{ $llamado->estado_label }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-right" data-label="Detalle">

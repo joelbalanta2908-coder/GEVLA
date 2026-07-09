@@ -58,11 +58,22 @@ Route::middleware('auth')->group(function () {
         Route::put('/actualizar', [\App\Http\Controllers\PerfilController::class, 'update'])->name('update');
         Route::get('/ayuda', [\App\Http\Controllers\PerfilController::class, 'help'])->name('help');
 
+        // Cambio de contraseña del propio usuario
+        Route::put('/password', [\App\Http\Controllers\PerfilController::class, 'cambiarPassword'])->name('password.cambiar');
+
         // Firma manuscrita (imagen privada: solo el dueño puede verla/gestionarla)
         Route::get('/firma', [\App\Http\Controllers\PerfilController::class, 'verFirma'])->name('firma.ver');
         Route::post('/firma', [\App\Http\Controllers\PerfilController::class, 'guardarFirma'])->name('firma.guardar');
         Route::delete('/firma', [\App\Http\Controllers\PerfilController::class, 'eliminarFirma'])->name('firma.eliminar');
     });
+
+    // Señal de posible cierre de pestaña (sendBeacon desde el navegador): solo
+    // registra la marca de tiempo; SeguridadSesion decide si invalidar la sesión.
+    Route::post('/sesion/cerrando', function (\Illuminate\Http\Request $request) {
+        $request->session()->put('cierre_pendiente', time());
+
+        return response()->noContent();
+    })->name('sesion.cerrando');
 
     // Endpoint general para marcar notificaciones como recibidas (usable por diferentes roles)
     // Notificaciones de la campanita (estado de lectura persistente por usuario)
@@ -96,6 +107,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/procesos/{id}', [AprendizController::class, 'showProceso'])->name('procesos.show');
 
         Route::get('/notificaciones', [AprendizController::class, 'notificaciones'])->name('notificaciones.index');
+        Route::delete('/notificaciones/{id}', [AprendizController::class, 'eliminarNotificacion'])->name('notificaciones.eliminar');
     });
 
     // Rutas de Instructor
@@ -114,6 +126,7 @@ Route::middleware('auth')->group(function () {
         // Seguimiento de procesos y notificaciones
         Route::get('/procesos', [InstructorController::class, 'procesos'])->name('procesos.index');
         Route::get('/notificaciones', [InstructorController::class, 'notificaciones'])->name('notificaciones.index');
+        Route::delete('/notificaciones/{id}', [InstructorController::class, 'eliminarNotificacion'])->name('notificaciones.eliminar');
 
         // Exportación de reportes (PDF imprimible / Excel / Word).
         // Debe registrarse ANTES del resource para no chocar con /llamados/{llamado}.

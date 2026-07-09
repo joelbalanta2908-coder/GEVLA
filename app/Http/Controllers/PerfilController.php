@@ -8,6 +8,7 @@ use App\Support\Firmas;
 use App\Support\Texto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -102,9 +103,62 @@ class PerfilController extends Controller
             $datos['foto_perfil'] = $request->file('foto_perfil')->store('perfiles', 'public');
         }
 
+        // Si cambió el correo, se sincronizan TODAS las copias con las que el
+        // login acepta identificarse (username y correos del perfil de
+        // aprendiz): así el correo antiguo deja de servir para iniciar sesión
+        // y solo funciona el nuevo.
+        $correoAnterior = (string) $usuario->correo;
+        $correoNuevo    = (string) $validated['correo'];
+
+        if ($correoAnterior !== '' && $correoAnterior !== $correoNuevo) {
+            if ((string) $usuario->username === $correoAnterior) {
+                $datos['username'] = $correoNuevo;
+            }
+
+            if ($aprendiz = $usuario->aprendiz) {
+                $cambiosAprendiz = [];
+                if ((string) $aprendiz->correo_personal === $correoAnterior) {
+                    $cambiosAprendiz['correo_personal'] = $correoNuevo;
+                }
+                if ((string) $aprendiz->correo_institucional === $correoAnterior) {
+                    $cambiosAprendiz['correo_institucional'] = $correoNuevo;
+                }
+                if ($cambiosAprendiz !== []) {
+                    $aprendiz->update($cambiosAprendiz);
+                }
+            }
+        }
+
         $usuario->update($datos);
 
         return redirect()->route('perfil.show')->with('success', 'Perfil actualizado exitosamente.');
+    }
+
+    /**
+     * Cambia la contraseña del usuario autenticado: exige la contraseña
+     * actual y la nueva con confirmación.
+     */
+    public function cambiarPassword(Request $request): RedirectResponse
+    {
+        $usuario = Auth::user();
+
+        $request->validate([
+            'password_actual' => ['required', 'string'],
+            'password_nueva'  => ['required', 'string', 'min:6', 'max:255', 'confirmed'],
+        ], [
+            'password_actual.required' => 'Debes escribir tu contraseña actual.',
+            'password_nueva.required'  => 'Debes escribir la nueva contraseña.',
+            'password_nueva.min'       => 'La nueva contraseña debe tener al menos 6 caracteres.',
+            'password_nueva.confirmed' => 'La confirmación de la nueva contraseña no coincide.',
+        ]);
+
+        if (! Hash::check((string) $request->input('password_actual'), (string) $usuario->password_hash)) {
+            return back()->withErrors(['password_actual' => 'La contraseña actual no es correcta.']);
+        }
+
+        $usuario->update(['password_hash' => Hash::make((string) $request->input('password_nueva'))]);
+
+        return redirect()->route('perfil.show')->with('success', 'Contraseña actualizada correctamente. Úsala en tu próximo inicio de sesión.');
     }
 
     /*

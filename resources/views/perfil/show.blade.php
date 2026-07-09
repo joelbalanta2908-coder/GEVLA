@@ -281,6 +281,86 @@
         </p>
     </section>
 
+    {{-- ------------------------------------------------------------------
+         Sección CAMBIAR CONTRASEÑA: disponible para todos los roles.
+    ------------------------------------------------------------------- --}}
+    <section class="mt-6 overflow-hidden rounded-[28px] border border-[#e6eadf] bg-white shadow-[0_10px_30px_rgba(0,0,0,0.05)]">
+        <div class="border-b border-[#eef1e8] bg-[#fafbf8] px-6 py-5 sm:px-8">
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Seguridad</p>
+            <h2 class="mt-1 text-xl font-extrabold text-slate-900">Cambiar contraseña</h2>
+            <p class="mt-1 text-sm text-slate-500">Necesitas tu contraseña actual para definir una nueva (mínimo 6 caracteres).</p>
+        </div>
+
+        <form method="POST" action="{{ route('perfil.password.cambiar') }}" class="grid grid-cols-1 gap-4 px-6 py-6 sm:grid-cols-3 sm:px-8">
+            @csrf
+            @method('PUT')
+
+            <div>
+                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Contraseña actual</label>
+                <div class="relative">
+                    <input type="password" name="password_actual" id="password_actual" required autocomplete="current-password"
+                           class="w-full rounded-2xl border border-[#d9e4d4] bg-[#f8faf6] px-4 py-3 pr-10 text-sm text-slate-900 shadow-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/20">
+                    <button type="button" data-ver-password="#password_actual" title="Ver contraseña"
+                            class="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-gray-400 transition hover:text-[#39A900]">
+                        <svg data-ojo-abierto class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <svg data-ojo-cerrado class="hidden h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="m1 1 22 22"/></svg>
+                    </button>
+                </div>
+                @error('password_actual')<p class="mt-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
+            </div>
+
+            <div>
+                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Nueva contraseña</label>
+                <div class="relative">
+                    <input type="password" name="password_nueva" id="password_nueva" required minlength="6" autocomplete="new-password"
+                           class="w-full rounded-2xl border border-[#d9e4d4] bg-[#f8faf6] px-4 py-3 pr-10 text-sm text-slate-900 shadow-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/20">
+                    <button type="button" data-ver-password="#password_nueva" title="Ver contraseña"
+                            class="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-gray-400 transition hover:text-[#39A900]">
+                        <svg data-ojo-abierto class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <svg data-ojo-cerrado class="hidden h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="m1 1 22 22"/></svg>
+                    </button>
+                </div>
+                @error('password_nueva')<p class="mt-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
+            </div>
+
+            <div>
+                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Confirmar nueva contraseña</label>
+                <div class="relative">
+                    <input type="password" name="password_nueva_confirmation" id="password_nueva_confirmation" required minlength="6" autocomplete="new-password"
+                           class="w-full rounded-2xl border border-[#d9e4d4] bg-[#f8faf6] px-4 py-3 pr-10 text-sm text-slate-900 shadow-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/20">
+                    <button type="button" data-ver-password="#password_nueva_confirmation" title="Ver contraseña"
+                            class="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-gray-400 transition hover:text-[#39A900]">
+                        <svg data-ojo-abierto class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <svg data-ojo-cerrado class="hidden h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="m1 1 22 22"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="sm:col-span-3 flex justify-end">
+                <button type="submit" class="inline-flex items-center justify-center rounded-full bg-[#39A900] px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#247200]">
+                    Actualizar contraseña
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <script>
+        // Alternar visibilidad de contraseñas (botón del ojo) en Mi Perfil.
+        if (!window.__gevlaVerPassword) {
+            window.__gevlaVerPassword = true;
+            document.addEventListener('click', function (e) {
+                var boton = e.target.closest('[data-ver-password]');
+                if (!boton) return;
+                var campo = document.querySelector(boton.getAttribute('data-ver-password'));
+                if (!campo) return;
+                var visible = campo.type === 'text';
+                campo.type = visible ? 'password' : 'text';
+                boton.querySelector('[data-ojo-abierto]').classList.toggle('hidden', !visible);
+                boton.querySelector('[data-ojo-cerrado]').classList.toggle('hidden', visible);
+            });
+        }
+    </script>
+
         {{-- Edición de perfil en modal --}}
         <div x-show="editando" x-cloak x-transition.opacity @keydown.escape.window="editando = false"
             class="fixed inset-0 z-[70] flex items-start justify-center pt-12 p-4">

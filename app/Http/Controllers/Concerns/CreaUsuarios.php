@@ -69,7 +69,7 @@ trait CreaUsuarios
         return $request->validate(array_merge([
             'nombres'          => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s]+$/u'],
             'apellidos'        => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s]+$/u'],
-            'tipo_documento'   => ['required', Rule::in(['CC', 'TI', 'CE', 'PEP'])],
+            'tipo_documento'   => ['required', Rule::in(['CC', 'TI', 'CE', 'PEP', 'PPT', 'PA'])],
             'numero_documento' => ['required', 'digits_between:8,10', 'unique:usuario,numero_documento'],
             'correo'           => ['required', 'email', 'max:120', 'unique:usuario,correo'],
             'telefono'         => ['nullable', 'digits:10'],
@@ -91,7 +91,7 @@ trait CreaUsuarios
         return $request->validate(array_merge([
             'nombres'          => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s]+$/u'],
             'apellidos'        => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s]+$/u'],
-            'tipo_documento'   => ['required', Rule::in(['CC', 'TI', 'CE', 'PEP'])],
+            'tipo_documento'   => ['required', Rule::in(['CC', 'TI', 'CE', 'PEP', 'PPT', 'PA'])],
             'numero_documento' => ['required', 'digits_between:8,10', Rule::unique('usuario', 'numero_documento')->ignore($usuario->id_usuario, 'id_usuario')],
             'correo'           => ['required', 'email', 'max:120', Rule::unique('usuario', 'correo')->ignore($usuario->id_usuario, 'id_usuario')],
             'telefono'         => ['nullable', 'digits:10'],

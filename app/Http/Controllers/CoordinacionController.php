@@ -160,7 +160,7 @@ class CoordinacionController extends Controller
             })
             ->when($estado, fn ($q) => $q->where('estado_academico', $estado))
             ->orderBy('id_aprendiz')
-            ->paginate(15)
+            ->paginate(10)
             ->withQueryString();
 
         $estados = ['en_formacion', 'aplazado', 'cancelado', 'certificado'];
@@ -376,7 +376,7 @@ class CoordinacionController extends Controller
             })
             ->when($estado, fn ($q) => $q->where('estado_coordinacion', $estado))
             ->orderBy('id_coordinacion')
-            ->paginate(15)
+            ->paginate(10)
             ->withQueryString();
 
         return view('coordinacion.coordinadores.index', compact('coordinadores', 'buscar', 'estado'));
@@ -592,7 +592,7 @@ class CoordinacionController extends Controller
             ->when($tipo, fn ($q) => $q->where('tipo_docente', $tipo))
             ->when($estado, fn ($q) => $q->where('estado_instructor', $estado))
             ->orderBy('id_instructor')
-            ->paginate(15)
+            ->paginate(10)
             ->withQueryString();
 
         $tipos = Instructor::tiposDocente();

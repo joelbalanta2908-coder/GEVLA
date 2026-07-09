@@ -33,7 +33,7 @@ class ProgramaController extends Controller
                     ->orWhere('codigo_programa', 'like', "%{$buscar}%");
             })
             ->orderBy('nombre_programa')
-            ->paginate(12)
+            ->paginate(10)
             ->withQueryString();
 
         $niveles = ProgramaFormacion::niveles();

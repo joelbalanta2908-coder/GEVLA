@@ -142,8 +142,10 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Número de acta</label>
-                    <input type="text" name="numero_acta" required placeholder="AC-2026-004"
-                           class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
+                    {{-- El número se genera automáticamente al expedir el acta. --}}
+                    <p class="mt-1 w-full rounded-lg border border-dashed border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-500">
+                        Se genera automáticamente (AC-{{ now()->format('Y') }}-…)
+                    </p>
                 </div>
 
                 <div>

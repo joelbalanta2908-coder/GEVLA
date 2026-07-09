@@ -37,7 +37,12 @@
       "Bash(php -l app/Http/Controllers/Auth/RecuperacionController.php)",
       "PowerShell($conn = Get-NetTCPConnection -LocalPort 8011 -State Listen -ErrorAction SilentlyContinue; if \\($conn\\) { Stop-Process -Id $conn.OwningProcess -Force -Confirm:$false; \"Servidor de prueba detenido\" } else { \"Ya no habia servidor en 8011\" })",
       "Bash(php -l app/Http/Controllers/Concerns/CreaUsuarios.php)",
-      "PowerShell($conn = Get-NetTCPConnection -LocalPort 8012 -State Listen -ErrorAction SilentlyContinue; if \\($conn\\) { Stop-Process -Id $conn.OwningProcess -Force -Confirm:$false; \"Servidor de prueba detenido\" } else { \"Sin servidor en 8012\" })"
+      "PowerShell($conn = Get-NetTCPConnection -LocalPort 8012 -State Listen -ErrorAction SilentlyContinue; if \\($conn\\) { Stop-Process -Id $conn.OwningProcess -Force -Confirm:$false; \"Servidor de prueba detenido\" } else { \"Sin servidor en 8012\" })",
+      "Bash(sed -i 's/{{ ucfirst\\($acta->estado_acta\\) }}/{{ ['\\\\''expedido'\\\\'' => '\\\\''Expedida'\\\\'', '\\\\''notificado'\\\\'' => '\\\\''Notificada'\\\\'', '\\\\''firme'\\\\'' => '\\\\''Firmada'\\\\''][$acta->estado_acta] ?? ucfirst\\($acta->estado_acta\\) }}/g' resources/views/coordinacion/actas/index.blade.php resources/views/coordinacion/actas/show.blade.php resources/views/aprendiz/actas/index.blade.php resources/views/aprendiz/actas/show.blade.php)",
+      "Bash(sed -i \"s/\\\\['Expedido','Notificado','Firme'\\\\]/['Expedida','Notificada','Firmada']/\" resources/views/coordinacion/actas/index.blade.php)",
+      "Bash(python -c \"pass\")",
+      "Bash(sed -i 's|        \\\\$middleware->web\\(append: \\\\[\\\\n            \\\\\\\\\\\\\\\\App\\\\\\\\\\\\\\\\Http\\\\\\\\\\\\\\\\Middleware\\\\\\\\\\\\\\\\ShareActiveRole::class,\\\\n        \\\\]\\);||' /dev/null)",
+      "Bash(php \"C:/Users/ROMOM/AppData/Local/Temp/claude/c--Users-ROMOM-Downloads-GEVLA2-GEVLA/00f54656-8ff9-406e-a28a-f6de25fd1c1f/scratchpad/verify_lote.php\")"
     ]
   }
 }

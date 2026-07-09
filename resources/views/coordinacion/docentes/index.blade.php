@@ -57,16 +57,21 @@
                         <td class="whitespace-nowrap px-5 py-3 text-gray-600" data-label="Documento">{{ $du?->tipo_documento }} {{ $du?->numero_documento }}</td>
                         <td class="px-5 py-3 text-gray-600" data-label="Área">{{ $docente->area_formacion ?? '—' }}</td>
                         <td class="px-5 py-3" data-label="Tipo">
-                            <form method="POST" action="{{ route('coordinacion.docentes.tipo', $docente->id_instructor) }}" data-live-form>
-                                @csrf
-                                @method('PATCH')
-                                <select name="tipo_docente" data-live class="rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
-                                    <option value="" @selected($docente->tipo_docente === null)>No definido</option>
-                                    @foreach($tipos as $valor => $etiqueta)
-                                        <option value="{{ $valor }}" @selected($docente->tipo_docente === $valor)>{{ $etiqueta }}</option>
-                                    @endforeach
-                                </select>
-                            </form>
+                            {{-- El tipo de instructor solo se muestra/gestiona si el instructor está activo. --}}
+                            @if($docente->estado_instructor === 'activo')
+                                <form method="POST" action="{{ route('coordinacion.docentes.tipo', $docente->id_instructor) }}" data-live-form>
+                                    @csrf
+                                    @method('PATCH')
+                                    <select name="tipo_docente" data-live class="rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
+                                        <option value="" @selected($docente->tipo_docente === null)>No definido</option>
+                                        @foreach($tipos as $valor => $etiqueta)
+                                            <option value="{{ $valor }}" @selected($docente->tipo_docente === $valor)>{{ $etiqueta }}</option>
+                                        @endforeach
+                                    </select>
+                                </form>
+                            @else
+                                <span class="text-xs text-gray-400">—</span>
+                            @endif
                         </td>
                         <td class="px-5 py-3 text-center" data-label="Fichas">
                             @if($docente->fichas_count > 0)

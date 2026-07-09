@@ -31,7 +31,10 @@
                 <p class="mt-1 text-sm text-gray-600">
                     {{ $instructor->codigo_instructor }}
                     · {{ $instructor->area_formacion ?? 'Sin área' }}
-                    · {{ $instructor->tipo_docente_label }}
+                    {{-- El tipo de instructor solo se muestra si está activo. --}}
+                    @if($instructor->estado_instructor === 'activo')
+                        · {{ $instructor->tipo_docente_label }}
+                    @endif
                 </p>
                 <p class="mt-0.5 text-xs text-gray-500">
                     {{ $du?->tipo_documento }} {{ $du?->numero_documento }}
@@ -41,18 +44,20 @@
             </div>
         </div>
 
-        {{-- Clasificar tipo de docente --}}
-        <form method="POST" action="{{ route('coordinacion.docentes.tipo', $instructor->id_instructor) }}" class="flex items-center gap-2">
-            @csrf
-            @method('PATCH')
-            <select name="tipo_docente" class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
-                <option value="" @selected($instructor->tipo_docente === null)>No definido</option>
-                @foreach($tipos as $valor => $etiqueta)
-                    <option value="{{ $valor }}" @selected($instructor->tipo_docente === $valor)>{{ $etiqueta }}</option>
-                @endforeach
-            </select>
-            <button class="rounded-lg bg-[#39A900] px-3 py-2 text-sm font-semibold text-white hover:bg-[#2D8200]">Guardar</button>
-        </form>
+        {{-- Clasificar tipo de docente (solo cuando el instructor está activo) --}}
+        @if($instructor->estado_instructor === 'activo')
+            <form method="POST" action="{{ route('coordinacion.docentes.tipo', $instructor->id_instructor) }}" class="flex items-center gap-2">
+                @csrf
+                @method('PATCH')
+                <select name="tipo_docente" class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
+                    <option value="" @selected($instructor->tipo_docente === null)>No definido</option>
+                    @foreach($tipos as $valor => $etiqueta)
+                        <option value="{{ $valor }}" @selected($instructor->tipo_docente === $valor)>{{ $etiqueta }}</option>
+                    @endforeach
+                </select>
+                <button class="rounded-lg bg-[#39A900] px-3 py-2 text-sm font-semibold text-white hover:bg-[#2D8200]">Guardar</button>
+            </form>
+        @endif
     </div>
 
     {{-- Fichas asignadas --}}

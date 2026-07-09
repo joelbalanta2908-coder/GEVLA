@@ -62,17 +62,17 @@ class AprendizController extends Controller
     public function llamados(): View
     {
         $aprendiz = $this->getAprendiz();
-        $llamados = LlamadoAtencion::with('instructor.usuario')
+        $llamados = LlamadoAtencion::with(['instructor.usuario', 'articulo'])
             ->where('id_aprendiz', $aprendiz->id_aprendiz)
             ->orderByDesc('fecha_llamado')
-            ->paginate(15);
+            ->paginate(10);
         return view('aprendiz.llamados.index', compact('llamados'));
     }
 
     public function showLlamado(string $id): View
     {
         $aprendiz = $this->getAprendiz();
-        $llamado = LlamadoAtencion::with(['instructor.usuario', 'faltas', 'coordinacion'])
+        $llamado = LlamadoAtencion::with(['instructor.usuario', 'faltas', 'coordinacion', 'articulo'])
             ->where('id_aprendiz', $aprendiz->id_aprendiz)
             ->findOrFail($id);
 
@@ -136,7 +136,7 @@ class AprendizController extends Controller
         $actas = ActaCoordinacion::with('falta')
             ->where('id_aprendiz', $aprendiz->id_aprendiz)
             ->orderByDesc('fecha_expedicion')
-            ->paginate(15);
+            ->paginate(10);
         return view('aprendiz.actas.index', compact('actas'));
     }
 
@@ -155,7 +155,7 @@ class AprendizController extends Controller
         $aprendiz = $this->getAprendiz();
         $procesos = ProcesoDisciplinario::where('id_aprendiz', $aprendiz->id_aprendiz)
             ->orderByDesc('fecha_inicio')
-            ->paginate(15);
+            ->paginate(10);
         return view('aprendiz.procesos.index', compact('procesos'));
     }
 
@@ -179,7 +179,21 @@ class AprendizController extends Controller
         $notificaciones = Notificacion::with(['llamado', 'acta'])
             ->where('id_aprendiz', $aprendiz->id_aprendiz)
             ->orderByDesc('fecha_envio')
-            ->paginate(15);
+            ->paginate(10);
         return view('aprendiz.notificaciones.index', compact('notificaciones'));
+    }
+
+    /**
+     * Elimina una notificación propia (icono de basurita del listado).
+     */
+    public function eliminarNotificacion(string $id): RedirectResponse
+    {
+        $aprendiz = $this->getAprendiz();
+
+        Notificacion::where('id_aprendiz', $aprendiz->id_aprendiz)
+            ->findOrFail($id)
+            ->delete();
+
+        return back()->with('success', 'Notificación eliminada correctamente.');
     }
 }

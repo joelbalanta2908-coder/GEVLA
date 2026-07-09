@@ -55,7 +55,7 @@ class LlamadoController extends Controller
             $query->where('estado_llamado', $estado);
         }
 
-        $llamados = $query->orderByDesc('fecha_llamado')->paginate(15)->withQueryString();
+        $llamados = $query->orderByDesc('fecha_llamado')->paginate(10)->withQueryString();
 
         $months = collect(range(5, 0, -1))
             ->map(fn (int $monthsAgo) => now()->subMonths($monthsAgo))
@@ -225,7 +225,14 @@ class LlamadoController extends Controller
         $validated['pruebas_aportadas'] = PruebasLlamado::desdeRequest($request, $llamadoModel->pruebas_aportadas);
         unset($validated['pruebas_fotos']);
 
+        $estadoAnterior = $llamadoModel->estado_llamado;
         $llamadoModel->update($validated);
+
+        // Si la edición cambió el estado, se notifica por correo al instructor
+        // y al aprendiz (igual que en actualizarEstado).
+        if ($estadoAnterior !== $llamadoModel->estado_llamado) {
+            CorreoLlamado::notificarEstado($llamadoModel);
+        }
 
         return redirect()
             ->route('coordinacion.llamados.show', $llamadoModel->id_llamado)
@@ -264,6 +271,9 @@ class LlamadoController extends Controller
                 "El llamado ({$llamado->asunto}) pasó a estado {$etiquetaEstado}",
                 route('aprendiz.llamados.show', $llamado->id_llamado, false)
             );
+
+            // Correo (Gmail) al instructor y al aprendiz con el nuevo estado.
+            CorreoLlamado::notificarEstado($llamado);
         }
 
         return redirect()

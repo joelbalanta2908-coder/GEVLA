@@ -42,7 +42,7 @@
                 </p>
             </div>
             <span class="shrink-0 rounded-full px-3 py-1 text-xs font-medium {{ $estadoBadge }}">
-                {{ ucfirst($acta->estado_acta) }}
+                {{ ['expedido' => 'Expedida', 'notificado' => 'Notificada', 'firme' => 'Firmada'][$acta->estado_acta] ?? ucfirst($acta->estado_acta) }}
             </span>
         </div>
 

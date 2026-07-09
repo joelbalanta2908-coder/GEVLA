@@ -33,7 +33,8 @@
                 @endif
                 <div>
                     <h1 class="text-2xl font-extrabold text-slate-900">{{ $u->nombres ?? '' }} {{ $u->apellidos ?? '' }}</h1>
-                    <p class="mt-1 text-sm text-slate-500">{{ $aprendiz->correo_institucional ?? ($u->correo ?? 'Sin correo') }}</p>
+                    {{-- Correo principal de la cuenta; si no existe, el institucional. --}}
+                    <p class="mt-1 text-sm text-slate-500">{{ $u->correo ?? $aprendiz->correo_institucional ?? 'Sin correo' }}</p>
                 </div>
             </div>
             @php

@@ -159,7 +159,7 @@ class InstructorController extends Controller
         $procesos = ProcesoDisciplinario::with(['aprendiz.usuario', 'llamadoAtencion'])
             ->whereHas('llamadoAtencion', fn ($q) => $q->where('id_instructor', $instructor->id_instructor))
             ->orderByDesc('fecha_inicio')
-            ->paginate(15);
+            ->paginate(10);
 
         return view('instructor.procesos.index', compact('procesos'));
     }
@@ -179,8 +179,23 @@ class InstructorController extends Controller
         $notificaciones = Notificacion::with(['aprendiz.usuario', 'llamado'])
             ->whereHas('llamado', fn ($q) => $q->where('id_instructor', $instructor->id_instructor))
             ->orderByDesc('fecha_envio')
-            ->paginate(15);
+            ->paginate(10);
 
         return view('instructor.notificaciones.index', compact('notificaciones'));
+    }
+
+    /**
+     * Elimina una notificación del listado del instructor (solo las generadas
+     * por sus propios llamados).
+     */
+    public function eliminarNotificacion(string $id): \Illuminate\Http\RedirectResponse
+    {
+        $instructor = $this->getInstructor();
+
+        Notificacion::whereHas('llamado', fn ($q) => $q->where('id_instructor', $instructor->id_instructor))
+            ->findOrFail($id)
+            ->delete();
+
+        return back()->with('success', 'Notificación eliminada correctamente.');
     }
 }

@@ -75,15 +75,26 @@
         </select>
     </div>
 
-    <div>
-        <label for="estado_ficha" class="mb-1 block text-sm font-semibold text-gray-700">Estado</label>
-        <select id="estado_ficha" name="estado_ficha" required
-                class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
-            @foreach($estados as $valor => $etiqueta)
-                <option value="{{ $valor }}" @selected(old('estado_ficha', $ficha->estado_ficha ?? 'en_ejecucion') === $valor)>{{ $etiqueta }}</option>
-            @endforeach
-        </select>
-    </div>
+    @if($esEdicion)
+        <div>
+            <label for="estado_ficha" class="mb-1 block text-sm font-semibold text-gray-700">Estado</label>
+            <select id="estado_ficha" name="estado_ficha" required
+                    class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
+                @foreach($estados as $valor => $etiqueta)
+                    <option value="{{ $valor }}" @selected(old('estado_ficha', $ficha->estado_ficha ?? 'en_ejecucion') === $valor)>{{ $etiqueta }}</option>
+                @endforeach
+            </select>
+        </div>
+    @else
+        {{-- Una ficha nueva siempre nace "En ejecución": el estado no se define
+             al crearla (se gestiona después, desde la edición). --}}
+        <div>
+            <label class="mb-1 block text-sm font-semibold text-gray-700">Duración <span class="font-normal text-gray-400">(meses)</span></label>
+            <input type="number" id="duracion_meses" min="1" max="60" inputmode="numeric" placeholder="Ej. 24"
+                   class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
+            <p class="mt-1 text-xs text-gray-400">Al indicar los meses se calculan solas la fecha de inicio (hoy) y la de finalización.</p>
+        </div>
+    @endif
 
     @php $hoy = now()->timezone('America/Bogota')->toDateString(); @endphp
 
@@ -119,6 +130,29 @@
             }
             inicio.addEventListener('change', sincronizar);
             sincronizar();
+
+            // Duración en meses (solo al crear): al indicarla se define la
+            // fecha de inicio (hoy, si está vacía) y la de finalización
+            // automáticamente (inicio + meses).
+            var meses = document.getElementById('duracion_meses');
+            if (!meses) return;
+            function aplicarDuracion() {
+                var n = parseInt(meses.value, 10);
+                if (!n || n < 1) return;
+                if (!inicio.value) {
+                    var hoy = new Date();
+                    inicio.value = hoy.getFullYear() + '-' + String(hoy.getMonth() + 1).padStart(2, '0') + '-' + String(hoy.getDate()).padStart(2, '0');
+                }
+                var partes = inicio.value.split('-').map(Number);
+                var fecha = new Date(partes[0], partes[1] - 1, partes[2]);
+                fecha.setMonth(fecha.getMonth() + n);
+                fin.value = fecha.getFullYear() + '-' + String(fecha.getMonth() + 1).padStart(2, '0') + '-' + String(fecha.getDate()).padStart(2, '0');
+                sincronizar();
+            }
+            meses.addEventListener('input', aplicarDuracion);
+            meses.addEventListener('change', aplicarDuracion);
+            // Si cambia la fecha de inicio con meses ya indicados, se recalcula el fin.
+            inicio.addEventListener('change', aplicarDuracion);
         })();
     </script>
 

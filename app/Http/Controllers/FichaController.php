@@ -73,7 +73,7 @@ class FichaController extends Controller
             ->when($modalidad, fn ($q) => $q->where('modalidad', $modalidad))
             ->when($programa, fn ($q) => $q->where('id_programa', $programa))
             ->orderByDesc('fecha_inicio')
-            ->paginate(12)
+            ->paginate(10)
             ->withQueryString();
 
         $programas   = ProgramaFormacion::orderBy('nombre_programa')->get();
@@ -572,12 +572,14 @@ class FichaController extends Controller
             $reglasFin[] = 'after_or_equal:today';
         }
 
-        return $request->validate([
+        $validated = $request->validate([
             'id_programa'          => ['required', 'integer', 'exists:programa_formacion,id_programa'],
             'id_instructor_lider'  => ['required', 'integer', 'exists:instructor,id_instructor'],
             'numero_ficha'         => ['required', 'digits_between:1,20', $numeroUnico],
             'modalidad'            => ['required', Rule::in($modalidadesPermitidas)],
-            'estado_ficha'         => ['required', Rule::in(array_keys(Ficha::estados()))],
+            // Al CREAR no se define el estado: toda ficha nueva nace "en
+            // ejecución". Solo en edición el estado llega desde el formulario.
+            'estado_ficha'         => [$ficha ? 'required' : 'nullable', Rule::in(array_keys(Ficha::estados()))],
             'fecha_inicio'         => $reglasInicio,
             'fecha_fin_programada' => $reglasFin,
         ], [
@@ -587,5 +589,11 @@ class FichaController extends Controller
             'numero_ficha.digits_between'         => 'El número de ficha solo debe contener números.',
             'numero_ficha.unique'                 => 'Ya existe una ficha con ese número.',
         ]);
+
+        if (! $ficha) {
+            $validated['estado_ficha'] = 'en_ejecucion';
+        }
+
+        return $validated;
     }
 }

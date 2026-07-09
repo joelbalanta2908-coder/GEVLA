@@ -45,7 +45,7 @@
                                 <td class="px-6 py-4" data-label="Tipo">{{ ucfirst($acta->tipo_acta) }}</td>
                                 <td class="px-6 py-4" data-label="Estado">
                                     <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $estadoBadge }}">
-                                        {{ ucfirst($acta->estado_acta) }}
+                                        {{ ['expedido' => 'Expedida', 'notificado' => 'Notificada', 'firme' => 'Firmada'][$acta->estado_acta] ?? ucfirst($acta->estado_acta) }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-right" data-label="Detalle">
