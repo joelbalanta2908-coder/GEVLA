@@ -29,15 +29,17 @@ class SeguridadSesion
 {
     /**
      * Segundos de gracia entre la señal de cierre y la siguiente petición.
-     * Cubre la navegación normal entre páginas (llega en menos de un segundo)
-     * y las recargas, sin mantener viva una pestaña realmente cerrada.
+     * Cubre la navegación normal entre páginas y las recargas (la página
+     * nueva además envía una señal de "sigo aquí" que descarta la marca),
+     * sin mantener viva una pestaña realmente cerrada.
      */
-    private const GRACIA_SEGUNDOS = 8;
+    private const GRACIA_SEGUNDOS = 20;
 
     public function handle(Request $request, Closure $next): Response
     {
-        // La señal de cierre solo registra la marca de tiempo y termina.
-        if ($request->routeIs('sesion.cerrando')) {
+        // Las señales del navegador (posible cierre / sigo aquí) solo tocan la
+        // marca de tiempo: nunca deben disparar el cierre de la sesión.
+        if ($request->routeIs('sesion.cerrando') || $request->routeIs('sesion.activa')) {
             return $next($request);
         }
 

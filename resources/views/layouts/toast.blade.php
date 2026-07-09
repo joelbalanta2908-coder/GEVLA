@@ -116,21 +116,53 @@
         }
     }, true);
 
-    // Señal de posible cierre de pestaña: al ocultarse la página se avisa al
-    // servidor (sendBeacon). Si era solo navegación interna, la siguiente
-    // petición llega en segundos y no pasa nada; si la pestaña se cerró de
-    // verdad, la sesión se invalida (middleware SeguridadSesion).
+    // Cierre de sesión al cerrar la pestaña, SIN falsos positivos al navegar:
+    //  · La señal de "posible cierre" solo se envía si la página se oculta SIN
+    //    que el usuario haya hecho clic en un enlace o enviado un formulario
+    //    en los últimos segundos (navegar dentro del sistema no es cerrar).
+    //  · Al cargar la página, al volver a la pestaña o al recuperar el foco se
+    //    envía una señal de "sigo aquí" que descarta cualquier marca de cierre
+    //    pendiente (cubre el caso en que la señal de cierre llegue tarde).
     (function () {
         if (window.__gevlaCierrePestana) return;
         window.__gevlaCierrePestana = true;
+
+        var token = document.querySelector('meta[name="csrf-token"]');
+        if (!token) return;
+
+        // Última interacción de navegación (clic en enlace o envío de form).
+        var ultimaNavegacion = 0;
+        document.addEventListener('click', function (e) {
+            if (e.target.closest('a[href]')) ultimaNavegacion = Date.now();
+        }, true);
+        document.addEventListener('submit', function () {
+            ultimaNavegacion = Date.now();
+        }, true);
+
         window.addEventListener('pagehide', function (evento) {
-            // Si la página queda "congelada" (bfcache) no es un cierre real.
+            // bfcache o navegación provocada por el propio usuario: no es cierre.
             if (evento.persisted || !navigator.sendBeacon) return;
-            var token = document.querySelector('meta[name="csrf-token"]');
-            if (!token) return;
+            if (Date.now() - ultimaNavegacion < 4000) return;
             var datos = new FormData();
             datos.append('_token', token.content);
             navigator.sendBeacon('{{ route('sesion.cerrando') }}', datos);
+        });
+
+        // "Sigo aquí": descarta marcas de cierre que hayan quedado pegadas.
+        var ultimaSenal = 0;
+        function sigoAqui() {
+            if (Date.now() - ultimaSenal < 15000) return; // sin spam
+            ultimaSenal = Date.now();
+            var datos = new FormData();
+            datos.append('_token', token.content);
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon('{{ route('sesion.activa') }}', datos);
+            }
+        }
+        window.addEventListener('load', function () { setTimeout(sigoAqui, 800); });
+        window.addEventListener('focus', sigoAqui);
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'visible') sigoAqui();
         });
     })();
 </script>

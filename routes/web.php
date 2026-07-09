@@ -75,6 +75,15 @@ Route::middleware('auth')->group(function () {
         return response()->noContent();
     })->name('sesion.cerrando');
 
+    // Señal de "sigo aquí": una pestaña abierta descarta cualquier marca de
+    // cierre pendiente (evita falsos positivos si la señal de cierre llegó
+    // tarde durante una navegación normal entre páginas).
+    Route::post('/sesion/activa', function (\Illuminate\Http\Request $request) {
+        $request->session()->forget('cierre_pendiente');
+
+        return response()->noContent();
+    })->name('sesion.activa');
+
     // Endpoint general para marcar notificaciones como recibidas (usable por diferentes roles)
     // Notificaciones de la campanita (estado de lectura persistente por usuario)
     Route::post('/notificaciones/marcar-todas', [\App\Http\Controllers\NotificacionController::class, 'marcarTodas'])->name('notificaciones.todas');
