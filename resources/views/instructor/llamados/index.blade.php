@@ -25,6 +25,13 @@
                 </span>
                 {{-- Exportar reportes (con filtro para clasificar por ficha) --}}
                 @include('reportes._botones', ['rutaBase' => 'instructor.llamados.export', 'fichas' => $fichasExport])
+                {{-- Formato institucional de llamado de atención (F002-008-25 V01) descargable en PDF --}}
+                <a href="{{ asset('formatos/F002-008-25-formato-llamado-de-atencion-V01.pdf') }}" download="F002-008-25-Formato-Llamado-de-Atencion-V01.pdf"
+                   class="inline-flex items-center gap-2 rounded-full border border-[#39A900] px-4 py-2.5 text-sm font-bold text-[#39A900] transition hover:bg-[#39A900]/10"
+                   title="Descargar el formato oficial de llamado de atención del SENA (F002-008-25 V01) en PDF">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+                    Formato oficial (PDF)
+                </a>
                 <a href="{{ route('instructor.llamados.create') }}" class="inline-flex items-center gap-2 rounded-full bg-[#39A900] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#247200]">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />

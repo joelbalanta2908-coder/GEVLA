@@ -15,8 +15,15 @@
         <div class="flex flex-wrap items-center gap-3">
             @include('reportes._botones', ['rutaBase' => 'coordinacion.actas.export', 'fichas' => $fichasExport])
         </div>
-        <div class="flex items-center gap-4">
+        <div class="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:gap-4">
             <span class="hidden h-8 w-px bg-[#e3e7df] lg:block"></span>
+            {{-- Formato institucional de acta (GOR-F-084 V02) descargable en PDF --}}
+            <a href="{{ asset('formatos/GOR-F-084-formato-de-acta-V02.pdf') }}" download="GOR-F-084-Formato-de-Acta-V02.pdf"
+               class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#39A900] px-4 py-2.5 text-sm font-semibold text-[#39A900] transition hover:bg-[#39A900]/10 sm:w-auto"
+               title="Descargar el formato oficial de acta del SENA (GOR-F-084 V02) en PDF">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+                Formato oficial de acta (PDF)
+            </a>
             <a href="{{ route('coordinacion.actas.create') }}"
                class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#39A900] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2D8200] sm:w-auto">
                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>

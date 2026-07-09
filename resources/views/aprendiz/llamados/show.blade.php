@@ -19,8 +19,16 @@
         <a href="{{ route('aprendiz.llamados.index') }}" class="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-900">
             ← Volver a mis llamados
         </a>
-        {{-- Exportar este llamado en específico (PDF / Excel / Word). --}}
-        @include('reportes._botones', ['rutaBase' => 'aprendiz.llamados.detalle.export', 'rutaParams' => ['id' => $llamado->id_llamado]])
+        <div class="flex flex-wrap items-center gap-3">
+            {{-- Exportar este llamado en específico (PDF / Excel / Word). --}}
+            @include('reportes._botones', ['rutaBase' => 'aprendiz.llamados.detalle.export', 'rutaParams' => ['id' => $llamado->id_llamado]])
+            <a href="{{ asset('formatos/F002-008-25-formato-llamado-de-atencion-V01.pdf') }}" download="F002-008-25-Formato-Llamado-de-Atencion-V01.pdf"
+               class="inline-flex items-center gap-2 rounded-full border border-[#39A900] px-4 py-2 text-sm font-bold text-[#39A900] transition hover:bg-[#39A900]/10"
+               title="Descargar el formato oficial de llamado de atención del SENA (F002-008-25 V01) en PDF">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+                Formato oficial (PDF)
+            </a>
+        </div>
     </div>
 
     <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
