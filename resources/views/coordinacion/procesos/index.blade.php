@@ -63,7 +63,7 @@
             @endforeach
         </select>
 
-        <button class="rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800">Filtrar</button>
+        <button class="rounded-lg bg-[#39A900] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2D8200]">Filtrar</button>
     </form>
 
     <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
