@@ -6,13 +6,20 @@ namespace App\Support;
 
 use App\Models\FirmaLlamado;
 use App\Models\LlamadoAtencion;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Illuminate\Http\Response;
 
 /**
- * Genera el documento imprimible (PDF vía impresión del navegador, igual que
- * el resto de reportes del sistema) de un llamado de atención, con el diseño
- * del formato institucional F002-008-25 y las firmas que existan registradas
+ * Genera el documento PDF de un llamado de atención con el diseño del formato
+ * institucional F002-008-25 y las firmas que existan registradas
  * (Instructor / Coordinador / Aprendiz) incrustadas en base64.
+ *
+ * El PDF se genera en el servidor con Dompdf (librería open source, licencia
+ * MIT, sin costos por firma ni servicios externos): las firmas quedan
+ * aplanadas dentro del archivo y no pueden modificarse desde el documento.
+ * Si Dompdf no está instalado (falta `composer install`), se degrada a la
+ * vista imprimible del navegador para no romper el flujo.
  *
  * El documento se arma SIEMPRE desde la base de datos al momento de pedirlo,
  * por lo que se "actualiza" automáticamente cada vez que alguien firma.
@@ -49,11 +56,33 @@ class DocumentoLlamado
             ];
         }
 
-        return response()->view('llamados.documento', [
-            'llamado'  => $llamado,
-            'ficha'    => $ficha,
-            'firmas'   => $firmas,
-            'imprimir' => true,
+        $datos = [
+            'llamado' => $llamado,
+            'ficha'   => $ficha,
+            'firmas'  => $firmas,
+        ];
+
+        // Respaldo: si Dompdf aún no está instalado en este equipo, se sirve
+        // la vista imprimible (el navegador la guarda como PDF).
+        if (! class_exists(Dompdf::class)) {
+            return response()->view('llamados.documento', $datos + ['imprimir' => true]);
+        }
+
+        $html = view('llamados.documento', $datos + ['imprimir' => false])->render();
+
+        $opciones = new Options();
+        $opciones->set('isRemoteEnabled', false);   // solo imágenes incrustadas (base64)
+        $opciones->set('defaultFont', 'DejaVu Sans'); // tildes y eñes correctas
+
+        $dompdf = new Dompdf($opciones);
+        $dompdf->loadHtml($html, 'UTF-8');
+        $dompdf->setPaper('letter', 'portrait');
+        $dompdf->render();
+
+        return response($dompdf->output(), 200, [
+            'Content-Type'        => 'application/pdf',
+            // inline: se abre en el visor de PDF del navegador, con opción de descargar.
+            'Content-Disposition' => 'inline; filename="llamado-' . $llamado->id_llamado . '-firmado.pdf"',
         ]);
     }
 }
