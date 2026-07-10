@@ -22,6 +22,11 @@
     $preAprendizJs = $preAprendizJs !== null && $preAprendizJs !== '' ? (int) $preAprendizJs : null;
     $preLlamadoJs  = old('id_llamado', $preLlamado ?? null);
     $preLlamadoJs  = $preLlamadoJs !== null && $preLlamadoJs !== '' ? (string) $preLlamadoJs : '';
+
+    // Cuando el proceso se inicia DESDE un llamado de atención, el aprendiz
+    // viene definido por ese llamado y NO debe poder cambiarse.
+    $aprendizBloqueado = ! empty($preLlamado) && ! empty($preAprendiz);
+    $aprendizFijo = $aprendizBloqueado ? $aprendicesCombo->firstWhere('id', (int) $preAprendiz) : null;
 @endphp
 
 @section('contenido')
@@ -39,7 +44,19 @@
             @csrf
 
             <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                {{-- Aprendiz: buscador con sugerencias por nombre o documento --}}
+                {{-- Aprendiz: cuando el proceso nace de un llamado, queda FIJO
+                     (no puede cambiarse); si no, buscador con sugerencias. --}}
+                @if($aprendizBloqueado)
+                <div>
+                    <label class="block text-sm font-bold text-gray-700">Aprendiz</label>
+                    <div class="mt-1 flex w-full items-center justify-between gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">
+                        <span class="truncate font-semibold">{{ $aprendizFijo['label'] ?? 'Aprendiz del llamado' }}</span>
+                        <svg class="h-4 w-4 shrink-0 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </div>
+                    <input type="hidden" name="id_aprendiz" value="{{ (int) $preAprendiz }}">
+                    <p class="mt-1 text-xs text-gray-400">Definido por el llamado de atención de origen: no puede cambiarse.</p>
+                </div>
+                @else
                 <div>
                     <label class="block text-sm font-bold text-gray-700">Aprendiz</label>
                     <div class="relative mt-1" @keydown.escape.prevent.stop="aprendizAbierto = false">
@@ -73,6 +90,7 @@
                     </div>
                     <p x-show="errorAprendiz" x-cloak class="mt-1 text-xs font-medium text-red-600">Selecciona un aprendiz.</p>
                 </div>
+                @endif
 
                 {{-- Llamado asociado: depende del aprendiz seleccionado --}}
                 <div>
@@ -113,7 +131,7 @@
                     <label class="block text-sm font-bold text-gray-700">Etapa inicial</label>
                     <select name="etapa_actual" required class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
                         <option value="llamado_escrito" @selected(old('etapa_actual') == 'llamado_escrito')>Llamado escrito</option>
-                        <option value="acondicionamiento" @selected(old('etapa_actual') == 'acondicionamiento')>Acondicionamiento</option>
+                        <option value="acondicionamiento" @selected(old('etapa_actual') == 'acondicionamiento')>Condicionamiento</option>
                         <option value="cancelacion_matricula" @selected(old('etapa_actual') == 'cancelacion_matricula')>Cancelación de matrícula</option>
                     </select>
                 </div>

@@ -6,7 +6,7 @@
 @php
     $etapas = [
         'llamado_escrito'       => 'Llamado escrito',
-        'acondicionamiento'     => 'Acondicionamiento',
+        'acondicionamiento'     => 'Condicionamiento',
         'cancelacion_matricula' => 'Cancelación de matrícula',
         'finalizado'            => 'Finalizado',
     ];

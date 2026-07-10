@@ -16,6 +16,13 @@
         </a>
     </div>
 
+    {{-- Carga masiva por Excel --}}
+    @include('importacion._panel', [
+        'tituloPanel'  => 'coordinadores',
+        'urlPlantilla' => route('coordinacion.importacion.plantilla', 'coordinadores'),
+        'urlImportar'  => route('coordinacion.importacion.importar', 'coordinadores'),
+    ])
+
     <form method="GET" action="{{ route('coordinacion.coordinadores.index') }}" data-live-form class="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <input type="text" name="buscar" value="{{ $buscar }}" data-live placeholder="Nombre, documento, cargo o dependencia..."
                class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm caret-[#39A900] focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30 sm:col-span-2">

@@ -50,11 +50,11 @@
 <div data-campo>
     <label class="mb-1 block text-xs font-semibold text-gray-600">Número de documento</label>
     <input type="text" name="numero_documento" value="{{ old('numero_documento', $persona->numero_documento ?? '') }}" required
-           inputmode="numeric" minlength="8" maxlength="10" pattern="[0-9]{8,10}" data-solo-numeros
-           data-validar="digits" data-min="8" data-max="10" data-msg-invalido="Entre 8 y 10 dígitos numéricos."
-           title="Solo números, entre 8 y 10 dígitos"
+           minlength="6" maxlength="10" pattern="[A-Za-z0-9]{6,10}" data-alfanumerico
+           data-validar="alfanum" data-min="6" data-max="10" data-msg-invalido="Entre 6 y 10 caracteres, solo letras y números."
+           title="Letras y números, entre 6 y 10 caracteres, sin espacios ni caracteres especiales"
            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
-    <p data-ayuda class="mt-1 text-xs font-medium text-gray-400">Entre 8 y 10 dígitos, solo números.</p>
+    <p data-ayuda class="mt-1 text-xs font-medium text-gray-400">Entre 6 y 10 caracteres, letras y números (ej. pasaporte AB1234567).</p>
 </div>
 <div class="sm:col-span-2" data-campo>
     <label class="mb-1 block text-xs font-semibold text-gray-600">Correo</label>
@@ -125,7 +125,10 @@
 {{-- Roles: el rol ancla de esta sección va siempre marcado (con un input
      oculto que garantiza que se envíe aunque el checkbox se muestre
      deshabilitado). Un Coordinador nunca puede ser también Aprendiz; el
-     script de abajo lo refleja en vivo, y el backend lo vuelve a validar. --}}
+     script de abajo lo refleja en vivo, y el backend lo vuelve a validar.
+     Con 'mostrarRoles' => false la sección se omite por completo (p. ej. el
+     instructor da de alta aprendices sin gestionar roles). --}}
+@if($mostrarRoles ?? true)
 <div class="sm:col-span-2" data-roles-contenedor>
     <label class="mb-1 block text-xs font-semibold text-gray-600">Roles del usuario</label>
     <div class="flex flex-wrap gap-4 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5">
@@ -189,3 +192,4 @@
         actualizar();
     })();
 </script>
+@endif

@@ -105,6 +105,10 @@
         if (e.target.matches('[data-solo-numeros]')) {
             e.target.value = e.target.value.replace(/\D/g, '');
         }
+        // Identificación: letras y números, sin espacios ni caracteres especiales.
+        if (e.target.matches('[data-alfanumerico]')) {
+            e.target.value = e.target.value.replace(/[^A-Za-z0-9]/g, '');
+        }
     });
 
     // Al salir del campo se recorta también el espacio final (mientras se

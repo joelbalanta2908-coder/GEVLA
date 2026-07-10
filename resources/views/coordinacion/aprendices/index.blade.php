@@ -29,6 +29,13 @@
         </a>
     </div>
 
+    {{-- Carga masiva por Excel --}}
+    @include('importacion._panel', [
+        'tituloPanel'  => 'aprendices',
+        'urlPlantilla' => route('coordinacion.importacion.plantilla', 'aprendices'),
+        'urlImportar'  => route('coordinacion.importacion.importar', 'aprendices'),
+    ])
+
     <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
         <table class="responsive-cards w-full min-w-[640px] text-sm">
             <thead class="bg-gray-50 text-left text-xs font-medium uppercase text-gray-500">

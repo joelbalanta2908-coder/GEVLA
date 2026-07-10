@@ -121,6 +121,17 @@ class ProcesoController extends Controller
             'observaciones'  => ['nullable', 'string'],
         ]);
 
+        // Si el proceso nace de un llamado, el aprendiz es el de ese llamado y
+        // no puede cambiarse (coherencia garantizada también en el backend).
+        if (! empty($validated['id_llamado'])) {
+            $llamadoOrigen = LlamadoAtencion::findOrFail((int) $validated['id_llamado']);
+            if ((int) $llamadoOrigen->id_aprendiz !== (int) $validated['id_aprendiz']) {
+                return back()->withInput()->withErrors([
+                    'id_aprendiz' => 'El aprendiz no coincide con el del llamado de atención asociado: el proceso debe iniciarse para el aprendiz de ese llamado.',
+                ]);
+            }
+        }
+
         $procesoNuevo = ProcesoDisciplinario::create($validated);
 
         // Notificaciones: al aprendiz y al instructor del llamado de origen.

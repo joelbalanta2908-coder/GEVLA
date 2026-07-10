@@ -59,7 +59,6 @@
             <td>
                 <div class="enc-titulo">LLAMADO DE ATENCIÓN</div>
                 <div class="enc-datos">
-                    F002-008-25 / Versión 01<br>
                     Proceso: Ejecución de la formación<br>
                     Procedimiento: Gestión de proyectos formativos
                 </div>

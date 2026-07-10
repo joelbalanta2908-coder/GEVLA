@@ -50,7 +50,7 @@
                     <label class="block text-sm font-bold text-gray-700">Etapa actual</label>
                     <select name="etapa_actual" required class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
                         <option value="llamado_escrito" @selected(old('etapa_actual', $proceso->etapa_actual) == 'llamado_escrito')>Llamado escrito</option>
-                        <option value="acondicionamiento" @selected(old('etapa_actual', $proceso->etapa_actual) == 'acondicionamiento')>Acondicionamiento</option>
+                        <option value="acondicionamiento" @selected(old('etapa_actual', $proceso->etapa_actual) == 'acondicionamiento')>Condicionamiento</option>
                         <option value="cancelacion_matricula" @selected(old('etapa_actual', $proceso->etapa_actual) == 'cancelacion_matricula')>Cancelación de matrícula</option>
                     </select>
                 </div>

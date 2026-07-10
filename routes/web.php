@@ -130,6 +130,19 @@ Route::middleware('auth')->group(function () {
         // Consulta del historial disciplinario de los aprendices de una ficha
         // (disponible para todos los instructores asociados a la ficha).
         Route::get('/fichas/{ficha}', [InstructorController::class, 'fichaShow'])->name('fichas.show');
+
+        // Carga masiva de aprendices (solo en sus fichas): plantilla + importación.
+        Route::get('/importacion/plantilla-aprendices', [\App\Http\Controllers\ImportacionController::class, 'plantillaInstructor'])->name('importacion.plantilla');
+        Route::post('/importacion/aprendices', [\App\Http\Controllers\ImportacionController::class, 'importarInstructor'])->name('importacion.importar');
+
+        // Aprendices de las fichas donde imparte clases: listado, alta de
+        // aprendiz nuevo y asociación de uno existente. Las rutas literales
+        // van ANTES de /aprendices/{id} para no colisionar.
+        Route::get('/aprendices', [\App\Http\Controllers\InstructorAprendizController::class, 'index'])->name('aprendices.index');
+        Route::get('/aprendices/crear', [\App\Http\Controllers\InstructorAprendizController::class, 'crearForm'])->name('aprendices.crear');
+        Route::post('/aprendices', [\App\Http\Controllers\InstructorAprendizController::class, 'crear'])->name('aprendices.store');
+        Route::post('/aprendices/asociar', [\App\Http\Controllers\InstructorAprendizController::class, 'asociar'])->name('aprendices.asociar');
+
         Route::get('/aprendices/{id}', [InstructorController::class, 'aprendizShow'])->name('aprendices.show');
 
         // Seguimiento de procesos y notificaciones
@@ -205,6 +218,13 @@ Route::middleware('auth')->group(function () {
         Route::resource('programas', ProgramaController::class)
             ->parameters(['programas' => 'programa'])
             ->except(['show']);
+
+        // Carga masiva de usuarios por Excel (aprendices, instructores y
+        // coordinadores): descarga de plantilla e importación todo-o-nada.
+        Route::get('importacion/plantilla/{tipo}', [\App\Http\Controllers\ImportacionController::class, 'plantilla'])
+            ->where('tipo', 'aprendices|instructores|coordinadores')->name('importacion.plantilla');
+        Route::post('importacion/{tipo}', [\App\Http\Controllers\ImportacionController::class, 'importar'])
+            ->where('tipo', 'aprendices|instructores|coordinadores')->name('importacion.importar');
 
         // Exportación de reportes (PDF / Excel / Word). Deben ir ANTES de los
         // resource para no chocar con /{llamado}, /{acta}, /{proceso}.

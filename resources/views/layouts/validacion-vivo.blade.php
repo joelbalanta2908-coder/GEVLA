@@ -33,6 +33,11 @@
                             && valor.length >= parseInt(campo.dataset.min || '0', 10)
                             && valor.length <= parseInt(campo.dataset.max || '99', 10)) ? 'valido' : 'invalido';
                         break;
+                    case 'alfanum':
+                        estado = (/^[A-Za-z0-9]+$/.test(valor)
+                            && valor.length >= parseInt(campo.dataset.min || '0', 10)
+                            && valor.length <= parseInt(campo.dataset.max || '99', 10)) ? 'valido' : 'invalido';
+                        break;
                     case 'digits-exact':
                         estado = (/^[0-9]+$/.test(valor) && valor.length === parseInt(campo.dataset.len || '0', 10)) ? 'valido' : 'invalido';
                         break;

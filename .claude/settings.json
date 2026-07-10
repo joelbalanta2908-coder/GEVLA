@@ -42,7 +42,27 @@
       "Bash(sed -i \"s/\\\\['Expedido','Notificado','Firme'\\\\]/['Expedida','Notificada','Firmada']/\" resources/views/coordinacion/actas/index.blade.php)",
       "Bash(python -c \"pass\")",
       "Bash(sed -i 's|        \\\\$middleware->web\\(append: \\\\[\\\\n            \\\\\\\\\\\\\\\\App\\\\\\\\\\\\\\\\Http\\\\\\\\\\\\\\\\Middleware\\\\\\\\\\\\\\\\ShareActiveRole::class,\\\\n        \\\\]\\);||' /dev/null)",
-      "Bash(php \"C:/Users/ROMOM/AppData/Local/Temp/claude/c--Users-ROMOM-Downloads-GEVLA2-GEVLA/00f54656-8ff9-406e-a28a-f6de25fd1c1f/scratchpad/verify_lote.php\")"
+      "Bash(php \"C:/Users/ROMOM/AppData/Local/Temp/claude/c--Users-ROMOM-Downloads-GEVLA2-GEVLA/00f54656-8ff9-406e-a28a-f6de25fd1c1f/scratchpad/verify_lote.php\")",
+      "PowerShell(Start-Process -FilePath \"C:\\\\xampp\\\\mysql\\\\bin\\\\mysqld.exe\" -ArgumentList \"--defaults-file=C:\\\\xampp\\\\mysql\\\\bin\\\\my.ini\", \"--standalone\", \"--innodb-force-recovery=1\" -WindowStyle Hidden)",
+      "PowerShell(Test-NetConnection -ComputerName 127.0.0.1 -Port 3306 -InformationLevel Quiet)",
+      "Bash(C:/xampp/mysql/bin/mysqladmin.exe -u root shutdown)",
+      "Bash(mkdir -p C:/xampp/mysql/logs_antiguos_20260710)",
+      "Bash(mv C:/xampp/mysql/data/ib_logfile0 C:/xampp/mysql/data/ib_logfile1 C:/xampp/mysql/logs_antiguos_20260710/)",
+      "Read(//c/xampp/mysql/**)",
+      "Bash(php -m)",
+      "Bash(grep -iE \"^\\(zip|fileinfo|ctype|iconv|simplexml|xmlreader|xmlwriter|gd\\)$\")",
+      "Read(//c/xampp/php/**)",
+      "Bash(php -l app/Support/PlantillaImportacion.php)",
+      "Bash(php -l app/Support/ImportadorUsuarios.php)",
+      "Bash(php -l app/Http/Controllers/ImportacionController.php)",
+      "Bash(php \"C:/Users/ROMOM/AppData/Local/Temp/claude/c--Users-ROMOM-Downloads-GEVLA2-GEVLA/00f54656-8ff9-406e-a28a-f6de25fd1c1f/scratchpad/verify_importacion.php\")",
+      "Bash(git diff *)",
+      "Bash(grep -rn \"8,10}\\\\|8 y 10\\\\|digits_between:8,10\\\\|{8,10}\\\\|data-min=\\\\\"8\\\\\"\\\\|minlength=\\\\\"8\\\\\"\" app/ resources/views/)",
+      "Bash(sed -i 's/{8,10}/{6,10}/g; s/entre 8 y 10 caracteres/entre 6 y 10 caracteres/g' app/Http/Controllers/Concerns/CreaUsuarios.php app/Support/ImportadorUsuarios.php)",
+      "Bash(sed -i 's/minlength=\"8\" maxlength=\"10\" pattern=\"\\\\[A-Za-z0-9\\\\]{8,10}\"/minlength=\"6\" maxlength=\"10\" pattern=\"[A-Za-z0-9]{6,10}\"/; s/data-min=\"8\" data-max=\"10\" data-msg-invalido=\"Entre 8 y 10 caracteres/data-min=\"6\" data-max=\"10\" data-msg-invalido=\"Entre 6 y 10 caracteres/; s/title=\"Letras y números, entre 8 y 10 caracteres/title=\"Letras y números, entre 6 y 10 caracteres/; s/Entre 8 y 10 caracteres, letras y números \\(ej. pasaporte AB1234567\\)/Entre 6 y 10 caracteres, letras y números \\(ej. pasaporte AB1234567\\)/' resources/views/coordinacion/fichas/_persona_campos.blade.php)",
+      "Bash(sed -i \"s/'acondicionamiento'     => 'Acondicionamiento',/'acondicionamiento'     => 'Condicionamiento',/\" resources/views/coordinacion/procesos/show.blade.php)",
+      "Bash(sed -i \"s/@selected\\(old\\('etapa_actual'\\) == 'acondicionamiento'\\)>Acondicionamiento</@selected\\(old\\('etapa_actual'\\) == 'acondicionamiento'\\)>Condicionamiento</\" resources/views/coordinacion/procesos/create.blade.php)",
+      "Bash(sed -i 's/@selected\\(old\\('\\\\''etapa_actual'\\\\'', $proceso->etapa_actual\\) == '\\\\''acondicionamiento'\\\\''\\)>Acondicionamiento</@selected\\(old\\('\\\\''etapa_actual'\\\\'', $proceso->etapa_actual\\) == '\\\\''acondicionamiento'\\\\''\\)>Condicionamiento</' resources/views/coordinacion/procesos/edit.blade.php)"
     ]
   }
 }
