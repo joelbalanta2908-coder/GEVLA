@@ -46,7 +46,13 @@ class SeguridadSesion
         if (Auth::check()) {
             $marca = $request->session()->get('cierre_pendiente');
 
-            if ($marca !== null && (time() - (int) $marca) > self::GRACIA_SEGUNDOS) {
+            // Usuarios con «Recordarme»: pidieron mantener la sesión iniciada
+            // aunque cierren la pestaña o el navegador, así que el cierre por
+            // pestaña NO aplica para ellos (además, cerrarla les invalidaría el
+            // token de recuerdo). Se detecta por la cookie nativa de Laravel.
+            $conRecordarme = $request->cookies->has(Auth::guard()->getRecallerName());
+
+            if ($marca !== null && ! $conRecordarme && (time() - (int) $marca) > self::GRACIA_SEGUNDOS) {
                 // La pestaña se cerró de verdad: se invalida la sesión.
                 Auth::logout();
                 $request->session()->invalidate();
