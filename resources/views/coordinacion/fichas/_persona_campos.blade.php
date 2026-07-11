@@ -38,24 +38,91 @@
            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
     <p data-ayuda class="mt-1 text-xs font-medium text-gray-400">Mínimo 2 caracteres, solo letras.</p>
 </div>
+@php
+    $tipoDocumentoSeleccionado = old('tipo_documento', $persona->tipo_documento ?? 'CC');
+    $esNumerico = in_array($tipoDocumentoSeleccionado, ['CC', 'TI', 'CE', 'PEP'], true);
+    $documentoMax = $esNumerico ? 10 : 20;
+    $documentoPattern = $esNumerico ? '[0-9]{6,10}' : '[A-Za-z0-9]{6,20}';
+    $documentoTitle = $esNumerico
+        ? 'Solo números, entre 6 y 10 dígitos, sin espacios ni caracteres especiales'
+        : 'Letras y números, entre 6 y 20 caracteres, sin espacios ni caracteres especiales';
+    $documentoAyuda = $esNumerico
+        ? 'Entre 6 y 10 dígitos numéricos, sin espacios ni caracteres especiales.'
+        : 'Entre 6 y 20 caracteres alfanuméricos, sin espacios ni caracteres especiales.';
+@endphp
 <div>
     <label class="mb-1 block text-xs font-semibold text-gray-600">Tipo de documento</label>
-    <select name="tipo_documento"
+    <select id="tipo_documento" name="tipo_documento"
             class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
         @foreach(['CC' => 'Cédula de ciudadanía', 'TI' => 'Tarjeta de identidad', 'CE' => 'Cédula de extranjería', 'PEP' => 'PEP', 'PPT' => 'PPT (Permiso por Protección Temporal)', 'PA' => 'Pasaporte'] as $valor => $etiqueta)
-            <option value="{{ $valor }}" @selected(old('tipo_documento', $persona->tipo_documento ?? 'CC') === $valor)>{{ $etiqueta }}</option>
+            <option value="{{ $valor }}" @selected($tipoDocumentoSeleccionado === $valor)>{{ $etiqueta }}</option>
         @endforeach
     </select>
 </div>
 <div data-campo>
     <label class="mb-1 block text-xs font-semibold text-gray-600">Número de documento</label>
-    <input type="text" name="numero_documento" value="{{ old('numero_documento', $persona->numero_documento ?? '') }}" required
-           minlength="6" maxlength="10" pattern="[A-Za-z0-9]{6,10}" data-alfanumerico
-           data-validar="alfanum" data-min="6" data-max="10" data-msg-invalido="Entre 6 y 10 caracteres, solo letras y números."
-           title="Letras y números, entre 6 y 10 caracteres, sin espacios ni caracteres especiales"
+    <input id="numero_documento" type="text" name="numero_documento" value="{{ old('numero_documento', $persona->numero_documento ?? '') }}" required
+           minlength="6" maxlength="{{ $documentoMax }}" pattern="{{ $documentoPattern }}"
+           inputmode="{{ $esNumerico ? 'numeric' : 'text' }}"
+           {{ $esNumerico ? 'data-solo-numeros' : 'data-alfanumerico' }}
+           data-validar="{{ $esNumerico ? 'digits' : 'alfanum' }}" data-min="6" data-max="{{ $documentoMax }}"
+           data-msg-invalido="{{ $esNumerico ? 'Entre 6 y 10 dígitos numéricos, sin espacios ni caracteres especiales.' : 'Entre 6 y 20 caracteres alfanuméricos, sin espacios ni caracteres especiales.' }}"
+           title="{{ $documentoTitle }}"
            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
-    <p data-ayuda class="mt-1 text-xs font-medium text-gray-400">Entre 6 y 10 caracteres, letras y números (ej. pasaporte AB1234567).</p>
+    <p id="numero_documento_ayuda" data-ayuda class="mt-1 text-xs font-medium text-gray-400">{{ $documentoAyuda }}</p>
 </div>
+<script>
+    (function () {
+        var tipoDocumento = document.getElementById('tipo_documento');
+        var numeroDocumento = document.getElementById('numero_documento');
+        var ayuda = document.getElementById('numero_documento_ayuda');
+
+        if (!tipoDocumento || !numeroDocumento || !ayuda) {
+            return;
+        }
+
+        function actualizarValidacionDocumento() {
+            var tipo = tipoDocumento.value;
+            var esNumerico = ['CC', 'TI', 'CE', 'PEP'].includes(tipo);
+            var max = esNumerico ? 10 : 20;
+            var pattern = esNumerico ? '^[0-9]{6,10}$' : '^[A-Za-z0-9]{6,20}$';
+            var title = esNumerico
+                ? 'Solo números, entre 6 y 10 dígitos, sin espacios ni caracteres especiales'
+                : 'Letras y números, entre 6 y 20 caracteres, sin espacios ni caracteres especiales';
+            var mensaje = esNumerico
+                ? 'Entre 6 y 10 dígitos numéricos, sin espacios ni caracteres especiales.'
+                : 'Entre 6 y 20 caracteres alfanuméricos, sin espacios ni caracteres especiales.';
+
+            numeroDocumento.maxLength = max;
+            numeroDocumento.pattern = pattern;
+            numeroDocumento.dataset.validar = esNumerico ? 'digits' : 'alfanum';
+            numeroDocumento.dataset.min = '6';
+            numeroDocumento.dataset.max = String(max);
+            numeroDocumento.dataset.msgInvalido = mensaje;
+            numeroDocumento.title = title;
+            numeroDocumento.inputMode = esNumerico ? 'numeric' : 'text';
+
+            if (esNumerico) {
+                numeroDocumento.dataset.soloNumeros = '';
+                numeroDocumento.removeAttribute('data-alfanumerico');
+            } else {
+                numeroDocumento.dataset.alfanumerico = '';
+                numeroDocumento.removeAttribute('data-solo-numeros');
+            }
+
+            ayuda.textContent = mensaje;
+
+            if (typeof window.__validacionVivoRevaluar === 'function') {
+                window.__validacionVivoRevaluar(numeroDocumento);
+            } else {
+                numeroDocumento.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        }
+
+        tipoDocumento.addEventListener('change', actualizarValidacionDocumento);
+        actualizarValidacionDocumento();
+    })();
+</script>
 <div class="sm:col-span-2" data-campo>
     <label class="mb-1 block text-xs font-semibold text-gray-600">Correo</label>
     <input type="email" name="correo" value="{{ old('correo', $persona->correo ?? '') }}" required maxlength="120"
