@@ -70,11 +70,11 @@ trait CreaUsuarios
             'nombres'          => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s]+$/u'],
             'apellidos'        => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s]+$/u'],
             'tipo_documento'   => ['required', Rule::in(['CC', 'TI', 'CE', 'PEP', 'PPT', 'PA'])],
-            'numero_documento' => ['required', 'regex:/^[A-Za-z0-9]{6,10}$/', 'unique:usuario,numero_documento'],
+            'numero_documento' => array_merge(['required'], $this->reglasNumeroDocumentoPorTipo($request->input('tipo_documento')), ['unique:usuario,numero_documento']),
             'correo'           => ['required', 'email', 'max:120', 'unique:usuario,correo'],
             'telefono'         => ['nullable', 'digits:10'],
             'password'         => ['nullable', 'string', 'min:6', 'max:255', 'confirmed'],
-        ], $extra), $this->mensajesValidacionPersona());
+        ], $extra), $this->mensajesValidacionPersona($request->input('tipo_documento')));
     }
 
     /**
@@ -92,11 +92,37 @@ trait CreaUsuarios
             'nombres'          => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s]+$/u'],
             'apellidos'        => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s]+$/u'],
             'tipo_documento'   => ['required', Rule::in(['CC', 'TI', 'CE', 'PEP', 'PPT', 'PA'])],
-            'numero_documento' => ['required', 'regex:/^[A-Za-z0-9]{6,10}$/', Rule::unique('usuario', 'numero_documento')->ignore($usuario->id_usuario, 'id_usuario')],
+            'numero_documento' => array_merge(['required'], $this->reglasNumeroDocumentoPorTipo($request->input('tipo_documento')), [Rule::unique('usuario', 'numero_documento')->ignore($usuario->id_usuario, 'id_usuario')]),
             'correo'           => ['required', 'email', 'max:120', Rule::unique('usuario', 'correo')->ignore($usuario->id_usuario, 'id_usuario')],
             'telefono'         => ['nullable', 'digits:10'],
             'password'         => ['nullable', 'string', 'min:6', 'max:255', 'confirmed'],
-        ], $extra), $this->mensajesValidacionPersona(edicion: true));
+        ], $extra), $this->mensajesValidacionPersona($request->input('tipo_documento'), edicion: true));
+    }
+
+    /**
+     * Devuelve reglas de validación de número de documento según el tipo.
+     *
+     * @return array<int, mixed>
+     */
+    private function reglasNumeroDocumentoPorTipo(?string $tipoDocumento): array
+    {
+        if (in_array($tipoDocumento, ['CC', 'TI', 'CE', 'PEP'], true)) {
+            return ['string', 'min:6', 'max:10', 'regex:/^[0-9]{6,10}$/'];
+        }
+
+        return ['string', 'min:6', 'max:20', 'regex:/^[A-Za-z0-9]{6,20}$/'];
+    }
+
+    /**
+     * Mensaje dinámico para el formato del número de documento según tipo.
+     */
+    private function mensajeFormatoNumeroDocumento(?string $tipoDocumento): string
+    {
+        if (in_array($tipoDocumento, ['CC', 'TI', 'CE'], true)) {
+            return 'El número de documento debe tener entre 6 y 10 dígitos numéricos, sin espacios ni caracteres especiales.';
+        }
+
+        return 'El número de documento debe tener entre 6 y 20 caracteres alfanuméricos, sin espacios ni caracteres especiales.';
     }
 
     /**
@@ -104,16 +130,22 @@ trait CreaUsuarios
      * validarPersonaEdicion(); solo cambia el texto de "unicidad" según si es
      * alta (choca con cualquiera) o edición (choca con "otro" usuario).
      *
+     * @param  string|null  $tipoDocumento
      * @return array<string, string>
      */
-    private function mensajesValidacionPersona(bool $edicion = false): array
+    private function mensajesValidacionPersona(?string $tipoDocumento = null, bool $edicion = false): array
     {
         return [
             'nombres.regex'                   => 'Los nombres solo pueden contener letras y espacios, sin números ni caracteres especiales.',
             'nombres.min'                     => 'Los nombres deben tener al menos 2 caracteres.',
             'apellidos.regex'                 => 'Los apellidos solo pueden contener letras y espacios, sin números ni caracteres especiales.',
             'apellidos.min'                   => 'Los apellidos deben tener al menos 2 caracteres.',
-            'numero_documento.regex'          => 'El número de documento debe tener entre 6 y 10 caracteres, solo letras y números (sin espacios ni caracteres especiales).',
+            'numero_documento.string'         => 'El número de documento debe ser un texto válido.',
+            'numero_documento.min'            => 'El número de documento debe tener al menos 6 caracteres.',
+            'numero_documento.max'            => in_array($tipoDocumento, ['CC', 'TI', 'CE'], true)
+                ? 'El número de documento no debe tener más de 10 dígitos.'
+                : 'El número de documento no debe tener más de 20 caracteres.',
+            'numero_documento.regex'          => $this->mensajeFormatoNumeroDocumento($tipoDocumento),
             'telefono.digits'                 => 'El teléfono debe tener exactamente 10 dígitos, solo números.',
             'correo.email'                    => 'El correo debe ser una dirección válida (debe contener @).',
             'password.confirmed'              => 'La confirmación de la contraseña no coincide.',
