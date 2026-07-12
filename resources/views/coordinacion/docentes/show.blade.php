@@ -60,6 +60,89 @@
         @endif
     </div>
 
+    {{-- Indicadores --}}
+    <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div class="rounded-2xl border border-gray-200 bg-white p-4 text-center shadow-sm">
+            <p class="text-2xl font-extrabold text-slate-900">{{ $instructor->fichas->count() }}</p>
+            <p class="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Fichas asignadas</p>
+        </div>
+        <div class="rounded-2xl border border-gray-200 bg-white p-4 text-center shadow-sm">
+            <p class="text-2xl font-extrabold text-slate-900">{{ $instructor->fichasLideradas->count() }}</p>
+            <p class="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Fichas lideradas</p>
+        </div>
+        <div class="rounded-2xl border border-gray-200 bg-white p-4 text-center shadow-sm">
+            <p class="text-2xl font-extrabold text-slate-900">{{ $instructor->llamados_atencion_count }}</p>
+            <p class="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Llamados reportados</p>
+        </div>
+        <div class="rounded-2xl border border-gray-200 bg-white p-4 text-center shadow-sm">
+            <p class="text-2xl font-extrabold text-slate-900">{{ $du?->ultimo_acceso ? $du->ultimo_acceso->locale('es')->diffForHumans() : 'Nunca' }}</p>
+            <p class="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Último acceso</p>
+        </div>
+    </div>
+
+    {{-- Datos personales y de la cuenta --}}
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <p class="text-xs font-bold uppercase tracking-[0.16em] text-gray-400">Datos personales</p>
+            <dl class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                    <dt class="text-xs font-medium uppercase text-gray-400">Nombres</dt>
+                    <dd class="mt-1 text-sm font-semibold text-gray-900">{{ $du?->nombres ?? '—' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-medium uppercase text-gray-400">Apellidos</dt>
+                    <dd class="mt-1 text-sm font-semibold text-gray-900">{{ $du?->apellidos ?? '—' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-medium uppercase text-gray-400">Documento</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ $du ? $du->tipo_documento . ' ' . $du->numero_documento : '—' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-medium uppercase text-gray-400">Teléfono</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ $du?->telefono ?? '—' }}</dd>
+                </div>
+                <div class="sm:col-span-2">
+                    <dt class="text-xs font-medium uppercase text-gray-400">Correo</dt>
+                    <dd class="mt-1 break-all text-sm text-gray-900">{{ $du?->correo ?? '—' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-medium uppercase text-gray-400">Usuario de acceso</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ $du?->username ?? '—' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-medium uppercase text-gray-400">Estado de la cuenta</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ $du ? ucfirst($du->estado_usuario) : 'Sin cuenta' }}</dd>
+                </div>
+            </dl>
+        </div>
+
+        <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <p class="text-xs font-bold uppercase tracking-[0.16em] text-gray-400">Información académica</p>
+            <dl class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                    <dt class="text-xs font-medium uppercase text-gray-400">Código de instructor</dt>
+                    <dd class="mt-1 text-sm font-semibold text-gray-900">{{ $instructor->codigo_instructor }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-medium uppercase text-gray-400">Área de formación</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ $instructor->area_formacion ?? 'Sin área' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-medium uppercase text-gray-400">Tipo de instructor</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ $instructor->estado_instructor === 'activo' ? $instructor->tipo_docente_label : '—' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-medium uppercase text-gray-400">Estado</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ ucfirst($instructor->estado_instructor) }}</dd>
+                </div>
+                <div class="sm:col-span-2">
+                    <dt class="text-xs font-medium uppercase text-gray-400">Roles en el sistema</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ $du ? (implode(' · ', \App\Support\Roles::disponiblesPara($du)) ?: 'Instructor') : '—' }}</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+
     {{-- Fichas asignadas --}}
     <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
         <div class="flex items-center justify-between">

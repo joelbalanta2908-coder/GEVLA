@@ -177,6 +177,10 @@ Route::middleware('auth')->group(function () {
         Route::patch('/aprendices/{aprendiz}/estado', [CoordinacionController::class, 'actualizarEstadoAprendiz'])->name('aprendices.estado');
         Route::get('/aprendices/{aprendiz}/editar', [CoordinacionController::class, 'editarAprendizForm'])->name('aprendices.editar');
         Route::put('/aprendices/{aprendiz}', [CoordinacionController::class, 'actualizarAprendiz'])->name('aprendices.update');
+        Route::delete('/aprendices/{aprendiz}', [CoordinacionController::class, 'eliminarAprendiz'])->name('aprendices.eliminar');
+        // Reporte individual del aprendiz (PDF imprimible / Excel / Word).
+        Route::get('/aprendices/{id}/reporte/{formato}', [\App\Http\Controllers\CoordinacionReporteController::class, 'aprendizIndividual'])
+            ->where('formato', 'pdf|excel|word')->name('aprendices.reporte');
         Route::get('/aprendices/{id}', [CoordinacionController::class, 'aprendizShow'])->name('aprendices.show');
 
         // Coordinadores: CRUD completo (crear, editar, activar/inactivar y

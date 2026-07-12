@@ -119,7 +119,18 @@
                             };
                         @endphp
                         <tr class="hover:bg-gray-50">
-                            <td class="whitespace-nowrap px-5 py-3 font-medium text-gray-900" data-label="Aprendiz">{{ $u?->nombres }} {{ $u?->apellidos }}</td>
+                            <td class="px-5 py-3" data-label="Aprendiz">
+                                <div class="flex items-center gap-3 whitespace-nowrap">
+                                    @if($u?->fotoUrl())
+                                        <img src="{{ $u->fotoUrl() }}" alt="Foto de {{ $u->nombres }}" class="h-9 w-9 shrink-0 rounded-full object-cover ring-1 ring-gray-200">
+                                    @else
+                                        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#39A900]/10 text-xs font-black text-[#39A900]">
+                                            {{ $u?->iniciales() ?? 'A' }}
+                                        </span>
+                                    @endif
+                                    <span class="font-medium text-gray-900">{{ $u?->nombres }} {{ $u?->apellidos }}</span>
+                                </div>
+                            </td>
                             <td class="whitespace-nowrap px-5 py-3 text-gray-600" data-label="Documento">{{ $u?->tipo_documento }} {{ $u?->numero_documento }}</td>
                             <td class="px-5 py-3 text-gray-600" data-label="Correo">{{ $u?->correo ?? $m->aprendiz?->correo_institucional }}</td>
                             <td class="whitespace-nowrap px-5 py-3 text-gray-600" data-label="Ficha">Ficha {{ $m->ficha?->numero_ficha }}</td>

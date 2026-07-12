@@ -48,5 +48,29 @@
             <button class="rounded-lg bg-[#39A900] px-5 py-2 text-sm font-semibold text-white hover:bg-[#2D8200]">Guardar cambios</button>
         </div>
     </form>
+
+    {{-- Zona de eliminación: la opción de eliminar vive aquí (no en el listado). --}}
+    @php $nombreCompleto = trim($usuario->nombres . ' ' . $usuario->apellidos); @endphp
+    <div class="rounded-2xl border border-red-200 bg-red-50/60 p-5">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h3 class="text-sm font-bold text-red-700">Eliminar aprendiz</h3>
+                <p class="mt-0.5 text-xs text-red-600/80">
+                    Se borra su matrícula y su cuenta. Solo es posible si no tiene historial disciplinario
+                    (llamados, faltas, actas o procesos); en ese caso usa «Inactivar». Esta acción no se puede deshacer.
+                </p>
+            </div>
+            <form method="POST" action="{{ route('coordinacion.aprendices.eliminar', $aprendiz->id_aprendiz) }}" class="shrink-0"
+                  data-confirm="¿Eliminar al aprendiz {{ $nombreCompleto }}? Se borrará su matrícula y su cuenta. Esta acción no se puede deshacer."
+                  data-confirm-title="Eliminar aprendiz" data-confirm-btn="Sí, eliminar">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    Eliminar aprendiz
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
 @endsection

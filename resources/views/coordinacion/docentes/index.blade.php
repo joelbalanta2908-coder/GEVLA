@@ -40,30 +40,42 @@
     </form>
 
     <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
-        <table class="responsive-cards w-full min-w-[820px] text-sm">
+        <table class="responsive-cards w-full min-w-[840px] text-sm">
             <thead class="whitespace-nowrap bg-gray-50 text-left text-xs font-medium uppercase text-gray-500">
                 <tr>
-                    <th class="px-5 py-3">Docente</th>
-                    <th class="px-5 py-3">Documento</th>
-                    <th class="px-5 py-3">Área</th>
-                    <th class="px-5 py-3">Tipo</th>
-                    <th class="px-5 py-3 text-center">Fichas</th>
-                    <th class="px-5 py-3">Líder</th>
-                    <th class="px-5 py-3">Estado</th>
-                    <th class="px-5 py-3 text-right">Acción</th>
+                    <th class="whitespace-nowrap px-4 py-3">Docente</th>
+                    <th class="whitespace-nowrap px-4 py-3">Área</th>
+                    <th class="whitespace-nowrap px-4 py-3">Tipo</th>
+                    <th class="whitespace-nowrap px-4 py-3 text-center">Fichas</th>
+                    <th class="whitespace-nowrap px-4 py-3">Estado</th>
+                    <th class="whitespace-nowrap px-4 py-3 text-right">Acción</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
                 @forelse($docentes as $docente)
                     @php $du = $docente->usuario; $esLider = $docente->fichas_lideradas_count > 0; @endphp
                     <tr class="hover:bg-gray-50">
-                        <td class="px-5 py-3" data-label="Docente">
-                            <p class="font-semibold text-gray-900">{{ $du ? trim($du->nombres.' '.$du->apellidos) : $docente->codigo_instructor }}</p>
-                            <p class="text-xs text-gray-500">{{ $docente->codigo_instructor }}{{ $du?->correo ? ' · '.$du->correo : '' }}</p>
+                        {{-- Docente: foto, nombre y debajo código · documento · correo --}}
+                        <td class="px-4 py-3" data-label="Docente">
+                            <div class="flex items-center gap-3">
+                                @if($du?->fotoUrl())
+                                    <img src="{{ $du->fotoUrl() }}" alt="Foto de {{ $du->nombres }}" class="h-9 w-9 shrink-0 rounded-full object-cover ring-1 ring-gray-200">
+                                @else
+                                    <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#39A900]/10 text-xs font-black text-[#39A900]">
+                                        {{ $du?->iniciales() ?? 'I' }}
+                                    </span>
+                                @endif
+                                <div class="min-w-0">
+                                    <p class="truncate font-semibold text-gray-900">{{ $du ? trim($du->nombres.' '.$du->apellidos) : $docente->codigo_instructor }}</p>
+                                    <p class="truncate text-xs text-gray-500">{{ $docente->codigo_instructor }}{{ $du ? ' · '.$du->tipo_documento.' '.$du->numero_documento : '' }}</p>
+                                    @if($du?->correo)
+                                        <p class="truncate text-xs text-gray-400">{{ $du->correo }}</p>
+                                    @endif
+                                </div>
+                            </div>
                         </td>
-                        <td class="whitespace-nowrap px-5 py-3 text-gray-600" data-label="Documento">{{ $du?->tipo_documento }} {{ $du?->numero_documento }}</td>
-                        <td class="px-5 py-3 text-gray-600" data-label="Área">{{ $docente->area_formacion ?? '—' }}</td>
-                        <td class="px-5 py-3" data-label="Tipo">
+                        <td class="px-4 py-3 text-gray-600" data-label="Área">{{ $docente->area_formacion ?? '—' }}</td>
+                        <td class="px-4 py-3" data-label="Tipo">
                             {{-- El tipo de instructor solo se muestra/gestiona si el instructor está activo. --}}
                             @if($docente->estado_instructor === 'activo')
                                 <form method="POST" action="{{ route('coordinacion.docentes.tipo', $docente->id_instructor) }}" data-live-form>
@@ -80,19 +92,18 @@
                                 <span class="text-xs text-gray-400">—</span>
                             @endif
                         </td>
-                        <td class="px-5 py-3 text-center" data-label="Fichas">
-                            @if($docente->fichas_count > 0)
-                                <span class="estado-badge inline-flex rounded-full bg-[#39A900]/10 px-2.5 py-1 text-xs font-medium text-[#247200]">{{ $docente->fichas_count }}</span>
-                            @else
-                                <span class="text-xs text-gray-400">Sin ficha</span>
-                            @endif
-                        </td>
-                        <td class="px-5 py-3" data-label="Líder">
-                            @if($esLider)
-                                <span class="estado-badge inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700">★ Líder</span>
-                            @else
-                                <span class="text-xs text-gray-400">No</span>
-                            @endif
+                        {{-- Fichas + liderazgo en una sola columna --}}
+                        <td class="px-4 py-3 text-center" data-label="Fichas">
+                            <div class="flex items-center justify-center gap-1.5 whitespace-nowrap">
+                                @if($docente->fichas_count > 0)
+                                    <span class="estado-badge inline-flex rounded-full bg-[#39A900]/10 px-2.5 py-1 text-xs font-medium text-[#247200]">{{ $docente->fichas_count }}</span>
+                                @else
+                                    <span class="whitespace-nowrap text-xs text-gray-400">Sin ficha</span>
+                                @endif
+                                @if($esLider)
+                                    <span class="estado-badge inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-700" title="Instructor líder">★</span>
+                                @endif
+                            </div>
                         </td>
                         <td class="px-5 py-3" data-label="Estado">
                             <span class="estado-badge inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium {{ $docente->estado_instructor === 'activo' ? 'bg-[#39A900]/10 text-[#247200]' : 'bg-red-100 text-red-700' }}">
@@ -123,21 +134,11 @@
                                         {{ $docenteActivo ? 'Inactivar' : 'Activar' }}
                                     </button>
                                 </form>
-                                <form method="POST" action="{{ route('coordinacion.docentes.destroy', $docente->id_instructor) }}"
-                                      data-confirm="{{ "¿Eliminar definitivamente al instructor {$nombreDocente}? Esta acción no se puede deshacer. Solo es posible si no tiene llamados, fichas ni liderazgos registrados." }}"
-                                      data-confirm-title="Eliminar instructor" data-confirm-btn="Sí, eliminar">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" title="Eliminar instructor"
-                                            class="rounded-full bg-red-50 px-3 py-1.5 text-xs font-bold text-red-600 transition hover:bg-red-100">
-                                        Eliminar
-                                    </button>
-                                </form>
                             </div>
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="8" class="px-5 py-8 text-center text-gray-400">No se encontraron instructores.</td></tr>
+                    <tr><td colspan="6" class="px-5 py-8 text-center text-gray-400">No se encontraron instructores.</td></tr>
                 @endforelse
             </tbody>
         </table>

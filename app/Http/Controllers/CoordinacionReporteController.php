@@ -67,6 +67,88 @@ class CoordinacionReporteController extends Controller
         }
     }
 
+    /**
+     * Reporte individual de UN aprendiz: sus datos y todo su historial
+     * (llamados, actas y procesos) en PDF imprimible, Excel o Word.
+     */
+    public function aprendizIndividual(string $id, string $formato): Response
+    {
+        $aprendiz = Aprendiz::with([
+            'usuario',
+            'matriculas.ficha.programa',
+            'llamadosAtencion' => fn ($q) => $q->orderByDesc('fecha_llamado'),
+            'actasCoordinacion' => fn ($q) => $q->orderByDesc('fecha_expedicion'),
+            'procesosDisciplinarios' => fn ($q) => $q->orderByDesc('fecha_inicio'),
+        ])->findOrFail($id);
+
+        $u = $aprendiz->usuario;
+        $nombre = trim(($u->nombres ?? '') . ' ' . ($u->apellidos ?? '')) ?: 'Aprendiz #' . $aprendiz->id_aprendiz;
+        $ficha = $this->fichaDelAprendiz($aprendiz);
+
+        $meta = [
+            ['label' => 'Aprendiz', 'value' => $nombre],
+            ['label' => 'Documento', 'value' => trim(($u->tipo_documento ?? '') . ' ' . ($u->numero_documento ?? '')) ?: '—'],
+            ['label' => 'Correo', 'value' => $u->correo ?? $aprendiz->correo_institucional ?? '—'],
+            ['label' => 'Ficha', 'value' => $ficha ? 'Ficha ' . $ficha->numero_ficha . ' — ' . ($ficha->programa?->nombre_programa ?? '') : 'Sin ficha activa'],
+            ['label' => 'Estado académico', 'value' => ['en_formacion' => 'En formación', 'aplazado' => 'Aplazado', 'cancelado' => 'Cancelado', 'certificado' => 'Certificado'][$aprendiz->estado_academico] ?? ucfirst((string) $aprendiz->estado_academico)],
+            ['label' => 'Generado', 'value' => Carbon::now('America/Bogota')->locale('es')->translatedFormat('d \d\e F \d\e Y, h:i A')],
+        ];
+
+        // Historial unificado: llamados, actas y procesos en una sola tabla.
+        $filas = collect();
+        foreach ($aprendiz->llamadosAtencion as $l) {
+            $filas->push(['orden' => (string) $l->fecha_llamado, 'fila' => [
+                'Llamado de atención',
+                Carbon::parse($l->fecha_llamado)->format('d/m/Y'),
+                $l->asunto,
+                $l->estado_label,
+            ]]);
+        }
+        foreach ($aprendiz->actasCoordinacion as $a) {
+            $filas->push(['orden' => (string) $a->fecha_expedicion, 'fila' => [
+                'Acta de coordinación',
+                Carbon::parse($a->fecha_expedicion)->format('d/m/Y'),
+                'Acta ' . $a->numero_acta . ' — ' . ucfirst(str_replace('_', ' ', (string) $a->tipo_acta)),
+                ['expedido' => 'Expedida', 'notificado' => 'Notificada', 'firme' => 'Firmada'][$a->estado_acta] ?? ucfirst((string) $a->estado_acta),
+            ]]);
+        }
+        foreach ($aprendiz->procesosDisciplinarios as $p) {
+            $filas->push(['orden' => (string) $p->fecha_inicio, 'fila' => [
+                'Proceso disciplinario',
+                Carbon::parse($p->fecha_inicio)->format('d/m/Y'),
+                'Etapa: ' . (['llamado_escrito' => 'Llamado escrito', 'acondicionamiento' => 'Condicionamiento', 'cancelacion_matricula' => 'Cancelación de matrícula', 'finalizado' => 'Finalizado'][$p->etapa_actual] ?? ucfirst((string) $p->etapa_actual)),
+                ucfirst((string) $p->estado_proceso),
+            ]]);
+        }
+        $filas = $filas->sortByDesc('orden')->pluck('fila')->values()->all();
+
+        $encabezados = ['Tipo de registro', 'Fecha', 'Detalle', 'Estado'];
+        $titulo = 'Reporte del aprendiz: ' . $nombre;
+        $slug = 'reporte-aprendiz-' . $aprendiz->id_aprendiz;
+        $fecha = Carbon::now('America/Bogota')->format('Y-m-d_His');
+        $data = compact('titulo', 'meta', 'encabezados', 'filas');
+
+        if ($formato === 'pdf') {
+            return response()->view('reportes.tabla', $data + ['imprimir' => true]);
+        }
+
+        if ($formato === 'excel') {
+            $binario = \App\Support\ReporteExcel::generar($titulo, $meta, $encabezados, $filas);
+
+            return response($binario, 200, [
+                'Content-Type'        => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition' => "attachment; filename=\"{$slug}_{$fecha}.xlsx\"",
+            ]);
+        }
+
+        $html = view('reportes.tabla', $data + ['imprimir' => false])->render();
+
+        return response($html, 200, [
+            'Content-Type'        => 'application/msword; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$slug}_{$fecha}.doc\"",
+        ]);
+    }
+
     public function llamados(Request $request, string $formato): Response
     {
         $fichaFiltro = $this->fichaFiltro($request);

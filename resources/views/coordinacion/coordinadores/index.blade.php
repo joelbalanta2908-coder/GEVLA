@@ -56,8 +56,19 @@
                     @endphp
                     <tr>
                         <td class="px-5 py-3" data-label="Coordinador">
-                            <p class="font-semibold text-gray-900">{{ $nombreCoordinador }} @if($esPropio)<span class="ml-1 rounded-full bg-[#39A900]/10 px-2 py-0.5 text-[10px] font-bold uppercase text-[#247200]">Tú</span>@endif</p>
-                            <p class="text-xs text-gray-400">{{ $cu?->correo }}</p>
+                            <div class="flex items-center gap-3">
+                                @if($cu?->fotoUrl())
+                                    <img src="{{ $cu->fotoUrl() }}" alt="Foto de {{ $cu->nombres }}" class="h-9 w-9 shrink-0 rounded-full object-cover ring-1 ring-gray-200">
+                                @else
+                                    <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#39A900]/10 text-xs font-black text-[#39A900]">
+                                        {{ $cu?->iniciales() ?? 'C' }}
+                                    </span>
+                                @endif
+                                <div class="min-w-0">
+                                    <p class="truncate font-semibold text-gray-900">{{ $nombreCoordinador }} @if($esPropio)<span class="ml-1 rounded-full bg-[#39A900]/10 px-2 py-0.5 text-[10px] font-bold uppercase text-[#247200]">Tú</span>@endif</p>
+                                    <p class="truncate text-xs text-gray-400">{{ $cu?->correo }}</p>
+                                </div>
+                            </div>
                         </td>
                         <td class="whitespace-nowrap px-5 py-3" data-label="Documento">{{ $cu?->tipo_documento }} {{ $cu?->numero_documento }}</td>
                         <td class="px-5 py-3" data-label="Cargo">{{ $coordinador->cargo ?? '—' }}</td>
@@ -85,15 +96,6 @@
                                                     ? 'bg-red-50 text-red-600 hover:bg-red-100'
                                                     : 'bg-[#39A900]/10 text-[#247200] hover:bg-[#39A900]/20' }}">
                                             {{ $activo ? 'Inactivar' : 'Activar' }}
-                                        </button>
-                                    </form>
-                                    <form method="POST" action="{{ route('coordinacion.coordinadores.destroy', $coordinador->id_coordinacion) }}"
-                                          data-confirm="{{ "¿Eliminar definitivamente al coordinador {$nombreCoordinador}? Esta acción no se puede deshacer. Solo es posible si no tiene llamados gestionados." }}"
-                                          data-confirm-title="Eliminar coordinador" data-confirm-btn="Sí, eliminar">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="rounded-full bg-red-50 px-3 py-1.5 text-xs font-bold text-red-600 transition hover:bg-red-100">
-                                            Eliminar
                                         </button>
                                     </form>
                                 @endunless

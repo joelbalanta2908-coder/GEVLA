@@ -87,7 +87,15 @@ class LlamadoController extends Controller
         // Fichas para el filtro del reporte exportable.
         $fichasExport = Ficha::orderBy('numero_ficha')->get();
 
-        return view('coordinacion.llamados.index', compact('llamados', 'trendLabels', 'llamadosTrend', 'statusLabels', 'llamadosEstadoData', 'fichasExport'));
+        // Aprendices para el buscador de reporte individual (por nombre o documento).
+        $aprendicesReporte = Aprendiz::with('usuario')->get()
+            ->map(fn (Aprendiz $a) => [
+                'id'    => $a->id_aprendiz,
+                'label' => trim(($a->usuario->nombres ?? '') . ' ' . ($a->usuario->apellidos ?? '')) ?: 'Aprendiz #' . $a->id_aprendiz,
+                'doc'   => (string) ($a->usuario->numero_documento ?? ''),
+            ])->values();
+
+        return view('coordinacion.llamados.index', compact('llamados', 'trendLabels', 'llamadosTrend', 'statusLabels', 'llamadosEstadoData', 'fichasExport', 'aprendicesReporte'));
     }
 
     /**

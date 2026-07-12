@@ -260,6 +260,61 @@ class CoordinacionController extends Controller
     }
 
     /**
+     * Elimina un aprendiz (perfil + matrículas + notificaciones + rol y, si no
+     * tiene otros roles, también su cuenta de usuario). Si el aprendiz tiene
+     * historial disciplinario (llamados, faltas, actas o procesos) NO se
+     * elimina: se debe inactivar para conservar la trazabilidad.
+     */
+    public function eliminarAprendiz(Aprendiz $aprendiz): RedirectResponse
+    {
+        $usuario = $aprendiz->usuario;
+
+        if ($usuario && $usuario->estado_usuario === 'bloqueado') {
+            return back()->withErrors(['error' => 'La cuenta está bloqueada por el administrador; no puede eliminarse desde coordinación.']);
+        }
+
+        if ($aprendiz->llamadosAtencion()->exists()
+            || $aprendiz->faltas()->exists()
+            || $aprendiz->actasCoordinacion()->exists()
+            || $aprendiz->procesosDisciplinarios()->exists()) {
+            return back()->withErrors([
+                'error' => 'No se puede eliminar el aprendiz porque tiene historial disciplinario (llamados, faltas, actas o procesos). Inactívalo para conservar la trazabilidad.',
+            ]);
+        }
+
+        $nombre = $usuario ? trim($usuario->nombres . ' ' . $usuario->apellidos) : ('#' . $aprendiz->id_aprendiz);
+
+        DB::transaction(function () use ($aprendiz, $usuario) {
+            $aprendiz->notificaciones()->delete();
+            $aprendiz->matriculas()->delete();
+            $aprendiz->delete();
+
+            if (! $usuario) {
+                return;
+            }
+
+            $rolAprendiz = \App\Models\Rol::where('nombre_rol', Roles::APRENDIZ)->value('id_rol');
+            if ($rolAprendiz) {
+                $usuario->roles()->detach($rolAprendiz);
+            }
+
+            // Sin más roles, la cuenta también se elimina (si alguna relación
+            // lo impide, se deja inactiva como respaldo).
+            if ($usuario->roles()->count() === 0) {
+                try {
+                    $usuario->delete();
+                } catch (\Illuminate\Database\QueryException) {
+                    $usuario->update(['estado_usuario' => 'inactivo']);
+                }
+            }
+        });
+
+        return redirect()
+            ->route('coordinacion.aprendices.index')
+            ->with('success', "Aprendiz {$nombre} eliminado correctamente.");
+    }
+
+    /**
      * Hoja de vida consolidada de un aprendiz (vista compartida).
      */
     public function aprendizShow(string $id): View
@@ -668,6 +723,7 @@ class CoordinacionController extends Controller
             'fichas.instructorLider',
             'fichasLideradas',
         ]);
+        $instructor->loadCount('llamadosAtencion');
 
         $tipos = Instructor::tiposDocente();
 

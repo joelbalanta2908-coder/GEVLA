@@ -17,7 +17,7 @@
             <select name="estado_academico" data-live class="rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[#39A900] focus:outline-none focus:ring-2 focus:ring-[#39A900]/30">
                 <option value="">Todos los estados</option>
                 @foreach($estados as $e)
-                    <option value="{{ $e }}" @selected($estado == $e)>{{ ucfirst(str_replace('_',' ', $e)) }}</option>
+                    <option value="{{ $e }}" @selected($estado == $e)>{{ ['en_formacion' => 'En formación', 'aplazado' => 'Aplazado', 'cancelado' => 'Cancelado', 'certificado' => 'Certificado'][$e] ?? ucfirst(str_replace('_', ' ', $e)) }}</option>
                 @endforeach
             </select>
             <button class="rounded-lg bg-[#39A900] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2D8200]">Filtrar</button>
@@ -37,21 +37,22 @@
     ])
 
     <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
-        <table class="responsive-cards w-full min-w-[640px] text-sm">
+        <table class="responsive-cards w-full min-w-[1000px] text-sm">
             <thead class="bg-gray-50 text-left text-xs font-medium uppercase text-gray-500">
                 <tr>
-                    <th class="px-5 py-3">Aprendiz</th>
-                    <th class="px-5 py-3">Correo</th>
-                    <th class="px-5 py-3">Estado</th>
-                    <th class="px-5 py-3">Cuenta</th>
-                    <th class="px-5 py-3 text-center">Llamados</th>
-                    <th class="px-5 py-3 text-center">Procesos</th>
-                    <th class="px-5 py-3 text-right">Acción</th>
+                    <th class="whitespace-nowrap px-5 py-3">Aprendiz</th>
+                    <th class="whitespace-nowrap px-5 py-3">Correo</th>
+                    <th class="whitespace-nowrap px-5 py-3">Estado</th>
+                    <th class="whitespace-nowrap px-5 py-3">Cuenta</th>
+                    <th class="whitespace-nowrap px-5 py-3 text-center">Llamados</th>
+                    <th class="whitespace-nowrap px-5 py-3 text-center">Procesos</th>
+                    <th class="whitespace-nowrap px-5 py-3 text-right">Acción</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
                 @forelse($aprendices as $ap)
                     @php
+                        $u = $ap->usuario;
                         $eb = match($ap->estado_academico) {
                             'en_formacion' => 'bg-[#39A900]/10 text-[#247200]',
                             'aplazado' => 'bg-amber-100 text-amber-700',
@@ -59,16 +60,32 @@
                             'certificado' => 'bg-blue-100 text-blue-700',
                             default => 'bg-gray-100 text-gray-600',
                         };
+                        $etiquetaEstado = ['en_formacion' => 'En formación', 'aplazado' => 'Aplazado', 'cancelado' => 'Cancelado', 'certificado' => 'Certificado'][$ap->estado_academico] ?? ucfirst(str_replace('_', ' ', $ap->estado_academico));
                     @endphp
                     <tr class="hover:bg-gray-50">
-                        <td class="px-5 py-3 font-medium text-gray-900" data-label="Aprendiz">{{ optional($ap->usuario)->nombres }} {{ optional($ap->usuario)->apellidos }}</td>
+                        {{-- Aprendiz con su foto de perfil (o iniciales) --}}
+                        <td class="px-5 py-3" data-label="Aprendiz">
+                            <div class="flex items-center gap-3">
+                                @if($u?->fotoUrl())
+                                    <img src="{{ $u->fotoUrl() }}" alt="Foto de {{ $u->nombres }}" class="h-9 w-9 shrink-0 rounded-full object-cover ring-1 ring-gray-200">
+                                @else
+                                    <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#39A900]/10 text-xs font-black text-[#39A900]">
+                                        {{ $u?->iniciales() ?? 'A' }}
+                                    </span>
+                                @endif
+                                <div class="min-w-0">
+                                    <p class="truncate font-medium text-gray-900">{{ $u?->nombres }} {{ $u?->apellidos }}</p>
+                                    <p class="truncate text-xs text-gray-400">{{ $u?->tipo_documento }} {{ $u?->numero_documento }}</p>
+                                </div>
+                            </div>
+                        </td>
                         {{-- Se muestra el correo principal de la cuenta; si no existe, el institucional. --}}
-                        <td class="px-5 py-3 text-gray-600" data-label="Correo">{{ optional($ap->usuario)->correo ?? $ap->correo_institucional }}</td>
+                        <td class="px-5 py-3 text-gray-600" data-label="Correo">{{ $u?->correo ?? $ap->correo_institucional }}</td>
                         <td class="px-5 py-3" data-label="Estado">
-                            <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $eb }}">{{ ucfirst(str_replace('_',' ', $ap->estado_academico)) }}</span>
+                            <span class="whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium {{ $eb }}">{{ $etiquetaEstado }}</span>
                         </td>
                         @php
-                            $estadoCuenta = optional($ap->usuario)->estado_usuario;
+                            $estadoCuenta = $u?->estado_usuario;
                             $cuentaBadge = match($estadoCuenta) {
                                 'activo'    => 'bg-[#39A900]/10 text-[#247200]',
                                 'inactivo'  => 'bg-red-100 text-red-700',
@@ -76,21 +93,22 @@
                                 default     => 'bg-gray-100 text-gray-500',
                             };
                             $cuentaActiva = $estadoCuenta === 'activo';
-                            $nombreAprendiz = trim(optional($ap->usuario)->nombres.' '.optional($ap->usuario)->apellidos);
+                            $nombreAprendiz = trim(($u->nombres ?? '') . ' ' . ($u->apellidos ?? ''));
+                            $sinHistorial = ($ap->llamados_atencion_count + $ap->procesos_disciplinarios_count + ($ap->actas_coordinacion_count ?? 0)) === 0;
                         @endphp
                         <td class="px-5 py-3" data-label="Cuenta">
-                            <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $cuentaBadge }}">
+                            <span class="whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium {{ $cuentaBadge }}">
                                 {{ $estadoCuenta ? ucfirst($estadoCuenta) : 'Sin cuenta' }}
                             </span>
                         </td>
                         <td class="px-5 py-3 text-center" data-label="Llamados">{{ $ap->llamados_atencion_count }}</td>
                         <td class="px-5 py-3 text-center" data-label="Procesos">{{ $ap->procesos_disciplinarios_count }}</td>
                         <td class="px-5 py-3 text-right" data-label="Acción">
-                            {{-- whitespace-nowrap: las acciones no se parten en dos líneas --}}
-                            <div class="flex items-center justify-end gap-3 whitespace-nowrap">
-                                <a href="{{ route('coordinacion.aprendices.show', $ap->id_aprendiz) }}" class="font-medium text-[#39A900] hover:underline">Ver información</a>
+                            {{-- Acciones compactas: no se parten en dos líneas --}}
+                            <div class="flex items-center justify-end gap-2 whitespace-nowrap">
+                                <a href="{{ route('coordinacion.aprendices.show', $ap->id_aprendiz) }}" class="font-medium text-[#39A900] hover:underline">Ver</a>
                                 <a href="{{ route('coordinacion.aprendices.editar', $ap->id_aprendiz) }}" class="font-medium text-amber-600 hover:underline">Editar</a>
-                                @if($ap->usuario && $estadoCuenta !== 'bloqueado')
+                                @if($u && $estadoCuenta !== 'bloqueado')
                                     <form method="POST" action="{{ route('coordinacion.aprendices.estado', $ap->id_aprendiz) }}"
                                           data-confirm="{{ $cuentaActiva
                                               ? "¿Inactivar al aprendiz {$nombreAprendiz}? No podrá iniciar sesión mientras esté inactivo."

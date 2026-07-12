@@ -62,7 +62,8 @@
       "Bash(sed -i 's/minlength=\"8\" maxlength=\"10\" pattern=\"\\\\[A-Za-z0-9\\\\]{8,10}\"/minlength=\"6\" maxlength=\"10\" pattern=\"[A-Za-z0-9]{6,10}\"/; s/data-min=\"8\" data-max=\"10\" data-msg-invalido=\"Entre 8 y 10 caracteres/data-min=\"6\" data-max=\"10\" data-msg-invalido=\"Entre 6 y 10 caracteres/; s/title=\"Letras y números, entre 8 y 10 caracteres/title=\"Letras y números, entre 6 y 10 caracteres/; s/Entre 8 y 10 caracteres, letras y números \\(ej. pasaporte AB1234567\\)/Entre 6 y 10 caracteres, letras y números \\(ej. pasaporte AB1234567\\)/' resources/views/coordinacion/fichas/_persona_campos.blade.php)",
       "Bash(sed -i \"s/'acondicionamiento'     => 'Acondicionamiento',/'acondicionamiento'     => 'Condicionamiento',/\" resources/views/coordinacion/procesos/show.blade.php)",
       "Bash(sed -i \"s/@selected\\(old\\('etapa_actual'\\) == 'acondicionamiento'\\)>Acondicionamiento</@selected\\(old\\('etapa_actual'\\) == 'acondicionamiento'\\)>Condicionamiento</\" resources/views/coordinacion/procesos/create.blade.php)",
-      "Bash(sed -i 's/@selected\\(old\\('\\\\''etapa_actual'\\\\'', $proceso->etapa_actual\\) == '\\\\''acondicionamiento'\\\\''\\)>Acondicionamiento</@selected\\(old\\('\\\\''etapa_actual'\\\\'', $proceso->etapa_actual\\) == '\\\\''acondicionamiento'\\\\''\\)>Condicionamiento</' resources/views/coordinacion/procesos/edit.blade.php)"
+      "Bash(sed -i 's/@selected\\(old\\('\\\\''etapa_actual'\\\\'', $proceso->etapa_actual\\) == '\\\\''acondicionamiento'\\\\''\\)>Acondicionamiento</@selected\\(old\\('\\\\''etapa_actual'\\\\'', $proceso->etapa_actual\\) == '\\\\''acondicionamiento'\\\\''\\)>Condicionamiento</' resources/views/coordinacion/procesos/edit.blade.php)",
+      "Bash(grep -n '@endsection\\\\|{{ $llamados->links\\(\\) }}\\\\|@section\\('\\\\''scripts'\\\\''\\)' resources/views/coordinacion/llamados/index.blade.php)"
     ]
   }
 }
