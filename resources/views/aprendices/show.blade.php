@@ -10,11 +10,20 @@
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
             Volver
         </a>
-        @php $esCoordinadorPerfil = ($rolActivo ?? session('rol_activo')) === \App\Support\Roles::COORDINADOR; @endphp
+        @php
+            $rolPerfil = $rolActivo ?? session('rol_activo');
+            $esCoordinadorPerfil = $rolPerfil === \App\Support\Roles::COORDINADOR;
+            $esInstructorPerfil = $rolPerfil === \App\Support\Roles::INSTRUCTOR;
+            // Cada rol descarga el reporte completo por su propia ruta (el
+            // instructor solo puede para aprendices de sus fichas).
+            $urlReporteCompleto = $esCoordinadorPerfil
+                ? route('coordinacion.aprendices.reporte', ['id' => $aprendiz->id_aprendiz, 'formato' => 'pdf'])
+                : ($esInstructorPerfil ? route('instructor.aprendices.reporte', ['id' => $aprendiz->id_aprendiz, 'formato' => 'pdf']) : null);
+        @endphp
         <div class="flex flex-wrap items-center gap-2 self-start sm:self-auto">
             {{-- Reporte completo del aprendiz: todos sus llamados, actas y procesos en un solo PDF. --}}
-            @if($esCoordinadorPerfil)
-                <a href="{{ route('coordinacion.aprendices.reporte', ['id' => $aprendiz->id_aprendiz, 'formato' => 'pdf']) }}" target="_blank" rel="noopener"
+            @if($urlReporteCompleto)
+                <a href="{{ $urlReporteCompleto }}" target="_blank" rel="noopener"
                    title="Descargar el reporte completo del aprendiz con todos sus llamados (PDF)"
                    class="inline-flex items-center gap-1.5 rounded-xl border border-[#39A900] px-3.5 py-2 text-sm font-semibold text-[#39A900] transition hover:bg-[#39A900]/10">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>

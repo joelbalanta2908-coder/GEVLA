@@ -236,6 +236,25 @@ class InstructorAprendizController extends Controller
     }
 
     /**
+     * Reporte individual del aprendiz (PDF/Excel/Word) para el instructor:
+     * solo disponible para aprendices matriculados en sus fichas. Reutiliza
+     * el mismo generador del coordinador.
+     */
+    public function reporte(string $id, string $formato)
+    {
+        $instructor = $this->getInstructor();
+        $fichasIds = $this->fichasDelInstructor($instructor)->pluck('id_ficha')->map(fn ($f) => (int) $f)->all();
+
+        $esDeSusFichas = Matricula::where('id_aprendiz', (int) $id)
+            ->whereIn('id_ficha', $fichasIds)
+            ->exists();
+
+        abort_unless($esDeSusFichas, 403, 'Solo puedes generar reportes de aprendices matriculados en tus fichas.');
+
+        return app(CoordinacionReporteController::class)->aprendizIndividual($id, $formato);
+    }
+
+    /**
      * Indica si el aprendiz también tiene perfil de instructor asignado (o
      * líder) en esa misma ficha (misma regla que usa coordinación).
      */

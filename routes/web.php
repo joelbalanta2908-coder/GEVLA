@@ -143,6 +143,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/aprendices', [\App\Http\Controllers\InstructorAprendizController::class, 'crear'])->name('aprendices.store');
         Route::post('/aprendices/asociar', [\App\Http\Controllers\InstructorAprendizController::class, 'asociar'])->name('aprendices.asociar');
 
+        // Reporte completo del aprendiz (solo aprendices de sus fichas).
+        Route::get('/aprendices/{id}/reporte/{formato}', [\App\Http\Controllers\InstructorAprendizController::class, 'reporte'])
+            ->where('formato', 'pdf|excel|word')->name('aprendices.reporte');
+
         Route::get('/aprendices/{id}', [InstructorController::class, 'aprendizShow'])->name('aprendices.show');
 
         // Seguimiento de procesos y notificaciones

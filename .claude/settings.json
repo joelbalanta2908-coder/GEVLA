@@ -63,7 +63,9 @@
       "Bash(sed -i \"s/'acondicionamiento'     => 'Acondicionamiento',/'acondicionamiento'     => 'Condicionamiento',/\" resources/views/coordinacion/procesos/show.blade.php)",
       "Bash(sed -i \"s/@selected\\(old\\('etapa_actual'\\) == 'acondicionamiento'\\)>Acondicionamiento</@selected\\(old\\('etapa_actual'\\) == 'acondicionamiento'\\)>Condicionamiento</\" resources/views/coordinacion/procesos/create.blade.php)",
       "Bash(sed -i 's/@selected\\(old\\('\\\\''etapa_actual'\\\\'', $proceso->etapa_actual\\) == '\\\\''acondicionamiento'\\\\''\\)>Acondicionamiento</@selected\\(old\\('\\\\''etapa_actual'\\\\'', $proceso->etapa_actual\\) == '\\\\''acondicionamiento'\\\\''\\)>Condicionamiento</' resources/views/coordinacion/procesos/edit.blade.php)",
-      "Bash(grep -n '@endsection\\\\|{{ $llamados->links\\(\\) }}\\\\|@section\\('\\\\''scripts'\\\\''\\)' resources/views/coordinacion/llamados/index.blade.php)"
+      "Bash(grep -n '@endsection\\\\|{{ $llamados->links\\(\\) }}\\\\|@section\\('\\\\''scripts'\\\\''\\)' resources/views/coordinacion/llamados/index.blade.php)",
+      "Bash(php -l app/Http/Controllers/InstructorAprendizController.php)",
+      "Bash(git fetch *)"
     ]
   }
 }
