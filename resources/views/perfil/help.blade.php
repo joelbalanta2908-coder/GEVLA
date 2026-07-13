@@ -87,6 +87,54 @@
                 </div>
             </div>
 
+            {{-- Manuales del sistema (PDF de descarga directa).
+                 El Manual de Usuario está disponible para los tres roles; el
+                 Manual Técnico solo para instructores y coordinadores. --}}
+            @php $esAprendiz = session('rol_activo') === \App\Support\Roles::APRENDIZ; @endphp
+            <div class="mt-8 rounded-[28px] border border-[#e6eadf] bg-white p-6 shadow-[0_10px_30px_rgba(0,0,0,0.06)]">
+                <div class="flex items-center gap-3">
+                    <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-[#39A900]/10 text-[#39A900]">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    </span>
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">Manuales del sistema</h2>
+                        <p class="text-sm text-slate-600">Descarga la documentación oficial de GEVLA en PDF.</p>
+                    </div>
+                </div>
+
+                <div class="mt-5 grid gap-4 sm:grid-cols-2">
+                    {{-- Manual de Usuario: todos los roles --}}
+                    <div class="flex flex-col justify-between rounded-3xl border border-[#e6eadf] bg-[#f6faf4] p-5">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#247200]">Para todos los roles</p>
+                            <h3 class="mt-2 text-base font-extrabold text-slate-900">Manual de Usuario</h3>
+                            <p class="mt-1 text-sm text-slate-600">Guía de uso del sistema según tu rol: acceso, llamados, perfil, notificaciones y reportes.</p>
+                        </div>
+                        <a href="{{ route('perfil.manual.usuario') }}"
+                           class="mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-[#39A900] px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#247200]">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+                            Descargar Manual de Usuario
+                        </a>
+                    </div>
+
+                    {{-- Manual Técnico: solo instructor y coordinador --}}
+                    @unless($esAprendiz)
+                        <div class="flex flex-col justify-between rounded-3xl border border-[#dbe6ef] bg-[#eef4f8] p-5">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#00324d]">Instructor y coordinador</p>
+                                <h3 class="mt-2 text-base font-extrabold text-slate-900">Manual Técnico</h3>
+                                <p class="mt-1 text-sm text-slate-600">Arquitectura, base de datos, seguridad, despliegue y mantenimiento del sistema.</p>
+                            </div>
+                            <a href="{{ route('perfil.manual.tecnico') }}"
+                               class="mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-[#00324d] px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#00253a]">
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+                                Descargar Manual Técnico
+                            </a>
+                        </div>
+                    @endunless
+                </div>
+            </div>
+
             <div class="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <a href="{{ route('perfil.show') }}" class="inline-flex items-center justify-center rounded-full bg-[#39A900] px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#247200]">
                     Editar mi perfil

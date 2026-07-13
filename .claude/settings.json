@@ -65,7 +65,17 @@
       "Bash(sed -i 's/@selected\\(old\\('\\\\''etapa_actual'\\\\'', $proceso->etapa_actual\\) == '\\\\''acondicionamiento'\\\\''\\)>Acondicionamiento</@selected\\(old\\('\\\\''etapa_actual'\\\\'', $proceso->etapa_actual\\) == '\\\\''acondicionamiento'\\\\''\\)>Condicionamiento</' resources/views/coordinacion/procesos/edit.blade.php)",
       "Bash(grep -n '@endsection\\\\|{{ $llamados->links\\(\\) }}\\\\|@section\\('\\\\''scripts'\\\\''\\)' resources/views/coordinacion/llamados/index.blade.php)",
       "Bash(php -l app/Http/Controllers/InstructorAprendizController.php)",
-      "Bash(git fetch *)"
+      "Bash(git fetch *)",
+      "Bash(grep -o \"route\\('coordinacion[^']*'\\)\\\\|>[A-ZÁÉÍÓÚÑ][a-záéíóúñA-ZÁÉÍÓÚÑ ]\\\\{3,28\\\\}</span>\" resources/views/layouts/coordinador.blade.php)",
+      "Bash(grep -o \">[A-ZÁÉÍÓÚÑ][a-záéíóúñA-ZÁÉÍÓÚÑ ]\\\\{3,28\\\\}</span>\" resources/views/layouts/instructor.blade.php)",
+      "Bash(grep -o \">[A-ZÁÉÍÓÚÑ][a-záéíóúñA-ZÁÉÍÓÚÑ ]\\\\{3,28\\\\}</span>\" resources/views/layouts/aprendiz.blade.php)",
+      "Bash(php -l app/Http/Controllers/ManualController.php)",
+      "Bash(php -l app/Support/ManualPdf.php)",
+      "Bash(cd \"c:/Users/ROMOM/Downloads/GEVLA2/GEVLA\" && echo \"=== scratchpad ===\" && ls -la \"C:/Users/ROMOM/AppData/Local/Temp/claude/c--Users-ROMOM-Downloads-GEVLA2-GEVLA/00f54656-8ff9-406e-a28a-f6de25fd1c1f/scratchpad\" 2>/dev/null | grep -iE \"png|jpg\" ; echo \"=== cualquier imagen creada hoy en Temp/AppData ===\" && find \"C:/Users/ROMOM/AppData/Local/Temp\" -maxdepth 3 \\\\\\( -iname \"*.png\" -o -iname \"*.jpg\" \\\\\\) -newermt \"2026-07-13 02:00\" 2>/dev/null | head -20; echo \"=== fin busqueda ===\")",
+      "Read(//c/Users/ROMOM/AppData/Local/Temp/**)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\ROMOM\\Downloads\\GEVLA2\\GEVLA\\storage\\app\\manuales-cache"
     ]
   }
 }

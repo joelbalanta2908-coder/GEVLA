@@ -9,208 +9,227 @@
         $usuario->tieneRol('Instructor') => route('instructor.dashboard'),
         default => route('aprendiz.dashboard'),
     };
+
+    // Correos: el de inicio de sesión (personal) y el institucional. El aprendiz
+    // tiene ambos en su perfil; para instructor/coordinador el correo de acceso
+    // es también el institucional.
+    $ap = $usuario->aprendiz;
+    $correoAcceso = $usuario->correo;
+    $correoInstitucional = $ap?->correo_institucional ?: $usuario->correo;
+    $correoPersonal = $ap?->correo_personal ?: $usuario->correo;
+
+    $rolesActivos = $usuario->roles()->wherePivot('estado_asignacion', 'activa')->get();
+    $estadoCuenta = $usuario->estado_usuario ?? 'desconocido';
+    $estadoColor = match ($estadoCuenta) {
+        'activo'    => 'bg-[#39A900]/10 text-[#1f5a16]',
+        'inactivo'  => 'bg-red-100 text-red-700',
+        'bloqueado' => 'bg-slate-200 text-slate-700',
+        default     => 'bg-slate-100 text-slate-600',
+    };
 @endphp
-<div class="mx-auto max-w-6xl space-y-6" x-data="{ editando: {{ $errors->any() ? 'true' : 'false' }} }">
-    <div class="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-        <section class="overflow-hidden rounded-[30px] border border-[#e6eadf] bg-white shadow-[0_12px_40px_rgba(0,0,0,0.06)]">
-            <div class="border-b border-[#eef1e8] bg-[#fafbf8] px-8 py-6">
-                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div class="flex items-center gap-4">
+
+<div class="mx-auto max-w-5xl space-y-6" x-data="{ editando: {{ $errors->any() ? 'true' : 'false' }} }">
+
+    {{-- ============================================================
+         ENCABEZADO: identidad del usuario + acciones principales.
+    ============================================================= --}}
+    <section class="overflow-hidden rounded-[28px] border border-[#e6eadf] bg-white shadow-[0_12px_40px_rgba(0,0,0,0.06)]">
+        <div class="h-20 bg-gradient-to-r from-[#39A900] to-[#2d8200] sm:h-24"></div>
+        <div class="px-5 pb-6 sm:px-8">
+            <div class="-mt-10 flex flex-col gap-4 sm:-mt-12 sm:flex-row sm:items-end sm:justify-between">
+                <div class="flex flex-col items-start gap-4 sm:flex-row sm:items-end">
+                    {{-- Contenedor con overflow-hidden: garantiza que la foto se
+                         recorte limpiamente al marco redondeado sin asomarse. --}}
+                    <div class="h-24 w-24 shrink-0 overflow-hidden rounded-3xl border-4 border-white bg-[#e8f7e7] shadow-md sm:h-28 sm:w-28">
                         @if($usuario->fotoUrl())
-                            <img src="{{ $usuario->fotoUrl() }}" alt="Foto de perfil" class="h-20 w-20 shrink-0 rounded-3xl object-cover shadow-sm">
+                            <img src="{{ $usuario->fotoUrl() }}" alt="Foto de perfil" class="h-full w-full object-cover">
                         @else
-                            <div class="flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl bg-[#e8f7e7] text-3xl font-extrabold text-[#39A900] shadow-sm">
+                            <div class="flex h-full w-full items-center justify-center text-3xl font-extrabold text-[#39A900]">
                                 {{ $usuario->iniciales() }}
                             </div>
                         @endif
-                        <div>
-                            <p class="text-sm uppercase tracking-[0.28em] text-slate-400">Perfil profesional</p>
-                            <h1 class="text-3xl font-extrabold text-slate-900">{{ $usuario->nombres }} {{ $usuario->apellidos }}</h1>
-                            <p class="mt-1 text-sm font-medium text-slate-500">{{ $usuario->rolPrincipal() ?? 'Usuario del sistema' }}</p>
-                        </div>
                     </div>
-                    <div class="flex flex-wrap items-center gap-3">
-                        <span class="inline-flex items-center gap-2 rounded-full border border-[#d8e2cf] bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm">
-                            <svg class="h-4 w-4 text-[#39A900]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="9" />
-                                <path d="M9 12l2 2 4-4" />
-                            </svg>
-                            {{ ucfirst($usuario->estado_usuario ?? 'Desconocido') }}
-                        </span>
-                        <span class="inline-flex items-center gap-2 rounded-full bg-[#39A900]/10 px-3 py-2 text-sm font-semibold text-[#1f5a16]">
-                            <svg class="h-4 w-4 text-[#39A900]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 3l8 4v5c0 4.5-3 8-8 9-5-1-8-4.5-8-9V7l8-4z" />
-                                <path d="M9 12l2 2 4-4" />
-                            </svg>
-                            {{ $usuario->rolPrincipal() ?? 'Sin rol principal' }}
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="px-8 py-8">
-                <div class="grid gap-6 sm:grid-cols-2">
-                    <div class="rounded-[24px] bg-[#f6faf4] p-5">
-                        <p class="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Información de cuenta</p>
-                        <dl class="mt-4 space-y-4 text-sm text-slate-700">
-                            <div>
-                                <dt class="font-semibold text-slate-900">Usuario</dt>
-                                <dd>{{ $usuario->username ?? 'No registrado' }}</dd>
-                            </div>
-                            <div>
-                                <dt class="font-semibold text-slate-900">Correo institucional</dt>
-                                <dd>{{ $usuario->correo ?? 'No registrado' }}</dd>
-                            </div>
-                            <div>
-                                <dt class="font-semibold text-slate-900">Creado el</dt>
-                                <dd>{{ $usuario->fecha_creacion ? $usuario->fecha_creacion->format('d/m/Y') : 'No disponible' }}</dd>
-                            </div>
-                        </dl>
-                    </div>
-
-                    <div class="rounded-[24px] bg-[#f7f8fb] p-5">
-                        <p class="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Actividad reciente</p>
-                        <dl class="mt-4 space-y-4 text-sm text-slate-700">
-                            <div>
-                                <dt class="font-semibold text-slate-900">Último acceso</dt>
-                                <dd>{{ $usuario->ultimo_acceso ? $usuario->ultimo_acceso->format('d/m/Y h:i A') : 'No disponible' }}</dd>
-                            </div>
-                            <div>
-                                <dt class="font-semibold text-slate-900">Hora local</dt>
-                                <dd>{{ now()->timezone('America/Bogota')->format('h:i A') }} · Bogotá</dd>
-                            </div>
-                            <div>
-                                <dt class="font-semibold text-slate-900">Roles asignados</dt>
-                                <dd class="flex flex-wrap gap-2 mt-2">
-                                    @foreach($usuario->roles()->wherePivot('estado_asignacion', 'activa')->get() as $rol)
-                                        <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600">{{ $rol->nombre_rol }}</span>
-                                    @endforeach
-                                </dd>
-                            </div>
-                        </dl>
-                    </div>
-                </div>
-
-                <div class="mt-8 rounded-[28px] bg-white p-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
-                    <div class="flex items-center justify-between gap-4">
-                        <div>
-                            <p class="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Detalles adicionales</p>
-                            <h2 class="mt-2 text-xl font-extrabold text-slate-900">Información profesional</h2>
-                        </div>
-                        <div class="text-sm text-slate-500">Vista completa del perfil</div>
-                    </div>
-
-                    <div class="mt-6 grid gap-4 sm:grid-cols-2">
-                        <div class="rounded-3xl border border-slate-100 bg-[#f9faf9] p-5">
-                            <p class="text-xs uppercase tracking-[0.16em] text-slate-400">Coordinación</p>
-                            <p class="mt-2 text-base font-semibold text-slate-900">{{ optional($usuario->coordinacion)->cargo ?? 'No aplica' }}</p>
-                            <p class="mt-1 text-sm text-slate-500">{{ optional($usuario->coordinacion)->estado_coordinacion ?? 'No disponible' }}</p>
-                        </div>
-                        <div class="rounded-3xl border border-[#eef1e8] bg-[#f9faf9] p-5">
-                            <p class="text-xs uppercase tracking-[0.16em] text-slate-400">Perfil</p>
-                            <p class="mt-2 text-base font-semibold text-slate-900">{{ $usuario->nombres ? $usuario->nombres . ' ' . $usuario->apellidos : 'Sin nombre' }}</p>
-                            <p class="mt-1 text-sm text-slate-500">{{ ucfirst($usuario->estado_usuario ?? 'Estado desconocido') }}</p>
-                        </div>
-                        <div class="rounded-3xl border border-[#eef1e8] bg-[#f9faf9] p-5">
-                            <p class="text-xs uppercase tracking-[0.16em] text-slate-400">Permisos rápidos</p>
-                            <p class="mt-2 text-base font-semibold text-slate-900">Acceso a coordinación</p>
-                            <p class="mt-1 text-sm text-slate-500">Control de actas, llamados y procesos disciplinarios.</p>
-                        </div>
-                        <div class="rounded-3xl border border-[#eef1e8] bg-[#f9faf9] p-5">
-                            <p class="text-xs uppercase tracking-[0.16em] text-slate-400">Acción</p>
-                            <p class="mt-2 text-base font-semibold text-slate-900">Mantén tus datos actualizados</p>
-                            <p class="mt-1 text-sm text-slate-500">Asegúrate de que tu cuenta esté siempre lista para administrar el sistema.</p>
+                    <div class="pb-1">
+                        <h1 class="text-2xl font-extrabold text-slate-900 sm:text-3xl">{{ $usuario->nombres }} {{ $usuario->apellidos }}</h1>
+                        <div class="mt-2 flex flex-wrap items-center gap-2">
+                            {{-- Muestra el rol ACTIVO de la sesión (el que se elige en el
+                                 selector de roles), no un rol fijo. --}}
+                            <span class="inline-flex items-center gap-1.5 rounded-full bg-[#39A900]/10 px-3 py-1 text-xs font-bold text-[#1f5a16]">
+                                <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 4.5-3 8-8 9-5-1-8-4.5-8-9V7l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+                                {{ ($rolActivo ?? session('rol_activo')) ?: ($usuario->rolPrincipal() ?? 'Usuario del sistema') }}
+                            </span>
+                            <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold {{ $estadoColor }}">
+                                <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
+                                {{ ucfirst($estadoCuenta) }}
+                            </span>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            {{-- Consejo de seguridad y acciones: apilados en móvil, en fila en pantallas grandes. --}}
-            <div class="mt-6 flex flex-col gap-4 px-5 pb-6 sm:px-8 lg:flex-row lg:items-center lg:justify-between">
-                <div class="w-full rounded-3xl bg-[#f4f9ee] p-5 text-sm text-slate-600 lg:max-w-md">
-                    <p class="font-semibold text-slate-900">Consejo de seguridad</p>
-                    <p class="mt-2 break-words">Usa una contraseña segura y actualiza tus datos si cambia tu correo institucional.</p>
-                </div>
-                <div class="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap lg:w-auto lg:shrink-0 lg:justify-end">
-                    <button type="button" @click="editando = !editando"
-                            class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#39A900] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#247200] shadow-sm sm:w-auto">
-                        <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 20h9" />
-                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
-                        </svg>
-                        <span x-text="editando ? 'Ocultar edición' : 'Editar perfil'">Editar perfil</span>
+                <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                    <button type="button" @click="editando = true"
+                            class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#39A900] px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#247200] sm:w-auto">
+                        <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"/></svg>
+                        Editar perfil
                     </button>
-                    <a href="{{ $dashboardRoute }}" class="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[#d8e2cf] bg-white px-5 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50 shadow-sm sm:w-auto">
-                        <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 11.5 12 4l9 7.5M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9" />
-                        </svg>
-                        Ir al Panel
+                    <a href="{{ $dashboardRoute }}" class="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[#d8e2cf] bg-white px-5 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 sm:w-auto">
+                        <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>
+                        Ir al panel
                     </a>
                 </div>
             </div>
+        </div>
+    </section>
+
+    {{-- ============================================================
+         DATOS: cuenta (con AMBOS correos) + actividad y roles.
+    ============================================================= --}}
+    <div class="grid gap-6 lg:grid-cols-2">
+
+        {{-- Información de la cuenta --}}
+        <section class="rounded-[24px] border border-[#e6eadf] bg-white p-6 shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
+            <div class="flex items-center gap-2">
+                <span class="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-[#39A900]/10 text-[#39A900]">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m3 8 9 5 9-5"/></svg>
+                </span>
+                <h2 class="text-sm font-bold uppercase tracking-[0.14em] text-slate-500">Información de cuenta</h2>
+            </div>
+
+            <dl class="mt-5 space-y-4 text-sm">
+                <div class="flex items-start justify-between gap-3">
+                    <dt class="shrink-0 font-semibold text-slate-500">Usuario</dt>
+                    <dd class="text-right font-semibold text-slate-900">{{ $usuario->username ?? 'No registrado' }}</dd>
+                </div>
+
+                {{-- Correo de inicio de sesión (personal) --}}
+                <div class="rounded-2xl bg-[#f6faf4] p-4">
+                    <div class="flex items-center gap-2">
+                        <svg class="h-4 w-4 text-[#39A900]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/></svg>
+                        <dt class="text-xs font-bold uppercase tracking-[0.12em] text-[#1f5a16]">Correo de inicio de sesión</dt>
+                    </div>
+                    <dd class="mt-1.5 break-all font-semibold text-slate-900">{{ $correoAcceso ?? 'No registrado' }}</dd>
+                    <p class="mt-0.5 text-xs text-slate-500">Es el correo con el que ingresas al sistema.</p>
+                </div>
+
+                {{-- Correo institucional --}}
+                <div class="rounded-2xl bg-[#eef4f8] p-4">
+                    <div class="flex items-center gap-2">
+                        <svg class="h-4 w-4 text-[#00324d]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01"/></svg>
+                        <dt class="text-xs font-bold uppercase tracking-[0.12em] text-[#00324d]">Correo institucional</dt>
+                    </div>
+                    <dd class="mt-1.5 break-all font-semibold text-slate-900">{{ $correoInstitucional ?: 'No registrado' }}</dd>
+                    @if($ap && $correoPersonal && $correoPersonal !== $correoInstitucional)
+                        <p class="mt-1.5 text-xs text-slate-500">Correo personal: <span class="break-all font-medium text-slate-700">{{ $correoPersonal }}</span></p>
+                    @endif
+                </div>
+
+                <div class="flex items-start justify-between gap-3">
+                    <dt class="shrink-0 font-semibold text-slate-500">Documento</dt>
+                    <dd class="text-right font-semibold text-slate-900">{{ $usuario->tipo_documento }} {{ $usuario->numero_documento }}</dd>
+                </div>
+                <div class="flex items-start justify-between gap-3">
+                    <dt class="shrink-0 font-semibold text-slate-500">Teléfono</dt>
+                    <dd class="text-right font-semibold text-slate-900">{{ $usuario->telefono ?: 'No registrado' }}</dd>
+                </div>
+                <div class="flex items-start justify-between gap-3">
+                    <dt class="shrink-0 font-semibold text-slate-500">Creado el</dt>
+                    <dd class="text-right font-semibold text-slate-900">{{ $usuario->fecha_creacion ? $usuario->fecha_creacion->format('d/m/Y') : 'No disponible' }}</dd>
+                </div>
+            </dl>
         </section>
 
-        <aside class="space-y-6">
-            <div class="overflow-hidden rounded-[28px] border border-[#e6eadf] bg-white p-6 shadow-[0_10px_30px_rgba(0,0,0,0.05)]">
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Resumen rápido</p>
-                <div class="mt-5 space-y-4">
-                    <div class="flex items-center justify-between rounded-3xl bg-[#f8faf7] px-4 py-4">
-                        <div>
-                            <p class="text-xs uppercase tracking-[0.18em] text-slate-400">Acceso</p>
-                            <p class="mt-1 text-lg font-extrabold text-slate-900">{{ $usuario->ultimo_acceso ? $usuario->ultimo_acceso->locale('es')->diffForHumans() : 'Nunca' }}</p>
-                        </div>
-                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-[#39A900]/10 text-[#39A900]">
-                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 8v4l3 3" />
-                                <circle cx="12" cy="12" r="9" />
-                            </svg>
-                        </span>
-                    </div>
-                    <div class="flex items-center justify-between rounded-3xl bg-[#f8f8fb] px-4 py-4">
-                        <div>
-                            <p class="text-xs uppercase tracking-[0.18em] text-slate-400">Roles activos</p>
-                            <p class="mt-1 text-lg font-extrabold text-slate-900">{{ $usuario->roles()->wherePivot('estado_asignacion','activa')->count() }}</p>
-                        </div>
-                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-[#00324d]/10 text-[#00324d]">
-                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M4 6h16M4 12h16M4 18h16" />
-                            </svg>
-                        </span>
-                    </div>
-                    <div class="flex items-center justify-between rounded-3xl bg-[#f9f7ef] px-4 py-4">
-                        <div>
-                            <p class="text-xs uppercase tracking-[0.18em] text-slate-400">Coordinación</p>
-                            <p class="mt-1 text-lg font-extrabold text-slate-900">{{ optional($usuario->coordinacion)->cargo ?? 'No asignada' }}</p>
-                        </div>
-                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-[#ff6a13]/10 text-[#ff6a13]">
-                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M3 7h18v13H3zM8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                            </svg>
-                        </span>
-                    </div>
+        {{-- Actividad y roles --}}
+        <section class="rounded-[24px] border border-[#e6eadf] bg-white p-6 shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
+            <div class="flex items-center gap-2">
+                <span class="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-[#00324d]/10 text-[#00324d]">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
+                </span>
+                <h2 class="text-sm font-bold uppercase tracking-[0.14em] text-slate-500">Actividad y roles</h2>
+            </div>
+
+            <div class="mt-5 grid grid-cols-2 gap-3">
+                <div class="rounded-2xl bg-[#f8faf7] p-4">
+                    <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Último acceso</p>
+                    <p class="mt-1 text-base font-extrabold text-slate-900">{{ $usuario->ultimo_acceso ? $usuario->ultimo_acceso->locale('es')->diffForHumans() : 'Nunca' }}</p>
+                    <p class="mt-0.5 text-xs text-slate-500">{{ $usuario->ultimo_acceso ? $usuario->ultimo_acceso->format('d/m/Y h:i A') : '—' }}</p>
+                </div>
+                <div class="rounded-2xl bg-[#f8f8fb] p-4">
+                    <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Hora local</p>
+                    <p class="mt-1 text-base font-extrabold text-slate-900">{{ now()->timezone('America/Bogota')->format('h:i A') }}</p>
+                    <p class="mt-0.5 text-xs text-slate-500">Bogotá, Colombia</p>
                 </div>
             </div>
 
-            <div class="overflow-hidden rounded-[28px] border border-[#e6eadf] bg-[#f5faf4] p-6 shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Funciones de perfil</p>
-                <ul class="mt-5 space-y-3 text-sm text-slate-700">
-                    <li class="flex items-center gap-3 rounded-3xl border border-[#e6eadf] bg-white px-4 py-3">
-                        <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-[#39A900]/10 text-[#39A900]"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z"/><path d="M6 20v-1c0-2.21 1.79-4 4-4h4c2.21 0 4 1.79 4 4v1"/></svg></span>
-                        <div>
-                            <p class="font-semibold text-slate-900">Gestión de cuenta</p>
-                            <p class="text-slate-500">Actualiza tus datos de contacto y acceso.</p>
-                        </div>
-                    </li>
-                    <li class="flex items-center gap-3 rounded-3xl border border-[#e6eadf] bg-white px-4 py-3">
-                        <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-[#00324d]/10 text-[#00324d]"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 11c1.657 0 3-.895 3-2s-1.343-2-3-2-3 .895-3 2 1.343 2 3 2z"/><path d="M5 20c0-2.21 2.686-4 7-4s7 1.79 7 4"/></svg></span>
-                        <div>
-                            <p class="font-semibold text-slate-900">Roles y permisos</p>
-                            <p class="text-slate-500">Revisa los roles activos y accesos del sistema.</p>
-                        </div>
-                    </li>
-                </ul>
+            <div class="mt-4 rounded-2xl border border-[#eef1e8] p-4">
+                <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Roles asignados</p>
+                <div class="mt-2 flex flex-wrap gap-2">
+                    @forelse($rolesActivos as $rol)
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-[#39A900]/10 px-3 py-1 text-xs font-bold text-[#1f5a16]">
+                            <span class="h-1.5 w-1.5 rounded-full bg-[#39A900]"></span>{{ $rol->nombre_rol }}
+                        </span>
+                    @empty
+                        <span class="text-sm text-slate-400">Sin roles activos</span>
+                    @endforelse
+                </div>
             </div>
-        </aside>
+
+            {{-- Detalle según el rol ACTIVO (datos reales del perfil). Si el
+                 usuario tiene varios perfiles, se muestra el del rol activo;
+                 si ese no existe, el primero disponible. --}}
+            @php
+                $rolAhora = $rolActivo ?? session('rol_activo');
+                $detalle = match (true) {
+                    $rolAhora === \App\Support\Roles::COORDINADOR && (bool) $usuario->coordinacion => 'coordinador',
+                    $rolAhora === \App\Support\Roles::INSTRUCTOR && (bool) $usuario->instructor    => 'instructor',
+                    $rolAhora === \App\Support\Roles::APRENDIZ && (bool) $ap                        => 'aprendiz',
+                    (bool) $usuario->coordinacion => 'coordinador',
+                    (bool) $usuario->instructor   => 'instructor',
+                    (bool) $ap                    => 'aprendiz',
+                    default                       => null,
+                };
+            @endphp
+            @if($detalle === 'coordinador')
+                <div class="mt-4 flex items-center justify-between rounded-2xl bg-[#f9f7ef] p-4">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Coordinación</p>
+                        <p class="mt-1 font-bold text-slate-900">{{ $usuario->coordinacion->cargo ?? 'No asignado' }}</p>
+                        <p class="text-xs text-slate-500">{{ ucfirst($usuario->coordinacion->estado_coordinacion ?? '—') }}</p>
+                    </div>
+                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-[#ff6a13]/10 text-[#ff6a13]">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v13H3zM8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </span>
+                </div>
+            @elseif($detalle === 'instructor')
+                <div class="mt-4 flex items-center justify-between rounded-2xl bg-[#f9f7ef] p-4">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Instructor</p>
+                        <p class="mt-1 font-bold text-slate-900">{{ $usuario->instructor->codigo_instructor }}</p>
+                        <p class="text-xs text-slate-500">{{ $usuario->instructor->area_formacion ?? 'Sin área' }}</p>
+                    </div>
+                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-[#00324d]/10 text-[#00324d]">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                    </span>
+                </div>
+            @elseif($detalle === 'aprendiz')
+                <div class="mt-4 flex items-center justify-between rounded-2xl bg-[#f9f7ef] p-4">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Aprendiz</p>
+                        <p class="mt-1 font-bold text-slate-900">{{ ['en_formacion' => 'En formación', 'aplazado' => 'Aplazado', 'cancelado' => 'Cancelado', 'certificado' => 'Certificado'][$ap->estado_academico] ?? ucfirst(str_replace('_', ' ', (string) $ap->estado_academico)) }}</p>
+                        <p class="text-xs text-slate-500">Estado académico</p>
+                    </div>
+                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-[#39A900]/10 text-[#39A900]">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                    </span>
+                </div>
+            @endif
+        </section>
+    </div>
+
+    {{-- Consejo de seguridad --}}
+    <div class="flex items-start gap-3 rounded-2xl border border-[#e6eadf] bg-[#f4f9ee] p-4 text-sm text-slate-600">
+        <span class="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#39A900]/10 text-[#39A900]">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 4.5-3 8-8 9-5-1-8-4.5-8-9V7l8-4z"/></svg>
+        </span>
+        <p><span class="font-semibold text-slate-900">Consejo de seguridad:</span> usa una contraseña segura y mantén tus datos actualizados si cambia tu correo. No compartas tu contraseña con nadie.</p>
     </div>
 
     {{-- ------------------------------------------------------------------
@@ -220,7 +239,7 @@
          La imagen es PRIVADA: solo el dueño puede verla.
     ------------------------------------------------------------------- --}}
     @php $tieneFirma = \App\Support\Firmas::tiene($usuario); @endphp
-    <section class="mt-6 overflow-hidden rounded-[28px] border border-[#e6eadf] bg-white shadow-[0_10px_30px_rgba(0,0,0,0.05)]">
+    <section class="overflow-hidden rounded-[28px] border border-[#e6eadf] bg-white shadow-[0_10px_30px_rgba(0,0,0,0.05)]">
         <div class="border-b border-[#eef1e8] bg-[#fafbf8] px-6 py-5 sm:px-8">
             <p class="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Firma</p>
             <h2 class="mt-1 text-xl font-extrabold text-slate-900">Mi firma para documentos</h2>
@@ -284,7 +303,7 @@
     {{-- ------------------------------------------------------------------
          Sección CAMBIAR CONTRASEÑA: disponible para todos los roles.
     ------------------------------------------------------------------- --}}
-    <section class="mt-6 overflow-hidden rounded-[28px] border border-[#e6eadf] bg-white shadow-[0_10px_30px_rgba(0,0,0,0.05)]">
+    <section class="overflow-hidden rounded-[28px] border border-[#e6eadf] bg-white shadow-[0_10px_30px_rgba(0,0,0,0.05)]">
         <div class="border-b border-[#eef1e8] bg-[#fafbf8] px-6 py-5 sm:px-8">
             <p class="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Seguridad</p>
             <h2 class="mt-1 text-xl font-extrabold text-slate-900">Cambiar contraseña</h2>
@@ -361,9 +380,9 @@
         }
     </script>
 
-        {{-- Edición de perfil en modal --}}
-        <div x-show="editando" x-cloak x-transition.opacity @keydown.escape.window="editando = false"
-            class="fixed inset-0 z-[70] flex items-start justify-center pt-12 p-4">
+    {{-- Edición de perfil en modal --}}
+    <div x-show="editando" x-cloak x-transition.opacity @keydown.escape.window="editando = false"
+        class="fixed inset-0 z-[70] flex items-start justify-center overflow-y-auto p-4 pt-12">
         <div class="absolute inset-0 bg-black/50" @click="editando = false"></div>
         <section x-show="editando" x-transition.scale.origin.top
                  class="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[30px] border border-[#e6eadf] bg-white shadow-[0_30px_80px_rgba(0,0,0,0.25)]">

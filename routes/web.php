@@ -58,6 +58,12 @@ Route::middleware('auth')->group(function () {
         Route::put('/actualizar', [\App\Http\Controllers\PerfilController::class, 'update'])->name('update');
         Route::get('/ayuda', [\App\Http\Controllers\PerfilController::class, 'help'])->name('help');
 
+        // Manuales del sistema (PDF de descarga directa desde Soporte y Ayuda).
+        // El de usuario es para los tres roles; el técnico se restringe en el
+        // controlador a Instructor y Coordinador.
+        Route::get('/manual-usuario', [\App\Http\Controllers\ManualController::class, 'usuario'])->name('manual.usuario');
+        Route::get('/manual-tecnico', [\App\Http\Controllers\ManualController::class, 'tecnico'])->name('manual.tecnico');
+
         // Cambio de contraseña del propio usuario
         Route::put('/password', [\App\Http\Controllers\PerfilController::class, 'cambiarPassword'])->name('password.cambiar');
 
