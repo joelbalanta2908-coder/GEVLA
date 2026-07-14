@@ -149,6 +149,133 @@ class CoordinacionReporteController extends Controller
         ]);
     }
 
+    /**
+     * Reporte de UN acta de coordinación específica (PDF/Excel/Word).
+     */
+    public function actaIndividual(string $id, string $formato): Response
+    {
+        $acta = ActaCoordinacion::with([
+            'aprendiz.usuario',
+            'aprendiz.matriculas.ficha.programa',
+            'procesoDisciplinario',
+        ])->findOrFail($id);
+
+        $u = $acta->aprendiz?->usuario;
+        $nombre = trim(($u->nombres ?? '') . ' ' . ($u->apellidos ?? '')) ?: 'Aprendiz #' . $acta->id_aprendiz;
+        $ficha = $this->fichaDelAprendiz($acta->aprendiz);
+
+        $tipoLabel = [
+            'acondicionamiento_academico'     => 'Acondicionamiento académico',
+            'cancelacion_academica'           => 'Cancelación académica',
+            'acondicionamiento_disciplinario' => 'Acondicionamiento disciplinario',
+            'cancelacion_disciplinaria'       => 'Cancelación disciplinaria',
+        ][$acta->tipo_acta] ?? ucfirst(str_replace('_', ' ', (string) $acta->tipo_acta));
+        $estadoLabel = ['expedido' => 'Expedida', 'notificado' => 'Notificada', 'firme' => 'En firme'][$acta->estado_acta] ?? ucfirst((string) $acta->estado_acta);
+
+        $meta = [
+            ['label' => 'Número de acta', 'value' => $acta->numero_acta ?: ('#' . $acta->id_acta)],
+            ['label' => 'Aprendiz', 'value' => $nombre],
+            ['label' => 'Documento', 'value' => trim(($u->tipo_documento ?? '') . ' ' . ($u->numero_documento ?? '')) ?: '—'],
+            ['label' => 'Ficha', 'value' => $ficha ? 'Ficha ' . $ficha->numero_ficha . ' — ' . ($ficha->programa?->nombre_programa ?? '') : 'Sin ficha activa'],
+            ['label' => 'Tipo de acta', 'value' => $tipoLabel],
+            ['label' => 'Estado', 'value' => $estadoLabel],
+            ['label' => 'Generado', 'value' => Carbon::now('America/Bogota')->locale('es')->translatedFormat('d \d\e F \d\e Y, h:i A')],
+        ];
+
+        $encabezados = ['Campo', 'Detalle'];
+        $filas = [
+            ['Fecha de expedición', $acta->fecha_expedicion ? Carbon::parse($acta->fecha_expedicion)->format('d/m/Y') : '—'],
+            ['Fecha de notificación personal', $acta->fecha_notificacion_personal ? Carbon::parse($acta->fecha_notificacion_personal)->format('d/m/Y') : '—'],
+            ['Fecha de firmeza', $acta->fecha_firmeza ? Carbon::parse($acta->fecha_firmeza)->format('d/m/Y') : '—'],
+            ['Meses de inhabilitación', $acta->meses_inhabilitacion !== null ? (string) $acta->meses_inhabilitacion : '—'],
+            ['Proceso disciplinario asociado', $acta->id_proceso ? ('Proceso #' . $acta->id_proceso) : '—'],
+            ['Descripción de la sanción', $acta->sancion_descripcion ?: '—'],
+        ];
+
+        return $this->responderIndividual($formato, 'Acta de coordinación ' . ($acta->numero_acta ?: ('#' . $acta->id_acta)), 'acta-' . $acta->id_acta, $meta, $encabezados, $filas);
+    }
+
+    /**
+     * Reporte de UN proceso disciplinario específico con su historial (PDF/Excel/Word).
+     */
+    public function procesoIndividual(string $id, string $formato): Response
+    {
+        $proceso = ProcesoDisciplinario::with([
+            'aprendiz.usuario',
+            'aprendiz.matriculas.ficha.programa',
+            'llamadoAtencion',
+            'historial' => fn ($q) => $q->orderBy('fecha_registro'),
+            'historial.usuarioRegistra',
+        ])->findOrFail($id);
+
+        $u = $proceso->aprendiz?->usuario;
+        $nombre = trim(($u->nombres ?? '') . ' ' . ($u->apellidos ?? '')) ?: 'Aprendiz #' . $proceso->id_aprendiz;
+        $ficha = $this->fichaDelAprendiz($proceso->aprendiz);
+
+        $etapas = ['llamado_escrito' => 'Llamado escrito', 'acondicionamiento' => 'Condicionamiento', 'condicionamiento' => 'Condicionamiento', 'cancelacion_matricula' => 'Cancelación de matrícula', 'finalizado' => 'Finalizado'];
+        $etapaLabel = $etapas[$proceso->etapa_actual] ?? ucfirst(str_replace('_', ' ', (string) $proceso->etapa_actual));
+        $estadoLabel = ['activo' => 'Activo', 'cerrado' => 'Cerrado', 'anulado' => 'Anulado'][$proceso->estado_proceso] ?? ucfirst((string) $proceso->estado_proceso);
+
+        $meta = [
+            ['label' => 'Proceso', 'value' => '#' . $proceso->id_proceso],
+            ['label' => 'Aprendiz', 'value' => $nombre],
+            ['label' => 'Documento', 'value' => trim(($u->tipo_documento ?? '') . ' ' . ($u->numero_documento ?? '')) ?: '—'],
+            ['label' => 'Ficha', 'value' => $ficha ? 'Ficha ' . $ficha->numero_ficha . ' — ' . ($ficha->programa?->nombre_programa ?? '') : 'Sin ficha activa'],
+            ['label' => 'Etapa actual', 'value' => $etapaLabel],
+            ['label' => 'Estado', 'value' => $estadoLabel],
+            ['label' => 'Fecha de inicio', 'value' => $proceso->fecha_inicio ? Carbon::parse($proceso->fecha_inicio)->format('d/m/Y') : '—'],
+            ['label' => 'Generado', 'value' => Carbon::now('America/Bogota')->locale('es')->translatedFormat('d \d\e F \d\e Y, h:i A')],
+        ];
+
+        $encabezados = ['Fecha', 'Etapa', 'Descripción', 'Resultado', 'Registrado por'];
+        $filas = [];
+        foreach ($proceso->historial as $h) {
+            $reg = $h->usuarioRegistra;
+            $filas[] = [
+                $h->fecha_registro ? Carbon::parse($h->fecha_registro)->timezone('America/Bogota')->format('d/m/Y h:i A') : '—',
+                $etapas[$h->etapa] ?? ucfirst(str_replace('_', ' ', (string) $h->etapa)),
+                $h->descripcion ?: '—',
+                $h->resultado ?: '—',
+                $reg ? trim(($reg->nombres ?? '') . ' ' . ($reg->apellidos ?? '')) : '—',
+            ];
+        }
+        if (empty($filas)) {
+            $filas[] = ['—', $etapaLabel, $proceso->observaciones ?: 'Sin movimientos registrados.', '—', '—'];
+        }
+
+        return $this->responderIndividual($formato, 'Proceso disciplinario #' . $proceso->id_proceso . ' — ' . $nombre, 'proceso-' . $proceso->id_proceso, $meta, $encabezados, $filas);
+    }
+
+    /**
+     * Genera la respuesta (PDF imprimible / Excel / Word) para un reporte
+     * individual con su propio bloque de metadatos.
+     */
+    private function responderIndividual(string $formato, string $titulo, string $slug, array $meta, array $encabezados, array $filas): Response
+    {
+        $fecha = Carbon::now('America/Bogota')->format('Y-m-d_His');
+        $data = compact('titulo', 'meta', 'encabezados', 'filas');
+
+        if ($formato === 'pdf') {
+            return response()->view('reportes.tabla', $data + ['imprimir' => true]);
+        }
+
+        if ($formato === 'excel') {
+            $binario = \App\Support\ReporteExcel::generar($titulo, $meta, $encabezados, $filas);
+
+            return response($binario, 200, [
+                'Content-Type'        => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition' => "attachment; filename=\"{$slug}_{$fecha}.xlsx\"",
+            ]);
+        }
+
+        $html = view('reportes.tabla', $data + ['imprimir' => false])->render();
+
+        return response($html, 200, [
+            'Content-Type'        => 'application/msword; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$slug}_{$fecha}.doc\"",
+        ]);
+    }
+
     public function llamados(Request $request, string $formato): Response
     {
         $fichaFiltro = $this->fichaFiltro($request);

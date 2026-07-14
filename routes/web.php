@@ -245,6 +245,9 @@ Route::middleware('auth')->group(function () {
         Route::get('llamados/export/{formato}', [\App\Http\Controllers\CoordinacionReporteController::class, 'llamados'])->where('formato', 'pdf|excel|word')->name('llamados.export');
         Route::get('actas/export/{formato}', [\App\Http\Controllers\CoordinacionReporteController::class, 'actas'])->where('formato', 'pdf|excel|word')->name('actas.export');
         Route::get('procesos/export/{formato}', [\App\Http\Controllers\CoordinacionReporteController::class, 'procesos'])->where('formato', 'pdf|excel|word')->name('procesos.export');
+        // Exportación de UN acta / UN proceso específico (PDF, Excel o Word).
+        Route::get('actas/{acta}/export/{formato}', [\App\Http\Controllers\CoordinacionReporteController::class, 'actaIndividual'])->where('formato', 'pdf|excel|word')->name('actas.exportUno');
+        Route::get('procesos/{proceso}/export/{formato}', [\App\Http\Controllers\CoordinacionReporteController::class, 'procesoIndividual'])->where('formato', 'pdf|excel|word')->name('procesos.exportUno');
 
         // Llamados de atención
         Route::resource('llamados', LlamadoController::class)->parameters(['llamados' => 'llamado']);

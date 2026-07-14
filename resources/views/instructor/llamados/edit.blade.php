@@ -21,6 +21,7 @@
                     $aprendicesBuscador = $aprendices->map(fn($a) => [
                         'id' => $a->id_aprendiz,
                         'nombre' => trim(($a->usuario->nombres ?? '') . ' ' . ($a->usuario->apellidos ?? '')),
+                        'doc' => trim(($a->usuario->tipo_documento ?? '') . ' ' . ($a->usuario->numero_documento ?? '')),
                     ])->values();
                 @endphp
                 <div>
@@ -30,16 +31,17 @@
                             aprendices: @js($aprendicesBuscador),
                             texto: '',
                             seleccionId: '{{ old('id_aprendiz', $llamadoModel->id_aprendiz) }}',
+                            seleccionDoc: '',
                             abierto: false,
                             get sugerencias() {
                                 const q = this.texto.toLowerCase().trim();
-                                const base = q ? this.aprendices.filter(a => a.nombre.toLowerCase().includes(q)) : this.aprendices;
+                                const base = q ? this.aprendices.filter(a => a.nombre.toLowerCase().includes(q) || (a.doc || '').toLowerCase().includes(q)) : this.aprendices;
                                 return base.slice(0, 8);
                             },
-                            limpiar() { this.texto = this.texto.replace(/[0-9]/g, ''); this.seleccionId = ''; this.abierto = true; },
-                            elegir(a) { this.texto = a.nombre; this.seleccionId = a.id; this.abierto = false; }
+                            limpiar() { this.texto = this.texto.replace(/[0-9]/g, ''); this.seleccionId = ''; this.seleccionDoc = ''; this.abierto = true; },
+                            elegir(a) { this.texto = a.nombre; this.seleccionId = a.id; this.seleccionDoc = a.doc; this.abierto = false; }
                          }"
-                         x-init="if (seleccionId) { const a = aprendices.find(x => String(x.id) === String(seleccionId)); if (a) texto = a.nombre; }"
+                         x-init="if (seleccionId) { const a = aprendices.find(x => String(x.id) === String(seleccionId)); if (a) { texto = a.nombre; seleccionDoc = a.doc; } }"
                          @click.away="abierto = false">
 
                         <input type="hidden" name="id_aprendiz" :value="seleccionId">
@@ -52,8 +54,11 @@
                         <ul x-show="abierto && sugerencias.length" x-cloak
                             class="absolute z-20 mt-1 max-h-56 w-full overflow-auto rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
                             <template x-for="a in sugerencias" :key="a.id">
-                                <li @click="elegir(a)" x-text="a.nombre"
-                                    class="cursor-pointer px-3 py-2 text-sm text-gray-700 hover:bg-[#39A900]/10"></li>
+                                <li @click="elegir(a)"
+                                    class="flex cursor-pointer items-center justify-between gap-3 px-3 py-2 text-sm hover:bg-[#39A900]/10">
+                                    <span class="truncate text-gray-700" x-text="a.nombre"></span>
+                                    <span class="shrink-0 text-xs font-medium text-gray-400" x-text="a.doc"></span>
+                                </li>
                             </template>
                         </ul>
                         <p x-show="abierto && texto.length && !sugerencias.length" x-cloak
@@ -61,7 +66,8 @@
                             Sin coincidencias
                         </p>
                     </div>
-                    <p class="mt-1 text-xs text-gray-400">Escribe para buscar; solo se permiten letras.</p>
+                    <p class="mt-1 text-xs text-gray-400">Escribe para buscar por nombre o documento; solo letras en el campo.</p>
+                    <p x-show="seleccionDoc" x-cloak class="mt-1 text-xs font-semibold text-[#247200]">Documento: <span x-text="seleccionDoc"></span></p>
                 </div>
 
                 <div>

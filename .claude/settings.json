@@ -72,7 +72,25 @@
       "Bash(php -l app/Http/Controllers/ManualController.php)",
       "Bash(php -l app/Support/ManualPdf.php)",
       "Bash(cd \"c:/Users/ROMOM/Downloads/GEVLA2/GEVLA\" && echo \"=== scratchpad ===\" && ls -la \"C:/Users/ROMOM/AppData/Local/Temp/claude/c--Users-ROMOM-Downloads-GEVLA2-GEVLA/00f54656-8ff9-406e-a28a-f6de25fd1c1f/scratchpad\" 2>/dev/null | grep -iE \"png|jpg\" ; echo \"=== cualquier imagen creada hoy en Temp/AppData ===\" && find \"C:/Users/ROMOM/AppData/Local/Temp\" -maxdepth 3 \\\\\\( -iname \"*.png\" -o -iname \"*.jpg\" \\\\\\) -newermt \"2026-07-13 02:00\" 2>/dev/null | head -20; echo \"=== fin busqueda ===\")",
-      "Read(//c/Users/ROMOM/AppData/Local/Temp/**)"
+      "Read(//c/Users/ROMOM/AppData/Local/Temp/**)",
+      "WebSearch",
+      "WebFetch(domain:www.canva.com)",
+      "WebFetch(domain:www.canva.dev)",
+      "Bash(where claude *)",
+      "Bash(claude --version)",
+      "Bash(claude mcp *)",
+      "mcp__claude_ai_Canva__request-outline-review",
+      "mcp__claude_ai_Canva__resolve-shortlink",
+      "mcp__claude_ai_Canva__get-design",
+      "mcp__claude_ai_Canva__generate-design-structured",
+      "mcp__claude_ai_Canva__help",
+      "mcp__claude_ai_Canva__copy-design",
+      "mcp__claude_ai_Canva__start-editing-transaction",
+      "mcp__claude_ai_Canva__perform-editing-operations",
+      "mcp__claude_ai_Canva__commit-editing-transaction",
+      "mcp__claude_ai_Canva__get-design-content",
+      "Bash(python -c ' *)",
+      "Bash(git restore *)"
     ],
     "additionalDirectories": [
       "C:\\Users\\ROMOM\\Downloads\\GEVLA2\\GEVLA\\storage\\app\\manuales-cache"

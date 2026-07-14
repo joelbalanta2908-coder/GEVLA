@@ -137,7 +137,7 @@
                     </form>
                 @elseif($firmaCoordinacion)
                     <p class="rounded-lg bg-[#39A900]/5 px-4 py-2 text-center text-xs font-medium text-[#247200]">
-                        Firmado por Coordinación el {{ $firmaCoordinacion->fecha_firma->translatedFormat('d/m/Y, h:i a') }}
+                        Firmado por Coordinación el {{ $firmaCoordinacion->fecha_firma->timezone('America/Bogota')->translatedFormat('d/m/Y, h:i a') }}
                     </p>
                 @endif
 

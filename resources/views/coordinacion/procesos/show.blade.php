@@ -22,9 +22,17 @@
 @endphp
 
 <div class="space-y-6">
-    <a href="{{ route('coordinacion.procesos.index') }}" class="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-900">
-        ← Volver a procesos
-    </a>
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <a href="{{ route('coordinacion.procesos.index') }}" class="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-900">
+            ← Volver a procesos
+        </a>
+        @include('coordinacion._botones_exportar', [
+            'etiqueta' => 'Exportar proceso',
+            'pdfUrl'   => route('coordinacion.procesos.exportUno', ['proceso' => $proceso->id_proceso, 'formato' => 'pdf']),
+            'excelUrl' => route('coordinacion.procesos.exportUno', ['proceso' => $proceso->id_proceso, 'formato' => 'excel']),
+            'wordUrl'  => route('coordinacion.procesos.exportUno', ['proceso' => $proceso->id_proceso, 'formato' => 'word']),
+        ])
+    </div>
 
     <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <div class="flex flex-wrap items-start justify-between gap-4">

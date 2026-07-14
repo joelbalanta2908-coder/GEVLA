@@ -65,7 +65,7 @@
     @elseif(($firmaAprendiz ?? null))
         <div class="flex items-center gap-3 rounded-xl border border-[#39A900]/20 bg-[#39A900]/5 px-4 py-3 text-sm font-medium text-[#247200]">
             <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-            Firmaste este llamado el {{ $firmaAprendiz->fecha_firma->translatedFormat('d \d\e F \d\e Y \a \l\a\s h:i a') }}.
+            Firmaste este llamado el {{ $firmaAprendiz->fecha_firma->timezone('America/Bogota')->translatedFormat('d \d\e F \d\e Y \a \l\a\s h:i a') }}.
         </div>
     @endif
 

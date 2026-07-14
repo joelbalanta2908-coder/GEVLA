@@ -109,7 +109,7 @@
                     @if($f['registro'])
                         <p class="firma-meta">
                             {{ trim(($f['registro']->usuario->nombres ?? '') . ' ' . ($f['registro']->usuario->apellidos ?? '')) }}<br>
-                            Firmado el {{ $f['registro']->fecha_firma->translatedFormat('d \d\e F \d\e Y, h:i a') }}
+                            Firmado el {{ $f['registro']->fecha_firma->timezone('America/Bogota')->translatedFormat('d \d\e F \d\e Y, h:i a') }}
                         </p>
                     @else
                         <p class="firma-meta">Pendiente de firma</p>
@@ -132,7 +132,7 @@
                     <div class="firma-linea">Coordinación</div>
                     <p class="firma-meta">
                         {{ trim(($fc['registro']->usuario->nombres ?? '') . ' ' . ($fc['registro']->usuario->apellidos ?? '')) }}<br>
-                        Firmado el {{ $fc['registro']->fecha_firma->translatedFormat('d \d\e F \d\e Y, h:i a') }}
+                        Firmado el {{ $fc['registro']->fecha_firma->timezone('America/Bogota')->translatedFormat('d \d\e F \d\e Y, h:i a') }}
                     </p>
                 </td>
                 <td></td>
