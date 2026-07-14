@@ -162,12 +162,8 @@ class InstructorAprendizController extends Controller
                 'tiene_apoyo_sostenimiento' => 0,
             ]);
 
-            Matricula::create([
-                'id_aprendiz'      => $aprendiz->id_aprendiz,
-                'id_ficha'         => (int) $datos['id_ficha'],
-                'fecha_matricula'  => now()->toDateString(),
-                'estado_matricula' => 'activa',
-            ]);
+            // Matrícula única: un aprendiz no puede estar activo en dos fichas.
+            Matricula::matricularUnica($aprendiz->id_aprendiz, (int) $datos['id_ficha']);
         });
 
         return redirect()
@@ -202,20 +198,6 @@ class InstructorAprendizController extends Controller
 
         $ficha = Ficha::findOrFail($idFicha);
 
-        // Sin doble matrícula activa en otra ficha del mismo programa.
-        $conflicto = Matricula::query()
-            ->where('estado_matricula', 'activa')
-            ->where('id_aprendiz', $idAprendiz)
-            ->where('id_ficha', '!=', $ficha->id_ficha)
-            ->whereHas('ficha', fn ($q) => $q->where('id_programa', $ficha->id_programa))
-            ->exists();
-
-        if ($conflicto) {
-            return back()->withErrors([
-                'id_aprendiz' => 'Este aprendiz ya tiene una matrícula activa en otra ficha del mismo programa.',
-            ]);
-        }
-
         // Un aprendiz que también sea instructor no puede matricularse en la
         // ficha donde él mismo imparte clases.
         if ($this->aprendizEsInstructorDeFicha($idAprendiz, $ficha->id_ficha)) {
@@ -224,15 +206,16 @@ class InstructorAprendizController extends Controller
             ]);
         }
 
-        // Si ya existía matrícula (retirada/aplazada) en esta ficha se reactiva.
-        Matricula::updateOrCreate(
-            ['id_aprendiz' => $idAprendiz, 'id_ficha' => $ficha->id_ficha],
-            ['fecha_matricula' => now()->toDateString(), 'estado_matricula' => 'activa']
-        );
+        // Regla: un aprendiz no puede estar activo en dos fichas. Si ya lo estaba
+        // en otra, se traslada (se retira la anterior y se activa esta).
+        $traslado = Matricula::tieneOtraFichaActiva($idAprendiz, $ficha->id_ficha);
+        Matricula::matricularUnica($idAprendiz, $ficha->id_ficha);
 
         return redirect()
             ->route('instructor.aprendices.index')
-            ->with('success', 'Aprendiz matriculado en la ficha correctamente.');
+            ->with('success', $traslado
+                ? 'Aprendiz trasladado a tu ficha correctamente (se retiró su matrícula activa anterior).'
+                : 'Aprendiz matriculado en la ficha correctamente.');
     }
 
     /**

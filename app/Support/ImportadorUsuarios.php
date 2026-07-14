@@ -271,12 +271,8 @@ class ImportadorUsuarios
 
         $ficha = Ficha::where('numero_ficha', $r['ficha'])->where('estado_ficha', 'en_ejecucion')->firstOrFail();
 
-        Matricula::create([
-            'id_aprendiz'      => $aprendiz->id_aprendiz,
-            'id_ficha'         => $ficha->id_ficha,
-            'fecha_matricula'  => now()->toDateString(),
-            'estado_matricula' => 'activa',
-        ]);
+        // Matrícula única: un aprendiz no puede estar activo en dos fichas.
+        Matricula::matricularUnica($aprendiz->id_aprendiz, $ficha->id_ficha);
     }
 
     /** @param array<string, mixed> $datos */

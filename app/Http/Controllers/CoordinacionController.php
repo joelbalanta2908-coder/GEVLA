@@ -208,12 +208,8 @@ class CoordinacionController extends Controller
             ]);
 
             if (! empty($datos['id_ficha'])) {
-                Matricula::create([
-                    'id_aprendiz'      => $aprendiz->id_aprendiz,
-                    'id_ficha'         => (int) $datos['id_ficha'],
-                    'fecha_matricula'  => now()->toDateString(),
-                    'estado_matricula' => 'activa',
-                ]);
+                // Un aprendiz no puede estar activo en dos fichas: matrícula única.
+                Matricula::matricularUnica($aprendiz->id_aprendiz, (int) $datos['id_ficha']);
             }
 
             // Roles adicionales marcados en el formulario (Instructor y/o

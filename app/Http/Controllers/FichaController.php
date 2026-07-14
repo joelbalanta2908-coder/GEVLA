@@ -370,24 +370,8 @@ class FichaController extends Controller
 
         $ids = array_map('intval', $validated['aprendices']);
 
-        // Aprendices con matrícula activa en otra ficha del mismo programa.
-        $conflictivos = Matricula::query()
-            ->where('estado_matricula', 'activa')
-            ->whereIn('id_aprendiz', $ids)
-            ->where('id_ficha', '!=', $ficha->id_ficha)
-            ->whereHas('ficha', fn ($q) => $q->where('id_programa', $ficha->id_programa))
-            ->pluck('id_aprendiz')
-            ->unique()
-            ->all();
-
-        if (! empty($conflictivos)) {
-            return back()->withErrors([
-                'aprendices' => 'Uno o más aprendices ya tienen una matrícula activa en otra ficha del mismo programa. Retíralos de esa ficha primero.',
-            ]);
-        }
-
-        // Reverso de la misma regla: un aprendiz que también sea instructor
-        // no puede matricularse en la ficha donde él mismo imparte clases.
+        // Un aprendiz que también sea instructor no puede matricularse en la
+        // ficha donde él mismo imparte clases.
         $solapado = collect($ids)->first(fn ($id) => $this->aprendizEsInstructorDeFicha($id, $ficha->id_ficha));
         if ($solapado) {
             return back()->withErrors([
@@ -395,19 +379,25 @@ class FichaController extends Controller
             ]);
         }
 
+        // ¿Alguno estaba activo en otra ficha? Se trasladará (no puede estar en dos).
+        $trasladados = collect($ids)->filter(fn ($id) => Matricula::tieneOtraFichaActiva($id, $ficha->id_ficha))->count();
+
         DB::transaction(function () use ($ficha, $ids) {
             foreach ($ids as $idAprendiz) {
-                // Si ya existe matrícula (retirada/aplazada) se reactiva; si no, se crea.
-                Matricula::updateOrCreate(
-                    ['id_aprendiz' => $idAprendiz, 'id_ficha' => $ficha->id_ficha],
-                    ['fecha_matricula' => now()->toDateString(), 'estado_matricula' => 'activa']
-                );
+                // Matrícula única: retira cualquier matrícula activa en otra ficha
+                // (traslado) y activa la de esta ficha; si ya existía, la reactiva.
+                Matricula::matricularUnica($idAprendiz, $ficha->id_ficha);
             }
         });
 
+        $mensaje = 'Aprendiz(ces) matriculado(s) en la ficha correctamente.';
+        if ($trasladados > 0) {
+            $mensaje .= " Se trasladó a {$trasladados} aprendiz(ces) desde su ficha activa anterior.";
+        }
+
         return redirect()
             ->route('coordinacion.fichas.show', $ficha)
-            ->with('success', 'Aprendiz(ces) matriculado(s) en la ficha correctamente.');
+            ->with('success', $mensaje);
     }
 
     /**
