@@ -48,7 +48,7 @@
         <tr><td class="n">13</td><td>Firmas digitales</td></tr>
         <tr><td class="n">14</td><td>Generación de documentos y reportes</td></tr>
         <tr><td class="n">15</td><td>Notificaciones por correo</td></tr>
-        <tr><td class="n">16</td><td>Consideraciones de despliegue</td></tr>
+        <tr><td class="n">16</td><td>Base de datos, descarga e implementación</td></tr>
         <tr><td class="n">17</td><td>Mantenimiento</td></tr>
         <tr><td class="n">18</td><td>Procedimientos para futuras actualizaciones</td></tr>
         <tr><td class="n">19</td><td>Recomendaciones</td></tr>
@@ -325,26 +325,138 @@
 </div>
 
 {{-- ============================ 16. DESPLIEGUE ============================ --}}
-<h1 class="capitulo"><span class="num">16.</span> Consideraciones de despliegue</h1>
-<h2>Requisitos del servidor</h2>
-<ul>
-    <li>PHP 8.2 o superior con extensiones habilitadas (incluida <code>gd</code> para Dompdf).</li>
-    <li>MariaDB / MySQL (entorno XAMPP en desarrollo).</li>
-    <li>Composer y Node.js (para dependencias y compilación de assets).</li>
-    <li>Servidor web Apache (incluido en XAMPP).</li>
-</ul>
-<h2>Puesta en marcha</h2>
-<table class="pasos">
-    <tr><td class="paso">1</td><td>Clonar el repositorio y ubicarlo en el directorio del servidor.</td></tr>
-    <tr><td class="paso">2</td><td>Ejecutar <code>composer install</code> (instala Dompdf, PhpSpreadsheet y demás dependencias).</td></tr>
-    <tr><td class="paso">3</td><td>Copiar <code>.env</code> y configurar base de datos y correo; generar la clave con <code>php artisan key:generate</code>.</td></tr>
-    <tr><td class="paso">4</td><td>Crear la base de datos e importar los módulos SQL de <code>database/sql</code> desde phpMyAdmin.</td></tr>
-    <tr><td class="paso">5</td><td>Ejecutar <code>npm install</code> y <code>npm run build</code> para compilar los estilos.</td></tr>
-    <tr><td class="paso">6</td><td>Habilitar <code>extension=gd</code> en <code>php.ini</code> y reiniciar Apache.</td></tr>
+<h1 class="capitulo"><span class="num">16.</span> Base de datos, descarga e implementación</h1>
+<p>
+    Este capítulo explica, de forma detallada, cómo cualquier usuario técnico puede descargar, instalar y poner en
+    funcionamiento GEVLA en su propio equipo, desde cero. Está pensado para el entorno de desarrollo/pruebas sobre
+    <b>Windows con XAMPP</b>, que es el usado en el proyecto.
+</p>
+
+<h2>16.1 Descarga del proyecto y la base de datos</h2>
+<p>
+    El código fuente completo del sistema (comprimido en un archivo <b>.ZIP</b>) y el respaldo de la base de datos
+    <code>sena_disciplinario</code> (archivo <b>.SQL</b>) se encuentran alojados en la siguiente carpeta de Google Drive:
+</p>
+<div class="caja caja-info">
+    <b>Repositorio del proyecto y base de datos (Google Drive):</b><br>
+    <a href="https://drive.google.com/drive/folders/1LindWmmy5B7vwRIFN1C5-bEzptZ8fdfG?usp=sharing" style="color:#00324d; word-break:break-all;">https://drive.google.com/drive/folders/1LindWmmy5B7vwRIFN1C5-bEzptZ8fdfG</a><br>
+    <span style="color:#55655c;">Contiene: el ZIP con todo el proyecto (código fuente + dependencias) y el archivo SQL de la base de datos.</span>
+</div>
+<p>
+    Se recomienda descargar <b>ambos archivos</b> (el ZIP del proyecto y el .SQL de la base de datos) antes de empezar,
+    y guardarlos en una carpeta temporal de fácil acceso (por ejemplo, la carpeta <b>Descargas</b>).
+</p>
+
+<h2>16.2 Requisitos previos (software a instalar)</h2>
+<p>Antes de desplegar el sistema, cada usuario debe tener instalado el siguiente software en su equipo:</p>
+<table class="datos">
+    <tr><th>Software</th><th>Para qué sirve</th><th>Dónde se obtiene</th></tr>
+    <tr><td class="clave">XAMPP</td><td>Paquete que incluye Apache, MariaDB/MySQL, PHP y phpMyAdmin. Es el corazón del entorno.</td><td>apachefriends.org (versión con PHP 8.2 o superior).</td></tr>
+    <tr class="alt"><td class="clave">Composer</td><td>Gestor de dependencias de PHP (instala Laravel, Dompdf, PhpSpreadsheet, etc.).</td><td>getcomposer.org</td></tr>
+    <tr><td class="clave">Node.js + npm</td><td>Compila los estilos (Tailwind) y los assets del frontend con Vite.</td><td>nodejs.org (versión LTS).</td></tr>
+    <tr class="alt"><td class="clave">Navegador web</td><td>Para usar el sistema (Chrome, Edge o Firefox actualizados).</td><td>Preinstalado en el sistema operativo.</td></tr>
 </table>
+<div class="caja">
+    <b>Nota:</b> con <b>XAMPP</b> ya quedan cubiertos el servidor web (Apache), el gestor de base de datos
+    (MariaDB/MySQL + phpMyAdmin) y PHP. Composer y Node.js solo son necesarios si se instala desde el código fuente
+    (recomendado); si se usa el ZIP con las dependencias ya incluidas, Composer puede no ser indispensable.
+</div>
+
+<h2>16.3 Requisitos de la base de datos</h2>
+<table class="datos">
+    <tr><th>Requisito</th><th>Descripción</th></tr>
+    <tr><td class="clave">Gestor de base de datos</td><td>Motor <b>MariaDB o MySQL</b> con un administrador como <b>phpMyAdmin</b> (ambos incluidos en XAMPP) para crear la base de datos e importar el archivo SQL.</td></tr>
+    <tr class="alt"><td class="clave">PHP</td><td>Intérprete <b>PHP 8.2 o superior</b>, con la extensión <code>gd</code> habilitada (necesaria para que Dompdf genere los PDF con imágenes).</td></tr>
+    <tr><td class="clave">Nombre de la base</td><td><code>sena_disciplinario</code> (debe coincidir con el valor de <code>DB_DATABASE</code> del archivo <code>.env</code>).</td></tr>
+    <tr class="alt"><td class="clave">Motor de tablas</td><td><b>InnoDB</b> (para respetar las claves foráneas y la integridad referencial del esquema).</td></tr>
+</table>
+
+<h2>16.4 Instalación paso a paso</h2>
+
+<h3>A. Preparar el entorno</h3>
+<table class="pasos">
+    <tr><td class="paso">1</td><td>Instalar <b>XAMPP</b>. Abrir el <b>Panel de control de XAMPP</b> e iniciar los módulos <b>Apache</b> y <b>MySQL</b> (deben quedar en verde).</td></tr>
+    <tr><td class="paso">2</td><td>Descargar de Drive el <b>ZIP del proyecto</b> y descomprimirlo dentro de <code>C:\xampp\htdocs\GEVLA</code>.</td></tr>
+</table>
+
+<h3>B. Montar la base de datos</h3>
+<table class="pasos">
+    <tr><td class="paso">3</td><td>Abrir <b>phpMyAdmin</b> en el navegador: <code>http://localhost/phpmyadmin</code>.</td></tr>
+    <tr><td class="paso">4</td><td>Crear una base de datos nueva llamada <b>exactamente</b> <code>sena_disciplinario</code> (cotejamiento <code>utf8mb4_unicode_ci</code>).</td></tr>
+    <tr><td class="paso">5</td><td>Con esa base seleccionada, ir a la pestaña <b>Importar</b>, elegir el archivo <b>.SQL</b> descargado de Drive y presionar <b>Continuar</b>. Al terminar, deben aparecer todas las tablas del esquema.</td></tr>
+</table>
+
+<h3>C. Configurar el proyecto</h3>
+<table class="pasos">
+    <tr><td class="paso">6</td><td>En la carpeta del proyecto, copiar el archivo <code>.env.example</code> y renombrar la copia como <code>.env</code>.</td></tr>
+    <tr><td class="paso">7</td><td>Editar el <code>.env</code> con los datos de conexión a la base de datos y del correo (ver <b>16.5</b>).</td></tr>
+    <tr><td class="paso">8</td><td>Abrir una terminal en la carpeta del proyecto y ejecutar <code>composer install</code> (instala Dompdf, PhpSpreadsheet y demás dependencias).</td></tr>
+    <tr><td class="paso">9</td><td>Ejecutar <code>php artisan key:generate</code> para generar la clave de cifrado de la aplicación.</td></tr>
+    <tr><td class="paso">10</td><td>Ejecutar <code>npm install</code> y luego <code>npm run build</code> para compilar los estilos (Tailwind) y los assets.</td></tr>
+    <tr><td class="paso">11</td><td>Habilitar la extensión <code>gd</code>: en <code>C:\xampp\php\php.ini</code> quitar el punto y coma de la línea <code>;extension=gd</code> (dejarla como <code>extension=gd</code>) y <b>reiniciar Apache</b>.</td></tr>
+</table>
+
+<h3>D. Ejecutar el sistema</h3>
+<table class="pasos">
+    <tr><td class="paso">12</td><td>Abrir el sistema en el navegador. Dos opciones: con Apache, entrar a <code>http://localhost/GEVLA/public</code>; o con el servidor de Laravel, ejecutar <code>php artisan serve</code> y entrar a <code>http://127.0.0.1:8000</code>.</td></tr>
+    <tr><td class="paso">13</td><td>Iniciar sesión con un usuario registrado en la base de datos (correo y contraseña). La contraseña inicial de las cuentas creadas es el número de documento.</td></tr>
+</table>
+
+<h2>16.5 Configuración del archivo .env</h2>
+<p>El archivo <code>.env</code> contiene la configuración del entorno. Los bloques más importantes son la conexión a la base de datos y el correo:</p>
+<div class="bloque-codigo">
+# Base de datos<br>
+DB_CONNECTION=mysql<br>
+DB_HOST=127.0.0.1<br>
+DB_PORT=3306<br>
+DB_DATABASE=sena_disciplinario<br>
+DB_USERNAME=root<br>
+DB_PASSWORD=<br>
+<br>
+# Correo (PHPMailer / SMTP)<br>
+MAIL_HOST=smtp.gmail.com<br>
+MAIL_PORT=587<br>
+MAIL_USERNAME=tu_correo@gmail.com<br>
+MAIL_PASSWORD=clave_de_aplicacion<br>
+MAIL_FROM_ADDRESS=tu_correo@gmail.com<br>
+MAIL_VERIFICAR_TLS=false
+</div>
+<table class="datos">
+    <tr><th>Variable</th><th>Qué poner</th></tr>
+    <tr><td class="clave">DB_DATABASE</td><td>El nombre de la base creada: <code>sena_disciplinario</code>.</td></tr>
+    <tr class="alt"><td class="clave">DB_USERNAME / DB_PASSWORD</td><td>Usuario y contraseña de MySQL. En XAMPP por defecto es <code>root</code> sin contraseña.</td></tr>
+    <tr><td class="clave">MAIL_*</td><td>Datos del correo que envía las notificaciones. Con Gmail se usa una <b>contraseña de aplicación</b>, no la clave normal.</td></tr>
+    <tr class="alt"><td class="clave">MAIL_VERIFICAR_TLS</td><td>En <code>false</code> si un antivirus intercepta el TLS e impide el envío; existe también un modo de prueba que escribe el correo en el log.</td></tr>
+</table>
+
+<h2>16.6 Verificación de la instalación</h2>
+<p>Para confirmar que todo quedó bien montado, revise:</p>
+<ul>
+    <li>En el panel de XAMPP, <b>Apache</b> y <b>MySQL</b> están iniciados (en verde).</li>
+    <li>En phpMyAdmin, la base <code>sena_disciplinario</code> muestra todas sus tablas con datos.</li>
+    <li>La página de <b>inicio de sesión</b> de GEVLA carga con estilos (si se ve sin diseño, faltó <code>npm run build</code>).</li>
+    <li>Se puede <b>iniciar sesión</b> y ver el panel del rol.</li>
+    <li>Al descargar un <b>documento PDF</b> o un <b>reporte</b>, el archivo se genera correctamente (confirma que <code>gd</code> está habilitada).</li>
+</ul>
+
+<h2>16.7 Solución de problemas comunes</h2>
+<table class="datos">
+    <tr><th>Problema</th><th>Causa y solución</th></tr>
+    <tr><td class="clave">La página se ve sin estilos</td><td>No se compilaron los assets. Ejecutar <code>npm install</code> y <code>npm run build</code>, y recargar con Ctrl+F5.</td></tr>
+    <tr class="alt"><td class="clave">"The PHP GD extension is required"</td><td>Falta habilitar <code>gd</code>. Editar <code>php.ini</code> (<code>extension=gd</code>) y reiniciar Apache.</td></tr>
+    <tr><td class="clave">"could not find driver" / error de conexión a BD</td><td>Habilitar <code>extension=pdo_mysql</code> en <code>php.ini</code> y verificar los datos de <code>DB_*</code> en el <code>.env</code>.</td></tr>
+    <tr class="alt"><td class="clave">Composer: "curl error 60" (SSL)</td><td>Un antivirus intercepta el certificado. Configurar el <code>cafile</code> de Composer con los certificados del sistema.</td></tr>
+    <tr><td class="clave">MySQL no inicia en XAMPP</td><td>Puerto 3306 ocupado o datos InnoDB corruptos. Liberar el puerto o restaurar el <i>data dir</i> desde un respaldo.</td></tr>
+    <tr class="alt"><td class="clave">No llegan los correos</td><td>Revisar credenciales SMTP, usar contraseña de aplicación y ajustar <code>MAIL_VERIFICAR_TLS=false</code>; o usar el modo de prueba (log).</td></tr>
+    <tr><td class="clave">"No application encryption key"</td><td>No se generó la clave. Ejecutar <code>php artisan key:generate</code>.</td></tr>
+    <tr class="alt"><td class="clave">Cambios de vistas no se reflejan</td><td>Limpiar caché: <code>php artisan optimize:clear</code> (o <code>view:clear</code>).</td></tr>
+</table>
+
 <div class="caja caja-alerta">
-    <b>Recordatorio para el equipo:</b> tras cada actualización que traiga cambios de dependencias, estilos o
-    esquema, ejecutar <code>composer install</code>, <code>npm run build</code> e importar los nuevos módulos SQL.
+    <b>Importante:</b> el archivo <b>.SQL</b> de Drive ya incluye todas las tablas del esquema (equivalente a los
+    módulos SQL de <code>database/sql</code>), por lo que al importarlo la base queda lista para usarse. Tras cada
+    actualización del proyecto, vuelva a ejecutar <code>composer install</code>, <code>npm run build</code> e importe
+    la versión más reciente de la base de datos desde Drive.
 </div>
 
 {{-- ============================ 17. MANTENIMIENTO ============================ --}}
