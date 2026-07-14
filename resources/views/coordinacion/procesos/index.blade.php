@@ -56,7 +56,7 @@
 
         <select name="etapa_actual" data-live class="rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
             <option value="">Etapa: todas</option>
-            @foreach(['llamado_escrito' => 'Llamado escrito', 'acondicionamiento' => 'Condicionamiento', 'cancelacion_matricula' => 'Cancelación de matrícula', 'finalizado' => 'Finalizado'] as $etapa => $etiquetaEtapa)
+            @foreach(['llamado_escrito' => 'Llamado escrito', 'condicionamiento' => 'Condicionamiento', 'cancelacion_matricula' => 'Cancelación de matrícula', 'finalizado' => 'Finalizado'] as $etapa => $etiquetaEtapa)
                 <option value="{{ $etapa }}" @selected(request('etapa_actual') == $etapa)>{{ $etiquetaEtapa }}</option>
             @endforeach
         </select>
@@ -89,7 +89,7 @@
                         <td class="px-5 py-3 font-medium text-gray-900" data-label="Aprendiz">
                             {{ $proceso->aprendiz->usuario->nombres }} {{ $proceso->aprendiz->usuario->apellidos }}
                         </td>
-                        <td class="px-5 py-3 text-gray-600" data-label="Etapa actual">{{ ['llamado_escrito' => 'Llamado escrito', 'acondicionamiento' => 'Condicionamiento', 'cancelacion_matricula' => 'Cancelación de matrícula', 'finalizado' => 'Finalizado'][$proceso->etapa_actual] ?? ucfirst(str_replace('_', ' ', (string) $proceso->etapa_actual)) }}</td>
+                        <td class="px-5 py-3 text-gray-600" data-label="Etapa actual">{{ ['llamado_escrito' => 'Llamado escrito', 'condicionamiento' => 'Condicionamiento', 'cancelacion_matricula' => 'Cancelación de matrícula', 'finalizado' => 'Finalizado'][$proceso->etapa_actual] ?? ucfirst(str_replace('_', ' ', (string) $proceso->etapa_actual)) }}</td>
                         <td class="px-5 py-3 text-gray-600" data-label="Inicio">{{ \Carbon\Carbon::parse($proceso->fecha_inicio)->format('d/m/Y') }}</td>
                         <td class="px-5 py-3" data-label="Estado">
                             <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $estadoBadge }}">{{ ucfirst($proceso->estado_proceso) }}</span>

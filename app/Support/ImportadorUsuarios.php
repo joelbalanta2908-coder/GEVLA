@@ -172,16 +172,15 @@ class ImportadorUsuarios
             }
 
             // Tipo de documento: por etiqueta (desplegable) o por código.
-            if ($this->codigoTipoDocumento($r['tipo_doc']) === null) {
+            $tipoDocumento = $this->codigoTipoDocumento($r['tipo_doc']);
+            if ($tipoDocumento === null) {
                 $errores[] = ['fila' => $fila, 'campo' => 'Tipo de documento', 'mensaje' => $r['tipo_doc'] === '' ? 'Es obligatorio.' : 'Valor inválido: usa la lista desplegable de la plantilla.'];
             }
 
-            // Número de documento: letras y números (p. ej. pasaporte), sin
-            // espacios ni caracteres especiales.
-            if ($r['documento'] === '') {
-                $errores[] = ['fila' => $fila, 'campo' => 'Número de documento', 'mensaje' => 'Es obligatorio.'];
-            } elseif (! preg_match('/^[A-Za-z0-9]{6,10}$/', $r['documento'])) {
-                $errores[] = ['fila' => $fila, 'campo' => 'Número de documento', 'mensaje' => 'Debe contener entre 6 y 10 caracteres, solo letras y números (sin espacios ni caracteres especiales).'];
+            // Número de documento: valida según el tipo (CC/TI/CE/PEP vs PPT/PA).
+            $errorDocumento = $this->validarNumeroDocumento($r['documento'], $tipoDocumento);
+            if ($errorDocumento !== null) {
+                $errores[] = ['fila' => $fila, 'campo' => 'Número de documento', 'mensaje' => $errorDocumento];
             } elseif (isset($documentosVistos[$r['documento']])) {
                 $errores[] = ['fila' => $fila, 'campo' => 'Número de documento', 'mensaje' => 'Está repetido dentro del archivo (también aparece en la fila ' . $documentosVistos[$r['documento']] . ').'];
             } elseif (Usuario::where('numero_documento', $r['documento'])->exists()) {
@@ -325,6 +324,31 @@ class ImportadorUsuarios
         foreach (PlantillaImportacion::TIPOS_DOCUMENTO as $codigo => $etiqueta) {
             if ($this->normalizarEncabezado($etiqueta) === $this->normalizarEncabezado($valor)) {
                 return $codigo;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Valida el número de documento según su tipo.
+     * Retorna el mensaje de error o null si es válido.
+     */
+    private function validarNumeroDocumento(string $documento, ?string $tipoDocumento): ?string
+    {
+        if ($documento === '') {
+            return 'Es obligatorio.';
+        }
+
+        if (in_array($tipoDocumento, ['CC', 'TI', 'CE', 'PEP'], true)) {
+            // Solo números, entre 6 y 10 dígitos
+            if (! preg_match('/^[0-9]{6,10}$/', $documento)) {
+                return 'Debe contener entre 6 y 10 dígitos numéricos, sin espacios ni caracteres especiales.';
+            }
+        } else {
+            // Para PPT y PA (Pasaporte): alfanuméricos, entre 6 y 20 caracteres
+            if (! preg_match('/^[A-Za-z0-9]{6,20}$/', $documento)) {
+                return 'Debe contener entre 6 y 20 caracteres alfanuméricos, sin espacios ni caracteres especiales.';
             }
         }
 

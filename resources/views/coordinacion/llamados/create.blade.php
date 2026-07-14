@@ -50,7 +50,7 @@
                     <label class="block text-sm font-bold text-gray-700">Tipo de llamado</label>
                     <select name="tipo_llamado" required class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
                         <option value="llamado_escrito" @selected(old('tipo_llamado') == 'llamado_escrito')>Llamado escrito</option>
-                        <option value="acondicionamiento" @selected(old('tipo_llamado') == 'acondicionamiento')>Acondicionamiento</option>
+                        <option value="condicionamiento" @selected(old('tipo_llamado') == 'condicionamiento')>Condicionamiento</option>
                         <option value="cancelacion_matricula" @selected(old('tipo_llamado') == 'cancelacion_matricula')>Cancelación de matrícula</option>
                     </select>
                 </div>

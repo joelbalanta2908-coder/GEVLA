@@ -64,9 +64,9 @@ class LlamadoAtencion extends Model
     |--------------------------------------------------------------------------
     */
 
-    // Campo `tipo_llamado` enum('llamado_escrito','acondicionamiento','cancelacion_matricula')
+    // Campo `tipo_llamado` enum('llamado_escrito','condicionamiento','cancelacion_matricula')
     public const TIPO_LLAMADO_ESCRITO   = 'llamado_escrito';
-    public const TIPO_ACONDICIONAMIENTO = 'acondicionamiento';
+    public const TIPO_ACONDICIONAMIENTO = 'condicionamiento';
     public const TIPO_CANCELACION       = 'cancelacion_matricula';
 
     // Campo `categoria` enum('academico','disciplinario')
@@ -100,7 +100,7 @@ class LlamadoAtencion extends Model
     {
         return [
             self::TIPO_LLAMADO_ESCRITO   => 'Llamado escrito',
-            self::TIPO_ACONDICIONAMIENTO => 'Acondicionamiento',
+            self::TIPO_ACONDICIONAMIENTO => 'Condicionamiento',
             self::TIPO_CANCELACION       => 'Cancelación de matrícula',
         ];
     }

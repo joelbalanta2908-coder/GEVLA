@@ -116,7 +116,7 @@ class CoordinacionReporteController extends Controller
             $filas->push(['orden' => (string) $p->fecha_inicio, 'fila' => [
                 'Proceso disciplinario',
                 Carbon::parse($p->fecha_inicio)->format('d/m/Y'),
-                'Etapa: ' . (['llamado_escrito' => 'Llamado escrito', 'acondicionamiento' => 'Condicionamiento', 'cancelacion_matricula' => 'Cancelación de matrícula', 'finalizado' => 'Finalizado'][$p->etapa_actual] ?? ucfirst((string) $p->etapa_actual)),
+                'Etapa: ' . (['llamado_escrito' => 'Llamado escrito', 'condicionamiento' => 'Condicionamiento', 'cancelacion_matricula' => 'Cancelación de matrícula', 'finalizado' => 'Finalizado'][$p->etapa_actual] ?? ucfirst((string) $p->etapa_actual)),
                 ucfirst((string) $p->estado_proceso),
             ]]);
         }

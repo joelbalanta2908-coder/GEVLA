@@ -116,7 +116,7 @@ class ProcesoController extends Controller
             'id_aprendiz'    => ['required', 'integer', 'exists:aprendiz,id_aprendiz'],
             'id_llamado'     => ['nullable', 'integer', 'exists:llamado_atencion,id_llamado'],
             'fecha_inicio'   => ['required', 'date'],
-            'etapa_actual'   => ['required', Rule::in(['llamado_escrito', 'acondicionamiento', 'cancelacion_matricula'])],
+            'etapa_actual'   => ['required', Rule::in(['llamado_escrito', 'condicionamiento', 'cancelacion_matricula'])],
             'estado_proceso' => ['required', Rule::in(['activo', 'suspendido', 'finalizado', 'apelacion'])],
             'observaciones'  => ['nullable', 'string'],
         ]);
@@ -191,7 +191,7 @@ class ProcesoController extends Controller
             'id_aprendiz'    => ['required', 'integer', 'exists:aprendiz,id_aprendiz'],
             'id_llamado'     => ['nullable', 'integer', 'exists:llamado_atencion,id_llamado'],
             'fecha_inicio'   => ['required', 'date'],
-            'etapa_actual'   => ['required', Rule::in(['llamado_escrito', 'acondicionamiento', 'cancelacion_matricula'])],
+            'etapa_actual'   => ['required', Rule::in(['llamado_escrito', 'condicionamiento', 'cancelacion_matricula'])],
             'estado_proceso' => ['required', Rule::in(['activo', 'suspendido', 'finalizado', 'apelacion'])],
             'observaciones'  => ['nullable', 'string'],
         ]);
@@ -212,7 +212,7 @@ class ProcesoController extends Controller
 
         $validated = $request->validate([
             'etapa'       => ['required', Rule::in([
-                'llamado_escrito', 'acondicionamiento', 'cancelacion_matricula',
+                'llamado_escrito', 'condicionamiento', 'cancelacion_matricula',
             ])],
             'descripcion' => ['required', 'string'],
             'resultado'   => ['nullable', 'string', 'max:255'],

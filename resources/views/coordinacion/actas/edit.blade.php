@@ -42,9 +42,9 @@
                 <div>
                     <label class="block text-sm font-bold text-gray-700">Tipo de acta</label>
                     <select name="tipo_acta" required class="mt-1 w-full rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
-                        <option value="acondicionamiento_academico" @selected(old('tipo_acta', $acta->tipo_acta) == 'acondicionamiento_academico')>Acondicionamiento académico</option>
+                        <option value="condicionamiento_academico" @selected(old('tipo_acta', $acta->tipo_acta) == 'condicionamiento_academico')>Condicionamiento académico</option>
                         <option value="cancelacion_academica" @selected(old('tipo_acta', $acta->tipo_acta) == 'cancelacion_academica')>Cancelación académica</option>
-                        <option value="acondicionamiento_disciplinario" @selected(old('tipo_acta', $acta->tipo_acta) == 'acondicionamiento_disciplinario')>Acondicionamiento disciplinario</option>
+                        <option value="condicionamiento_disciplinario" @selected(old('tipo_acta', $acta->tipo_acta) == 'condicionamiento_disciplinario')>Condicionamiento disciplinario</option>
                         <option value="cancelacion_disciplinaria" @selected(old('tipo_acta', $acta->tipo_acta) == 'cancelacion_disciplinaria')>Cancelación disciplinaria</option>
                     </select>
                 </div>

@@ -146,9 +146,9 @@ class ActaController extends Controller
             'id_aprendiz'          => ['required', 'integer', 'exists:aprendiz,id_aprendiz'],
             'id_falta'             => ['required', 'integer', 'exists:falta,id_falta'],
             'tipo_acta'            => ['required', Rule::in([
-                'acondicionamiento_academico',
+                'condicionamiento_academico',
                 'cancelacion_academica',
-                'acondicionamiento_disciplinario',
+                'condicionamiento_disciplinario',
                 'cancelacion_disciplinaria',
             ])],
             'fecha_expedicion'     => ['required', 'date'],
@@ -230,9 +230,9 @@ class ActaController extends Controller
             'id_aprendiz'                 => ['required', 'integer', 'exists:aprendiz,id_aprendiz'],
             'id_falta'                    => ['required', 'integer', 'exists:falta,id_falta'],
             'tipo_acta'                   => ['required', Rule::in([
-                'acondicionamiento_academico',
+                'condicionamiento_academico',
                 'cancelacion_academica',
-                'acondicionamiento_disciplinario',
+                'condicionamiento_disciplinario',
                 'cancelacion_disciplinaria',
             ])],
             'numero_acta'                 => ['required', 'string', 'max:30', Rule::unique('acta_coordinacion', 'numero_acta')->ignore($actaModel->id_acta, 'id_acta')],

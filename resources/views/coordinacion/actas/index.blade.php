@@ -7,7 +7,7 @@
 
     <div>
         <h2 class="text-2xl font-bold text-gray-900">Actas de coordinación</h2>
-        <p class="text-gray-500">Acondicionamientos y cancelaciones expedidas por coordinación.</p>
+        <p class="text-gray-500">Condicionamientos y cancelaciones expedidas por coordinación.</p>
     </div>
 
     {{-- Selector de reporte, botones de exportación y «Expedir nueva acta» en la misma fila --}}
@@ -58,7 +58,7 @@
     <form method="GET" class="flex flex-wrap gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
         <select name="tipo_acta" class="rounded-lg border border-gray-300 text-sm focus:border-[#39A900] focus:ring-[#39A900] px-3 py-2">
             <option value="">Tipo: todas</option>
-            @foreach(['acondicionamiento_academico','cancelacion_academica','acondicionamiento_disciplinario','cancelacion_disciplinaria'] as $tipo)
+            @foreach(['condicionamiento_academico','cancelacion_academica','condicionamiento_disciplinario','cancelacion_disciplinaria'] as $tipo)
                 <option value="{{ $tipo }}" @selected(request('tipo_acta') == $tipo)>
                     {{ str($tipo)->replace('_',' ')->ucfirst() }}
                 </option>

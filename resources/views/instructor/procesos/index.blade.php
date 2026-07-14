@@ -36,7 +36,7 @@
                             @endphp
                             <tr class="hover:bg-gray-50/50">
                                 <td class="px-6 py-4 font-medium text-gray-900" data-label="Aprendiz">{{ optional(optional($proceso->aprendiz)->usuario)->nombres }} {{ optional(optional($proceso->aprendiz)->usuario)->apellidos }}</td>
-                                <td class="px-6 py-4" data-label="Etapa actual">{{ ['llamado_escrito' => 'Llamado escrito', 'acondicionamiento' => 'Condicionamiento', 'cancelacion_matricula' => 'Cancelación de matrícula', 'finalizado' => 'Finalizado'][$proceso->etapa_actual] ?? ucfirst(str_replace('_', ' ', (string) $proceso->etapa_actual)) }}</td>
+                                <td class="px-6 py-4" data-label="Etapa actual">{{ ['llamado_escrito' => 'Llamado escrito', 'condicionamiento' => 'Condicionamiento', 'cancelacion_matricula' => 'Cancelación de matrícula', 'finalizado' => 'Finalizado'][$proceso->etapa_actual] ?? ucfirst(str_replace('_', ' ', (string) $proceso->etapa_actual)) }}</td>
                                 <td class="px-6 py-4" data-label="Inicio">{{ \Illuminate\Support\Carbon::parse($proceso->fecha_inicio)->format('d/m/Y') }}</td>
                                 <td class="px-6 py-4" data-label="Llamado origen">{{ optional($proceso->llamadoAtencion)->asunto ?? '—' }}</td>
                                 <td class="px-6 py-4" data-label="Estado">
